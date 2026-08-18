@@ -66,7 +66,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # No NPM_TOKEN: publishes via npm Trusted Publishing (OIDC), using the
+      # id-token: write permission above. Requires the "Continuous-Drivenarchitecture/adapter-xma"
+      # + this workflow file to be registered as a Trusted Publisher on the
+      # @cda/adapter-xma package on npmjs.com (Package settings -> Trusted Publisher).
       - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
