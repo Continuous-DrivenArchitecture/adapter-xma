@@ -98,11 +98,26 @@ stays explicit about which claims are backed by which evidence:
      confirmed for the verbs Realisation and Influence (two fixtures, two
      verbs, same pattern — see "Junction element and Connectors container"
      below) — same rule, not extended past those two verbs without evidence.
-   - Both forms are appended to a root-level `<ArchiMate:Relations>`
-     container (a sibling of `AbstractSchemes` under `ArchiMateComponent`),
-     never inside a layer scheme — confirmed directly: every generic-form
-     relation instance in both fixtures appears there, never nested in
-     `BusinessScheme`/`ApplicationScheme`/etc.
+   - **Correction (found after initial implementation shipped a real bug):**
+     both forms are **not** confined to a root-level container. Every
+     relation — exact-triple or generic — is appended to its **source
+     element's own scheme's** `<ArchiMate:Relations>` collection; only a
+     `Junction`/`OrJunction` source (which has no scheme) falls back to the
+     root-level `<ArchiMate:Relations>` (a sibling of `AbstractSchemes`).
+     Confirmed by tracing three generic-form relations' `from` id to its
+     defining element in `agile-manifesto.xma`: an `ApplicationComponent`-
+     sourced `ElementElementAssociation` sits inside `ApplicationScheme`'s own
+     `Relations`, alongside ordinary exact-triple relations
+     (`ApplicationComponentBusinessProcessRealisation`, etc); a
+     `CompositeGrouping`-sourced `GroupingElementComposition` sits inside
+     `CompositeScheme`'s; only the one relation sourced from the model's
+     `Junction` sits at the document root. The original claim above ("never
+     inside a layer scheme") was wrong — it was checked against the
+     `.archimate` source's own generic-relationship *type*, not against where
+     each specific relation instance actually landed in the real `.xma`, and
+     shipped a document Enterprise Studio rejected outright ("could not
+     generate the object: unknown type") for any model with a generic-form
+     relation outside the narrow case tested. Fixed in `relationship-writer.ts`.
 3. **A handful of concrete types collapse to a coarser XMA "category" only
    for relationship-type naming** — distinct from their own element mapping
    in `element-mapping.ts`, and *not* generic (still an exact-triple lookup,
@@ -147,7 +162,19 @@ lives in the separate `junctionType` field) has two XMA element forms,
 `ArchiMate:Junction` (AND) and `ArchiMate:OrJunction` (OR), living in a
 root-level `<ArchiMate:Connectors>` container — a sibling of
 `<ArchiMate:Relations>` under `ArchiMateComponent`, in that order
-(`Relations` first, then `Connectors`), neither inside any layer scheme.
+(`Relations` first, then `Connectors`). Unlike `Relations` (see the
+correction above — every *other* scheme also has its own `Relations`
+collection), `Connectors` really is root-only: `Junction`/`OrJunction` are
+the only element types with no layer scheme of their own to live in instead.
+
+Every `ArchiMate:{collection}` element — a layer scheme's typed collections
+(`ApplicationComponents`, `BusinessProcesses`, ...) and every `Relations`
+collection alike — carries its own `id` attribute, confirmed directly (e.g.
+`ApplicationComponents id="222"`, `BusinessProcesses id="70"`, `Relations
+id="72"`). This was also missed by the initial implementation (both were
+rendered with no `id` at all) and, like the Relations mis-nesting above, was
+rejected outright by Enterprise Studio rather than merely losing content.
+Fixed in `semantic-writer.ts`'s `renderSchemeChildren`.
 
 Graphically, a Junction node is confirmed structurally different from every
 other element node: `mm_graphicType="3"` (not the usual `"5"`), and no

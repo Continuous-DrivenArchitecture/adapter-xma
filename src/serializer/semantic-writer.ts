@@ -163,8 +163,15 @@ export function buildSemanticElements(
  * caller wraps these in the actual `<ArchiMate:{schemeTag} id="...">`
  * element, since only the caller (`document-writer`) knows the scheme's
  * allocated id.
+ *
+ * Every collection element (including `Relations`) carries its own `id` —
+ * confirmed against the real fixture (e.g. `ApplicationComponents id="222"`,
+ * `Relations id="72"`), unlike a bare element concept which doesn't need one
+ * beyond its own. Previously omitted here; Enterprise Studio rejected the
+ * resulting document outright ("could not generate the object: unknown
+ * type") rather than merely losing content.
  */
-export function renderSchemeChildren(build: SchemeBuild, nameProfile: XmlElement | null): XmlElement[] {
+export function renderSchemeChildren(build: SchemeBuild, nameProfile: XmlElement | null, ids: XmaIdRegistry): XmlElement[] {
   const children: XmlElement[] = [];
   if (nameProfile) {
     children.push(nameProfile);
@@ -174,10 +181,10 @@ export function renderSchemeChildren(build: SchemeBuild, nameProfile: XmlElement
     if (!collection || collection.children.length === 0) {
       continue;
     }
-    children.push(element(`ArchiMate:${tag}`, [['name', name]], collection.children));
+    children.push(element(`ArchiMate:${tag}`, [['name', name], ['id', String(ids.fresh())]], collection.children));
   }
   if (build.relations.length > 0) {
-    children.push(element('ArchiMate:Relations', [['name', 'relations']], build.relations));
+    children.push(element('ArchiMate:Relations', [['name', 'relations'], ['id', String(ids.fresh())]], build.relations));
   }
   return children;
 }

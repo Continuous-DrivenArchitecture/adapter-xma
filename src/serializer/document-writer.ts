@@ -62,7 +62,7 @@ function renderRootScheme(
     info.folderType && info.defaultLabel
       ? buildProfileValues(language, findFolderName(folders, info.folderType, info.defaultLabel))
       : null;
-  const children = renderSchemeChildren(build, nameProfile);
+  const children = renderSchemeChildren(build, nameProfile, ids);
   return element(`ArchiMate:${info.tag}`, [['id', String(ids.fresh())]], children);
 }
 
@@ -70,7 +70,7 @@ function renderNestedScheme(build: SchemeBuild | undefined, ids: XmaIdRegistry):
   if (!build) {
     return null;
   }
-  const children = renderSchemeChildren(build, null);
+  const children = renderSchemeChildren(build, null, ids);
   return element(`ArchiMate:${build.tag}`, [['id', String(ids.fresh())]], children);
 }
 
@@ -105,7 +105,7 @@ export interface DocumentAssemblyInput {
    * `Connectors` (see tests/fixtures/README.md).
    */
   rootConnectorsXml: readonly XmlElement[];
-  /** Generic-form relations (`AssociationRelationship`, `Grouping`/`Junction` endpoints) — see relationship-writer.ts. */
+  /** Relations sourced from an element with no scheme of its own (a Junction/OrJunction) — see relationship-writer.ts. */
   rootRelationsXml: readonly XmlElement[];
 }
 

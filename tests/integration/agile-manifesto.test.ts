@@ -113,4 +113,41 @@ describe('integration: agile-manifesto fixture', () => {
     expect(diagnostics.filter((d) => d.severity === 'error')).toEqual([]);
     expect(() => serializeXma(model, { language: 'en' })).not.toThrow();
   });
+
+  it('gives every ArchiMate collection element (including a Relations collection) its own id, like the real fixture', () => {
+    // Regression: renderSchemeChildren previously omitted `id` on both the
+    // per-category collection tag (e.g. ApplicationComponents) and the
+    // per-scheme Relations collection. Enterprise Studio rejected the whole
+    // document outright for this ("could not generate the object: unknown
+    // type") rather than merely losing content — reported against a real
+    // generated file, reproduced, and confirmed against the ground-truth
+    // fixture (every collection there carries an id, e.g.
+    // `ApplicationComponents id="222"`, `Relations id="72"`).
+    const xma = serializeXma(model, { language: 'en' });
+    const collectionsWithoutId = [...xma.matchAll(/<ArchiMate:(\w+) name="[^"]+"(?![^>]*\bid=)[^>]*>/g)].map((m) => m[1]);
+    expect(collectionsWithoutId).toEqual([]);
+  });
+
+  it('places generic-form relations in their source element\'s own scheme, not a single flat root container', () => {
+    // Regression: every AssociationRelationship/Grouping-endpoint relation
+    // was being dumped into one root-level <ArchiMate:Relations>, contrary
+    // to the real fixture (confirmed by cross-referencing three generic-form
+    // relations' `from` id against their defining element: an
+    // ApplicationComponent-sourced ElementElementAssociation sits in
+    // ApplicationScheme's Relations, a Grouping-sourced
+    // GroupingElementComposition sits in CompositeScheme's, and only a
+    // Junction-sourced relation — Junction has no scheme — sits at the root).
+    const xma = serializeXma(model, { language: 'en' });
+    const rootBody = xma.slice(xma.indexOf('DomainDataSet'), xma.indexOf('AbstractCommandContainers'));
+    const rootRelationTags = [...rootBody.matchAll(/<ArchiMate:Relations[^>]*>([\s\S]*?)<\/ArchiMate:Relations>/g)]
+      .flatMap((m) => [...m[1].matchAll(/<ArchiMate:(\w+)\s/g)])
+      .map((m) => m[1]);
+    // Only the Junction's own relation(s) may appear at the root.
+    expect(rootRelationTags.every((tag) => tag === 'InfluenceRelation')).toBe(true);
+    // The generic Association form must appear elsewhere (inside a real scheme), not only at the root.
+    expect(xma.includes('ElementElementAssociation')).toBe(true);
+    const rootAssociationCount = (rootBody.match(/ElementElementAssociation/g) ?? []).length;
+    const totalAssociationCount = (xma.match(/ElementElementAssociation/g) ?? []).length;
+    expect(rootAssociationCount).toBeLessThan(totalAssociationCount);
+  });
 });

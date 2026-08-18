@@ -25,10 +25,13 @@ function getOrCreateScheme(schemeBuilds: Map<string, SchemeBuild>, tag: string):
 export interface SemanticRelationshipsResult {
   mappedRelationships: Map<string, ResolvedRelationshipMapping>;
   /**
-   * Generic-form relations (`AssociationRelationship`, or a `Grouping`/`Junction`
-   * endpoint) — these live in a root-level `<ArchiMate:Relations>` container
-   * (a sibling of `AbstractSchemes`), never inside a layer scheme. Confirmed
-   * directly in both fixtures; see `mapping/generic-relationship-mapping.ts`.
+   * Relations whose source element has no scheme of its own — in practice
+   * only a `Junction`/`OrJunction` source (see `junctionMappingEntry` in
+   * `semantic-writer.ts`, whose `scheme` is the `'root'` sentinel). These
+   * live in the root-level `<ArchiMate:Relations>` container (a sibling of
+   * `AbstractSchemes`), confirmed against the agile-manifesto fixture
+   * (source id 17, a Junction, whose own InfluenceRelation sits in the
+   * document root's `Relations`, not inside any of the 8 layer schemes).
    */
   rootRelationsXml: XmlElement[];
 }
@@ -36,10 +39,18 @@ export interface SemanticRelationshipsResult {
 /**
  * Builds the semantic `<ArchiMate:{RelationshipType} from="..." to="..."/>`
  * elements for every `ArchiRelationship` that resolves either to a confirmed
- * exact-triple mapping (appended to its scheme's `Relations` collection) or
- * a confirmed generic form (appended to the root-level `Relations`
- * container). Everything else is diagnosed, never guessed — see
- * `mapping/relationship-mapping.ts` and `mapping/generic-relationship-mapping.ts`.
+ * exact-triple mapping or a confirmed generic form. Every relation — exact
+ * or generic — is appended to its **source element's own scheme's**
+ * `Relations` collection (falling back to the root-level container only
+ * when the source has no scheme, i.e. a Junction/OrJunction). Confirmed
+ * against the agile-manifesto fixture by cross-referencing three generic-form
+ * relations' `from` ids against their defining element: an
+ * `ElementElementAssociation` sourced from an `ApplicationComponent` sits in
+ * `ApplicationScheme`'s `Relations`; a `GroupingElementComposition` sourced
+ * from a `Grouping` sits in `CompositeScheme`'s; an `InfluenceRelation`
+ * sourced from a `Junction` sits in the root's. Everything unmapped is
+ * diagnosed, never guessed — see `mapping/relationship-mapping.ts` and
+ * `mapping/generic-relationship-mapping.ts`.
  */
 export function buildSemanticRelationships(
   model: ArchiModel,
@@ -122,11 +133,12 @@ export function buildSemanticRelationships(
       ['to', String(ids.idFor(targetEl.id))],
     ]);
 
-    if (exactMapping) {
-      const scheme = getOrCreateScheme(schemeBuilds, exactMapping.scheme);
-      scheme.relations.push(relationXml);
-    } else {
+    const schemeTag = exactMapping ? exactMapping.scheme : mappedElements.get(sourceEl.id)!.scheme;
+    if (schemeTag === 'root') {
       rootRelationsXml.push(relationXml);
+    } else {
+      const scheme = getOrCreateScheme(schemeBuilds, schemeTag);
+      scheme.relations.push(relationXml);
     }
   }
 
