@@ -371,6 +371,22 @@ export function buildGraphicalModule(
 
     const sourceObj = diagramObjectById.get(connection.sourceId);
     const targetObj = diagramObjectById.get(connection.targetId);
+
+    // A connection between a diagram object and its own visual parent is
+    // already conveyed by the nesting itself — confirmed against both
+    // fixtures: e.g. agile-manifesto's two BusinessProcessBusinessFunction-
+    // Composition relations exist in the semantic Relations collection (so
+    // they're still emitted below via relationship-writer/view-writer) but
+    // have zero MM_DirectedRel graphics; sabsa's ElementGroupingComposition
+    // (Grouping as target, not a nesting pair) is drawn normally while its
+    // GroupingElementComposition (Grouping as source, always a nesting pair
+    // in both fixtures) never is. Applies regardless of relationship type —
+    // nesting evidence isn't type-specific, only "is this endpoint the
+    // other's visual parent" is.
+    if (sourceObj && targetObj && (sourceObj.parentId === targetObj.id || targetObj.parentId === sourceObj.id)) {
+      continue;
+    }
+
     const points: XmlElement[] = [];
     if (connection.bendpoints.length > 0 && sourceObj && targetObj && hasCompleteBounds(sourceObj.bounds) && hasCompleteBounds(targetObj.bounds)) {
       for (const bp of connection.bendpoints) {

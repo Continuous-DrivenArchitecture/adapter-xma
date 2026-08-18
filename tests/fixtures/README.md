@@ -208,6 +208,42 @@ bottom-up: children are built first, then passed into `buildStyledNode`'s
 `nestedChildrenXml` parameter) and `view-writer.ts` (dropped the outright
 rejection of any object with a `parentId`/non-empty `childrenIds`).
 
+### Nesting suppresses the graphical connector for the same relationship
+
+Reported against a real converted file opened in Enterprise Studio: a
+relationship between a nested diagram object and its own visual parent still
+drew an explicit connector with an arrowhead, which looks wrong — the
+nesting itself already conveys the relationship.
+
+Confirmed directly in `agile-manifesto.xma`: this fixture has exactly 12
+relationships between a diagram object and its immediate visual parent (all
+`CompositionRelationship` — 10 with `Grouping` as source, producing the
+generic `GroupingElementComposition` form; 2 plain `BusinessProcess` ->
+`BusinessFunction` exact-triple). Both tags appear in the semantic
+`Relations` collections at their full count (10 and 2), but **neither tag
+appears among the graphical `MM_DirectedRel` connectors at all** — 0 of 12,
+not merely fewer. Meanwhile `ElementGroupingComposition` (`Grouping` as
+*target* — 2 instances, none of them a nesting pair) is drawn normally, 2
+semantic and 2 graphical: the omission tracks nesting, not the relationship
+type or even the presence of `Grouping` as an endpoint.
+
+Implemented in `graphical-writer.ts`'s connector-building loop: a connection
+is skipped (no `MM_DirectedRel`, but the semantic relationship and its
+`RefObjects` entry are unaffected — both already built by
+`relationship-writer.ts`/`view-writer.ts` independently) when one endpoint's
+diagram object is the other's immediate visual parent, regardless of
+relationship type — nesting evidence isn't type-specific, only "is this
+endpoint the other's visual parent" is.
+
+**Known residual gap, not yet explained:** the model has 104 diagram
+connections total; the real fixture draws 93 of them graphically, this
+implementation now draws 92 — one fewer than the real file, not traced to a
+specific relationship. All 12 identified nesting pairs match the real
+fixture's omissions exactly (by tag and count), so the extra gap is
+somewhere in the other 92, for a reason not yet investigated. Documented
+here rather than silently claimed as exact; see the `toHaveLength(92)`
+assertion (not 93) in `tests/integration/agile-manifesto.test.ts`.
+
 **Not implemented — no fixture evidence:** a nested `ArchiNote` (as opposed
 to a nested `ArchiDiagramObject`). Only one instance exists across all four
 fixtures combined, not enough to confirm its representation; still

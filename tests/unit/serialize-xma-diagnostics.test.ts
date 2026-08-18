@@ -101,6 +101,56 @@ describe('strict-by-default diagnostics', () => {
     expect(childIdx).toBeLessThan(closingParentGraphicsIdx);
   });
 
+  it('omits the graphical connector for a relationship between a diagram object and its own visual parent, but keeps the semantic relationship', () => {
+    // Confirmed against agile-manifesto.xma: every nested-parent-child pair
+    // that also has a CompositionRelationship between them (12 instances,
+    // spanning both a plain exact-triple form and the generic
+    // Grouping-endpoint form) has zero MM_DirectedRel graphics, while the
+    // semantic relationship element is still present. A non-nested pair with
+    // the same relationship type is unaffected — the omission is about
+    // nesting, not the relationship type.
+    const vs1 = makeElement({ id: 'vs1', type: 'ValueStream' });
+    const vs2 = makeElement({ id: 'vs2', type: 'ValueStream' });
+    const vs3 = makeElement({ id: 'vs3', type: 'ValueStream' });
+    const nestedRel = makeRelationship({ id: 'nestedRel', type: 'CompositionRelationship', sourceId: 'vs1', targetId: 'vs2' });
+    const siblingRel = makeRelationship({ id: 'siblingRel', type: 'CompositionRelationship', sourceId: 'vs1', targetId: 'vs3' });
+    const parent = makeDiagramObject({
+      id: 'parentObj',
+      viewId: 'v1',
+      archimateElementId: 'vs1',
+      bounds: makeBounds(0, 0, 100, 100),
+      childrenIds: ['childObj'],
+    });
+    const child = makeDiagramObject({
+      id: 'childObj',
+      viewId: 'v1',
+      archimateElementId: 'vs2',
+      parentId: 'parentObj',
+      bounds: makeBounds(10, 10, 20, 20),
+    });
+    const sibling = makeDiagramObject({ id: 'siblingObj', viewId: 'v1', archimateElementId: 'vs3', bounds: makeBounds(200, 0, 20, 20) });
+    const nestedConn = makeDiagramConnection({ id: 'nestedConn', viewId: 'v1', sourceId: 'parentObj', targetId: 'childObj', archimateRelationshipId: 'nestedRel' });
+    const siblingConn = makeDiagramConnection({ id: 'siblingConn', viewId: 'v1', sourceId: 'parentObj', targetId: 'siblingObj', archimateRelationshipId: 'siblingRel' });
+    const view = makeView({
+      id: 'v1',
+      diagramObjectIds: ['parentObj', 'siblingObj'],
+      diagramConnectionIds: ['nestedConn', 'siblingConn'],
+    });
+    const model = makeModel({
+      elements: [vs1, vs2, vs3],
+      relationships: [nestedRel, siblingRel],
+      views: [view],
+      diagramObjects: [parent, child, sibling],
+      diagramConnections: [nestedConn, siblingConn],
+    });
+
+    const xma = serializeXma(model);
+    // Both relationships are still present semantically.
+    expect(xma.match(/StrategyValueStreamStrategyValueStreamComposition id=/g) ?? []).toHaveLength(2);
+    // Only the non-nested (sibling) one gets a graphical connector.
+    expect(xma.match(/MM_DirectedRel /g) ?? []).toHaveLength(1);
+  });
+
   it('diagnoses a purely visual connection with no underlying semantic relationship', () => {
     const actor = makeElement({ id: 'a', type: 'BusinessActor' });
     const process = makeElement({ id: 'p', type: 'BusinessProcess' });
