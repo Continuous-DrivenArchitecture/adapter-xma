@@ -67,13 +67,22 @@ describe('strict-by-default diagnostics', () => {
     expect([...xma.matchAll(/nm="GraphicalModule"/g)]).toHaveLength(3);
   });
 
-  it('diagnoses a diagram object with incomplete geometry', () => {
+  it('diagnoses a diagram object with incomplete geometry (missing width/height)', () => {
+    const actor = makeElement({ id: 'a', type: 'BusinessActor' });
+    const obj = makeDiagramObject({ id: 'do1', viewId: 'v1', archimateElementId: 'a', bounds: { x: 1, y: 2, width: null, height: 4 } });
+    const view = makeView({ id: 'v1', diagramObjectIds: [obj.id] });
+    const model = makeModel({ elements: [actor], views: [view], diagramObjects: [obj] });
+    const diagnostics = inspectXmaSupport(model);
+    expect(diagnostics.some((d) => d.code === 'missing-bounds' && d.entityId === 'do1')).toBe(true);
+  });
+
+  it('does not diagnose a diagram object with an omitted x/y (Archi omits a bounds coordinate when it is 0)', () => {
     const actor = makeElement({ id: 'a', type: 'BusinessActor' });
     const obj = makeDiagramObject({ id: 'do1', viewId: 'v1', archimateElementId: 'a', bounds: { x: 1, y: null, width: 3, height: 4 } });
     const view = makeView({ id: 'v1', diagramObjectIds: [obj.id] });
     const model = makeModel({ elements: [actor], views: [view], diagramObjects: [obj] });
     const diagnostics = inspectXmaSupport(model);
-    expect(diagnostics.some((d) => d.code === 'missing-bounds' && d.entityId === 'do1')).toBe(true);
+    expect(diagnostics.some((d) => d.code === 'missing-bounds')).toBe(false);
   });
 
   it('serializes a nested diagram object as a child MM_Node inside its parent (not a diagnostic)', () => {

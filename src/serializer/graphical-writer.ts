@@ -385,9 +385,14 @@ export function buildGraphicalModule(
           continue;
         }
         if (resolution.mismatch) {
-          diagnostics.error({
+          // Not a data-loss case: resolution.point (the source-relative form,
+          // used below regardless) is a perfectly usable point — this is a
+          // small precision disagreement in Archi's own stored offsets, not a
+          // construct XMA has no representation for. Warning, not an error
+          // that discards the whole document.
+          diagnostics.warning({
             code: 'bendpoint-endpoint-mismatch',
-            message: `Connection "${connection.id}" has a bendpoint whose source-relative and target-relative offsets disagree materially (source: ${resolution.mismatch.fromSource.x},${resolution.mismatch.fromSource.y}; target: ${resolution.mismatch.fromTarget.x},${resolution.mismatch.fromTarget.y}).`,
+            message: `Connection "${connection.id}" has a bendpoint whose source-relative and target-relative offsets disagree materially (source: ${resolution.mismatch.fromSource.x},${resolution.mismatch.fromSource.y}; target: ${resolution.mismatch.fromTarget.x},${resolution.mismatch.fromTarget.y}); used the source-relative point.`,
             entityId: connection.id,
             entityType: 'ArchiDiagramConnection',
           });

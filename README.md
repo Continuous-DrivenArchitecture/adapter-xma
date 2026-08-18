@@ -55,10 +55,13 @@ const xma = serializeXma(model, {
 
 `serializeXma` is **strict by default**: if the model contains a construct
 that would cause semantic or presentation loss (an unmapped element type, an
-unconfirmed relationship, more than one view, incomplete geometry, ...) it
-throws `XmaSerializationError` carrying a structured diagnostic for every
-problem found, rather than silently dropping content or fabricating an
-approximate result.
+unconfirmed relationship, more than one view, a diagram object missing
+width/height, ...) it throws `XmaSerializationError` carrying a structured
+diagnostic for every problem found, rather than silently dropping content or
+fabricating an approximate result. Lower-severity findings (`warning`) don't
+block serialization — e.g. an explicit font-size override, or a
+`DiagramModelReference` that gets omitted the same way Archi's own XMA
+export omits it.
 
 To preview what is and isn't supported without throwing:
 
@@ -130,7 +133,21 @@ extrapolated beyond that evidence.
     calls this `...Use`, not `...Serving`)
   - `FlowRelationship` `BusinessProcess` → `BusinessProcess`
 - Manually routed connection bendpoints (source/target-relative offsets,
-  cross-checked against each other).
+  cross-checked against each other). When both offsets are present but
+  disagree, the source-relative point is used and a `warning` diagnostic is
+  reported — this is a precision discrepancy in Archi's own stored data, not
+  a construct XMA can't represent, so it does not block serialization.
+- An omitted `x`/`y` bounds coordinate. Confirmed across all four fixtures
+  (three omitted-`x`, one omitted-`y`, always alone, never alongside a
+  missing `width`/`height`): Archi omits a bounds coordinate specifically
+  when its value is `0`, per the ArchiMate Exchange Format convention. Not
+  treated as incomplete geometry; JS's null-coerces-to-0 arithmetic applies
+  the default when scaling/centering. See `src/geometry/geometry.ts`.
+- `DiagramModelReference` ("insert view as reference") nodes are recognized
+  and omitted with a `warning` diagnostic, not a blocking error — confirmed
+  against the agile-manifesto fixture, whose real XMA export contains no
+  trace whatsoever of such a node or its connections. See
+  `src/serializer/view-writer.ts`.
 - A configurable output language, applied consistently — never inferred
   from element names.
 - Direct, lossless mapping of explicit Archi `fillColor`/`lineColor`
@@ -154,8 +171,11 @@ extrapolated beyond that evidence.
 - A nested `ArchiNote` (as opposed to a nested `ArchiDiagramObject`, now
   supported) — only one instance exists across all four fixtures, not
   enough to confirm its representation.
-- `DiagramModelReference` ("insert view as reference"), and purely visual
-  (non-semantic) connections.
+- Purely visual (non-semantic) connections not touching a
+  `DiagramModelReference` — no fixture evidence either way (the one
+  purely-visual connection found, between two `DiagramModelReference`
+  nodes, isn't even parsed as a diagram connection by
+  `@cda/archi-semantic-core`, since it lacks an `xsi:type`).
 - Profiles/specializations and arbitrary model properties.
 - Explicit font size, bold/italic, line width, font color, or connector
   line color overrides (reported as diagnostics; the confirmed defaults are

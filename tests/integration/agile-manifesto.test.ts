@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it, beforeAll } from 'vitest';
 import { parseArchiModel, type ArchiModel } from '@cda/archi-semantic-core';
-import { inspectXmaSupport, type XmaDiagnostic } from '../../src/index.js';
+import { inspectXmaSupport, serializeXma, type XmaDiagnostic } from '../../src/index.js';
 import { RELATIONSHIP_MAPPINGS } from '../../src/mapping/relationship-mapping.js';
 
 const FIXTURE_DIR = fileURLToPath(new URL('../fixtures/agile-manifesto/', import.meta.url));
@@ -84,21 +84,13 @@ describe('integration: agile-manifesto fixture', () => {
   it('now reports every nested diagram object as supported', () => {
     // The exact graphical nesting structure (child MM_Node inside parent's
     // MM_Graphics) is verified against a controlled synthetic model in
-    // tests/unit/serialize-xma-diagnostics.test.ts; this fixture (which still
-    // has a few genuinely unrelated diagnostics — DiagramModelReference,
-    // incomplete Note geometry, bendpoint mismatches — that block a full
-    // serializeXma call) only re-confirms the diagnostic no longer fires here.
+    // tests/unit/serialize-xma-diagnostics.test.ts.
     expect(diagnostics.some((d) => d.code === 'unsupported-nested-diagram-object')).toBe(false);
     const nested = model.diagramObjects.filter((o) => o.parentId !== null || o.childrenIds.length > 0);
     expect(nested.length).toBe(15);
   });
 
   it('no longer reports diagnostics for anything this session set out to fix (Junction, Association, Grouping, Collaboration-collapse, multi-view, nested diagram objects)', () => {
-    // The model still has diagnostics unrelated to this session's scope (a
-    // DiagramModelReference, incomplete geometry on a Note, explicit font
-    // style/size overrides, inconsistent bendpoints) — those are real,
-    // pre-existing limitations, not something this session's fixes were meant
-    // to address.
     const inScope = new Set([
       'unsupported-element-type',
       'unsupported-relationship',
@@ -107,5 +99,18 @@ describe('integration: agile-manifesto fixture', () => {
       'unsupported-nested-diagram-object',
     ]);
     expect(diagnostics.filter((d) => inScope.has(d.code) && d.entityType !== 'ArchiNote')).toEqual([]);
+  });
+
+  it('reports no errors at all, only warnings, and serializes end to end', () => {
+    // DiagramModelReference (confirmed: Archi's own XMA export omits these
+    // nodes entirely), an omitted-x/y bounds coordinate (confirmed: Archi
+    // omits a bounds coordinate that equals 0, across all fixtures), and a
+    // bendpoint whose source-/target-relative offsets disagree (a resolvable
+    // fallback, not data loss) are all warnings now, not blocking errors —
+    // see geometry.ts, view-writer.ts, graphical-writer.ts. Only explicit
+    // font size/color overrides remain as (separately unconfirmed, also
+    // non-blocking) warnings.
+    expect(diagnostics.filter((d) => d.severity === 'error')).toEqual([]);
+    expect(() => serializeXma(model, { language: 'en' })).not.toThrow();
   });
 });

@@ -54,13 +54,19 @@ interface NullableBounds {
   height: number | null;
 }
 
-/** Type guard: true when every bounds field is set, narrowing to a usable `Rect`. */
+/**
+ * Type guard: true when a bounds is usable as a `Rect`.
+ *
+ * `width`/`height` must be set — there is no fixture evidence of Archi ever
+ * omitting either. `x`/`y` are allowed to be `null`: confirmed across all
+ * four fixtures (three omitted-`x` cases in sabsa, one omitted-`y` case in
+ * agile-manifesto — always alone, never alongside a missing `width`/
+ * `height`) that Archi omits a bounds coordinate specifically when its value
+ * is `0`, per the ArchiMate Exchange Format convention. Downstream numeric
+ * use of `bounds.x`/`bounds.y` (scaling, center-of) relies on JS's
+ * null-coerces-to-0 arithmetic to apply that default — no explicit
+ * substitution needed here.
+ */
 export function hasCompleteBounds(bounds: NullableBounds | null): bounds is Rect {
-  return (
-    bounds !== null &&
-    bounds.x !== null &&
-    bounds.y !== null &&
-    bounds.width !== null &&
-    bounds.height !== null
-  );
+  return bounds !== null && bounds.width !== null && bounds.height !== null;
 }

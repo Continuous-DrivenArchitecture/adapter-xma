@@ -49,9 +49,15 @@ export function buildView(
       continue;
     }
     if (obj.referencedModelId !== null) {
-      diagnostics.error({
+      // Confirmed against the agile-manifesto fixture: Archi's own XMA export
+      // contains no trace whatsoever of a DiagramModelReference node or its
+      // connections (grepped for both ids and the referenced view ids — zero
+      // matches). Dropping it here, like the rest of this loop's unsupported
+      // cases, exactly reproduces that behavior, so it's a warning, not a
+      // blocking error.
+      diagnostics.warning({
         code: 'unsupported-diagram-model-reference',
-        message: `Diagram object "${obj.id}" is a view-reference (DiagramModelReference) — not supported in XMA v0.1.`,
+        message: `Diagram object "${obj.id}" is a view-reference (DiagramModelReference) and was omitted, matching Archi's own XMA export.`,
         entityId: obj.id,
         entityType: 'ArchiDiagramObject',
       });
