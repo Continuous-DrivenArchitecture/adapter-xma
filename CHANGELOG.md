@@ -1,3 +1,9 @@
+## [0.4.2](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.4.1...v0.4.2) (2026-08-18)
+
+### Bug Fixes
+
+* correct Relations scheme placement and restore missing collection ids ([c697698](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/c69769850b3999d2c247239f6454d9189eabfd04))
+
 ## [0.4.1](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.4.0...v0.4.1) (2026-08-18)
 
 ### Bug Fixes
