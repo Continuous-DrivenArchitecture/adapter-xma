@@ -1,10 +1,17 @@
 import type { ArchiModel, ArchiElement, ArchiRelationship } from '@cda/archi-semantic-core';
 import { element } from '../infrastructure/xml-writer.js';
+import type { XmlElement } from '../infrastructure/xml-writer.js';
 import type { XmaIdRegistry } from '../infrastructure/id-allocator.js';
 import type { DiagnosticCollector } from '../diagnostics/diagnostics.js';
-import { lookupRelationshipMapping, type RelationshipMappingEntry } from '../mapping/relationship-mapping.js';
+import { lookupRelationshipMapping } from '../mapping/relationship-mapping.js';
+import { lookupGenericRelationshipMapping } from '../mapping/generic-relationship-mapping.js';
 import type { ElementMappingEntry } from '../mapping/element-mapping.js';
 import type { SchemeBuild } from './semantic-writer.js';
+
+/** What downstream (view-writer, graphical-writer) actually needs from a resolved relationship mapping. */
+export interface ResolvedRelationshipMapping {
+  xmaType: string;
+}
 
 function getOrCreateScheme(schemeBuilds: Map<string, SchemeBuild>, tag: string): SchemeBuild {
   let build = schemeBuilds.get(tag);
@@ -15,12 +22,24 @@ function getOrCreateScheme(schemeBuilds: Map<string, SchemeBuild>, tag: string):
   return build;
 }
 
+export interface SemanticRelationshipsResult {
+  mappedRelationships: Map<string, ResolvedRelationshipMapping>;
+  /**
+   * Generic-form relations (`AssociationRelationship`, or a `Grouping`/`Junction`
+   * endpoint) — these live in a root-level `<ArchiMate:Relations>` container
+   * (a sibling of `AbstractSchemes`), never inside a layer scheme. Confirmed
+   * directly in both fixtures; see `mapping/generic-relationship-mapping.ts`.
+   */
+  rootRelationsXml: XmlElement[];
+}
+
 /**
  * Builds the semantic `<ArchiMate:{RelationshipType} from="..." to="..."/>`
- * elements for every `ArchiRelationship` whose (type, source type, target
- * type) triple matches one of the three confirmed mappings, appending them
- * to the appropriate scheme's `Relations` collection. Everything else is
- * diagnosed, never guessed — see `mapping/relationship-mapping.ts`.
+ * elements for every `ArchiRelationship` that resolves either to a confirmed
+ * exact-triple mapping (appended to its scheme's `Relations` collection) or
+ * a confirmed generic form (appended to the root-level `Relations`
+ * container). Everything else is diagnosed, never guessed — see
+ * `mapping/relationship-mapping.ts` and `mapping/generic-relationship-mapping.ts`.
  */
 export function buildSemanticRelationships(
   model: ArchiModel,
@@ -30,8 +49,9 @@ export function buildSemanticRelationships(
   mappedElements: ReadonlyMap<string, ElementMappingEntry>,
   schemeBuilds: Map<string, SchemeBuild>,
   diagnostics: DiagnosticCollector,
-): Map<string, RelationshipMappingEntry> {
-  const mappedRelationships = new Map<string, RelationshipMappingEntry>();
+): SemanticRelationshipsResult {
+  const mappedRelationships = new Map<string, ResolvedRelationshipMapping>();
+  const rootRelationsXml: XmlElement[] = [];
 
   for (const rel of model.relationships) {
     const sourceEl = elementIndex.get(rel.sourceId);
@@ -63,7 +83,9 @@ export function buildSemanticRelationships(
       continue;
     }
 
-    const mapping = lookupRelationshipMapping(rel.type, sourceEl.type, targetEl.type);
+    const exactMapping = lookupRelationshipMapping(rel.type, sourceEl.type, targetEl.type);
+    const genericMapping = exactMapping ? undefined : lookupGenericRelationshipMapping(rel.type, sourceEl.type, targetEl.type);
+    const mapping: ResolvedRelationshipMapping | undefined = exactMapping ?? genericMapping;
     if (!mapping) {
       diagnostics.error({
         code: 'unsupported-relationship',
@@ -93,16 +115,20 @@ export function buildSemanticRelationships(
 
     mappedRelationships.set(rel.id, mapping);
 
-    const scheme = getOrCreateScheme(schemeBuilds, mapping.scheme);
     const xmaId = ids.idFor(rel.id);
-    scheme.relations.push(
-      element(`ArchiMate:${mapping.xmaType}`, [
-        ['id', String(xmaId)],
-        ['from', String(ids.idFor(sourceEl.id))],
-        ['to', String(ids.idFor(targetEl.id))],
-      ]),
-    );
+    const relationXml = element(`ArchiMate:${mapping.xmaType}`, [
+      ['id', String(xmaId)],
+      ['from', String(ids.idFor(sourceEl.id))],
+      ['to', String(ids.idFor(targetEl.id))],
+    ]);
+
+    if (exactMapping) {
+      const scheme = getOrCreateScheme(schemeBuilds, exactMapping.scheme);
+      scheme.relations.push(relationXml);
+    } else {
+      rootRelationsXml.push(relationXml);
+    }
   }
 
-  return mappedRelationships;
+  return { mappedRelationships, rootRelationsXml };
 }

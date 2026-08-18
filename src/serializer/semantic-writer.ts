@@ -18,6 +18,49 @@ export interface SemanticBuildResult {
   schemeBuilds: Map<string, SchemeBuild>;
   /** Archi element id -> its resolved mapping, for elements that mapped successfully (feeds view/graphical writers). */
   mappedElements: Map<string, ElementMappingEntry>;
+  /**
+   * `<ArchiMate:Junction>`/`<ArchiMate:OrJunction>` elements — these live in a
+   * root-level `<ArchiMate:Connectors>` container (a sibling of
+   * `AbstractSchemes` under `ArchiMateComponent`), never inside a layer
+   * scheme's element collections. Confirmed directly in both fixtures; see
+   * `tests/fixtures/README.md`.
+   */
+  rootConnectorsXml: XmlElement[];
+}
+
+/**
+ * `ArchiElement.type` is always the literal string `"Junction"` for both
+ * AND and OR junctions — the And/Or distinction lives in the separate
+ * `junctionType` field. Confirmed directly in both fixtures: XMA has two
+ * distinct element tags for this, `Junction` (AND) and `OrJunction` (OR),
+ * each living in the root `Connectors` container. This resolves the XMA tag
+ * for a Junction element; unlike every other type, it can't be a static
+ * `ELEMENT_MAPPINGS` table entry keyed by `archiType` alone.
+ */
+function junctionXmaType(el: ArchiElement): 'Junction' | 'OrJunction' {
+  return el.junctionType === 'Or' ? 'OrJunction' : 'Junction';
+}
+
+/**
+ * A `Junction`'s own `category`/`hasIcon` are never read: `graphical-writer`
+ * draws Junctions via a dedicated, colorless node form (confirmed in both
+ * fixtures — no `MM_Color`/`MM_Colors`, `mm_graphicType="3"` instead of the
+ * usual `"5"`) before ever consulting `CATEGORY_FILL_COLOR`. `category`
+ * still needs *some* valid value to satisfy `ElementMappingEntry`'s type;
+ * `'Grouping'` is used as an inert placeholder, not a claim about Junction's
+ * real presentation category.
+ */
+function junctionMappingEntry(el: ArchiElement): ElementMappingEntry {
+  const xmaType = junctionXmaType(el);
+  return {
+    archiType: 'Junction',
+    xmaType,
+    scheme: 'root',
+    collectionTag: 'Connectors',
+    collectionName: 'connectors',
+    category: 'Grouping',
+    hasIcon: false,
+  };
 }
 
 function getOrCreateScheme(schemeBuilds: Map<string, SchemeBuild>, tag: string): SchemeBuild {
@@ -71,8 +114,22 @@ export function buildSemanticElements(
 ): SemanticBuildResult {
   const schemeBuilds = new Map<string, SchemeBuild>();
   const mappedElements = new Map<string, ElementMappingEntry>();
+  const rootConnectorsXml: XmlElement[] = [];
 
   for (const el of model.elements) {
+    if (el.type === 'Junction') {
+      const mapping = junctionMappingEntry(el);
+      mappedElements.set(el.id, mapping);
+      reportAncillaryLossWarnings(el, diagnostics);
+      const xmaId = ids.idFor(el.id);
+      rootConnectorsXml.push(
+        element(`ArchiMate:${mapping.xmaType}`, [['id', String(xmaId)]], [
+          buildProfileValues(language, el.name ?? '', el.documentation),
+        ]),
+      );
+      continue;
+    }
+
     const mapping = lookupElementMapping(el.type);
     if (!mapping) {
       reportUnsupportedElement(el, diagnostics);
@@ -97,7 +154,7 @@ export function buildSemanticElements(
     collection.children.push(concept);
   }
 
-  return { schemeBuilds, mappedElements };
+  return { schemeBuilds, mappedElements, rootConnectorsXml };
 }
 
 /**

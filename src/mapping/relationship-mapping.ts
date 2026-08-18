@@ -2,12 +2,13 @@
  * Archi relationship mapping, resolved by (relationship type, source
  * semantic type, target semantic type) — never by relationship type alone.
  *
- * 87 mappings are proven: the original 3 confirmed against
+ * 90 exact-triple mappings are proven: the original 3 confirmed against
  * `tests/fixtures/relationships/relaciones.{archimate,xma}`, 64 more
- * confirmed against `tests/fixtures/sabsa/sabsa.{archimate,xma}`, and 20 more
- * confirmed against `tests/fixtures/agile-manifesto/agile-manifesto.{archimate,xma}`
- * (see each fixture pair's entry in `tests/fixtures/README.md` for the full
- * derivation method and the open questions they surfaced). Every other
+ * confirmed against `tests/fixtures/sabsa/sabsa.{archimate,xma}`, 20 more
+ * confirmed against `tests/fixtures/agile-manifesto/agile-manifesto.{archimate,xma}`,
+ * and 3 confirmed "...Collaboration collapses to its singular active-structure
+ * counterpart" instances (see below) — see each fixture pair's entry in
+ * `tests/fixtures/README.md` for the full derivation method. Every other
  * relationship type/source/target combination is unsupported for v0.1 and
  * must be diagnosed, never guessed (see `serializer/relationship-writer.ts`).
  *
@@ -15,22 +16,22 @@
  * schemes, e.g. `WorkPackage -> BusinessFunction` lives in `IMScheme`, the
  * source's scheme, not `BusinessScheme`).
  *
- * NOT modeled here — confirmed to exist, but needs a different mechanism
- * than this exact-triple table (see `tests/fixtures/README.md`):
+ * Three "...Collaboration" entries collapse to their singular active-structure
+ * counterpart for relationship naming only (their own element mapping is
+ * unaffected — see `element-mapping.ts`): `BusinessCollaboration` collapses
+ * to `BusinessRole`, `TechnologyCollaboration` collapses to `TechnologyNode`.
+ * Verified directly against raw relation instances in both fixtures, not
+ * inferred.
+ *
+ * NOT modeled here as exact triples — genuinely type-independent, so they
+ * live in `generic-relationship-mapping.ts` instead:
  *   - `AssociationRelationship` always serializes as the generic
  *     `ElementElementAssociation`, regardless of source/target type.
- *   - Any relationship with a `Grouping` or `Junction` endpoint uses a
- *     generic form (e.g. `GroupingElementComposition`, `RealisationRelation`)
- *     instead of a type-specific one.
- *   - A handful of concrete types collapse to a coarser XMA "category" only
- *     for relationship naming (not for their own element mapping) — always a
- *     type's own singular "active structure" counterpart, confirmed twice
- *     now for the `...Collaboration` pattern specifically: `TechnologyCollaboration`
- *     collapses to `TechnologyNode`, and `BusinessCollaboration` collapses to
- *     `BusinessRole` (verified directly against raw relation instances in
- *     both fixtures, not inferred). Also confirmed: `SystemSoftware`
- *     collapses to `TechnologyNode`; `Constraint` collapses to
- *     `MotivationRequirement`.
+ *   - A `Grouping` endpoint (for the confirmed verbs Composition,
+ *     Specialization, Influence, Use) or a `Junction`/`OrJunction` endpoint
+ *     (for the confirmed verbs Realisation, Influence) uses a generic form
+ *     (e.g. `GroupingElementComposition`, `RealisationRelation`) instead of a
+ *     type-specific one.
  */
 
 export interface RelationshipMappingEntry {
@@ -671,6 +672,32 @@ export const RELATIONSHIP_MAPPINGS: readonly RelationshipMappingEntry[] = [
     targetArchiType: 'Requirement',
     xmaType: 'MotivationAssessmentMotivationRequirementInfluence',
     scheme: 'MotivationScheme',
+  },
+
+  // Confirmed "...Collaboration collapses to its singular active-structure counterpart"
+  // instances (BusinessCollaboration -> BusinessRole, TechnologyCollaboration ->
+  // TechnologyNode) — these are still exact-triple entries keyed by the real Archi
+  // type; only the xmaType value reflects the collapse. See tests/fixtures/README.md.
+  {
+    archiRelationshipType: 'TriggeringRelationship',
+    sourceArchiType: 'BusinessCollaboration',
+    targetArchiType: 'BusinessProcess',
+    xmaType: 'BusinessRoleBusinessProcessTriggering',
+    scheme: 'BusinessScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationComponent',
+    targetArchiType: 'BusinessCollaboration',
+    xmaType: 'ApplicationComponentBusinessRoleUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'TechnologyCollaboration',
+    targetArchiType: 'ApplicationComponent',
+    xmaType: 'TechnologyNodeApplicationComponentUse',
+    scheme: 'TechnologyScheme',
   },
 ];
 

@@ -98,16 +98,26 @@ extrapolated beyond that evidence.
   Application, Technology, Physical, Motivation, Implementation & Migration,
   Composite), with confirmed scheme/collection placement and default icon
   decoration presence.
+- `Junction`/`OrJunction` — a root-level `Connectors` container, confirmed
+  distinct graphical form (no fill/line color, `mm_graphicType="3"`). See
+  `tests/fixtures/README.md`.
 - Element and view names, and documentation (as RTF profile values).
-- A single ArchiMate view per model: node geometry (exact ×3 scale),
-  default per-category fill colors, line color, opacity, and font.
+- **Multiple ArchiMate views per model** (up from exactly one) — each gets
+  its own `GraphicalModule`, all nesting under one shared `AbstractViews`
+  container. Confirmed against 38-view and 3-view real-world fixtures. Node
+  geometry (exact ×3 scale), default per-category fill colors, line color,
+  opacity, and font are unaffected by view count.
 - Notes and Groups (as `ArchiMate:ViewGraphic`), including Group
   documentation.
-- **87 confirmed semantic relationship mappings** (up from 3), spanning all
-  eight schemes — see `src/mapping/relationship-mapping.ts` for the full
-  table and `tests/fixtures/README.md` for how each was derived and
-  verified. The original 3 (below) additionally have their graphical
-  `MM_DirectedRel` representation confirmed end-to-end; the other 84 were
+- **90 confirmed exact-triple semantic relationship mappings** (up from 3),
+  spanning all eight schemes, plus **3 confirmed generic (type-independent)
+  forms** — `AssociationRelationship`, a `Grouping` endpoint (Composition,
+  Specialization, Influence, Use), and a `Junction`/`OrJunction` endpoint
+  (Realisation, Influence) — see `src/mapping/relationship-mapping.ts` and
+  `src/mapping/generic-relationship-mapping.ts` for the tables, and
+  `tests/fixtures/README.md` for how each was derived and verified. The
+  original 3 exact-triple mappings additionally have their graphical
+  `MM_DirectedRel` representation confirmed end-to-end; the rest were
   confirmed at the semantic layer only (the same generic serializer code
   path, not independently fixture-checked for the graphical layer):
   - `AssignmentRelationship` `BusinessActor` → `BusinessProcess`
@@ -124,29 +134,21 @@ extrapolated beyond that evidence.
 
 ### Not yet guaranteed
 
-- Relationship type/source/target combinations beyond the 87 confirmed above
-  (reported as a diagnostic, not silently dropped or guessed).
-- `AssociationRelationship` — confirmed to always serialize as the generic
-  `ElementElementAssociation` regardless of source/target type, but not yet
-  modeled (the exact-triple table can't express a type-independent rule
-  without one enormous list of duplicates). Still correctly diagnosed as
-  unsupported, not silently dropped. See "Known limitation" in
-  [`tests/fixtures/README.md`](tests/fixtures/README.md).
-- Any relationship with a `Grouping` or `Junction` endpoint — confirmed to
-  use a generic form (`GroupingElementComposition`, `RealisationRelation`,
-  ...) instead of a type-specific tag, also not yet modeled. Same doc.
+- Relationship type/source/target combinations beyond the 90 confirmed exact
+  triples and the 3 confirmed generic forms (reported as a diagnostic, not
+  silently dropped or guessed) — e.g. a `Grouping`/`Junction` endpoint paired
+  with a verb outside the confirmed set for that endpoint kind.
 - A handful of concrete types that collapse to a coarser XMA category
   specifically for relationship naming, distinct from their own element
-  mapping — confirmed for `TechnologyCollaboration` → `TechnologyNode`,
-  `BusinessCollaboration` → `BusinessRole`, and `SystemSoftware` →
-  `TechnologyNode`; circumstantial for `Constraint` → `MotivationRequirement`.
-  The two `...Collaboration` cases suggest a pattern (collapse to the type's
-  own singular "active structure" counterpart) but it isn't confirmed beyond
-  those two. Same doc.
-- More than one view per model (reported as a diagnostic).
+  mapping — confirmed and implemented for `TechnologyCollaboration` →
+  `TechnologyNode`, `BusinessCollaboration` → `BusinessRole`, and
+  `SystemSoftware` → `TechnologyNode`. `Constraint` → `MotivationRequirement`
+  remains circumstantial (one otherwise-unexplained count mismatch, no
+  direct confirmation) and is **not** implemented. See "Generic and
+  collapsed forms" in [`tests/fixtures/README.md`](tests/fixtures/README.md).
 - Nested diagram objects, `DiagramModelReference` ("insert view as
   reference"), and purely visual (non-semantic) connections.
-- Junctions, profiles/specializations, and arbitrary model properties.
+- Profiles/specializations and arbitrary model properties.
 - Explicit font size, bold/italic, line width, font color, or connector
   line color overrides (reported as diagnostics; the confirmed defaults are
   used instead).
@@ -174,7 +176,8 @@ src/
 
   mapping/                    immutable mapping DATA (never switch statements)
     element-mapping.ts           60 confirmed Archi type -> XMA type/scheme/collection
-    relationship-mapping.ts      3 confirmed (type, source, target) -> XMA relationship
+    relationship-mapping.ts      90 confirmed (type, source, target) -> XMA relationship
+    generic-relationship-mapping.ts  3 confirmed type-independent forms (Association, Grouping, Junction)
     scheme-mapping.ts            scheme container / folder-nesting metadata
     visual-mapping.ts            default fill/line colors, font, opacity
 

@@ -4,7 +4,7 @@ import { element } from '../infrastructure/xml-writer.js';
 import type { XmaIdRegistry } from '../infrastructure/id-allocator.js';
 import type { DiagnosticCollector } from '../diagnostics/diagnostics.js';
 import type { ElementMappingEntry } from '../mapping/element-mapping.js';
-import type { RelationshipMappingEntry } from '../mapping/relationship-mapping.js';
+import type { ResolvedRelationshipMapping } from './relationship-writer.js';
 import { buildProfileValues } from './profile-values.js';
 import { hasCompleteBounds } from '../geometry/geometry.js';
 
@@ -37,7 +37,7 @@ export function buildView(
   ids: XmaIdRegistry,
   refIds: XmaIdRegistry,
   mappedElements: ReadonlyMap<string, ElementMappingEntry>,
-  mappedRelationships: ReadonlyMap<string, RelationshipMappingEntry>,
+  mappedRelationships: ReadonlyMap<string, ResolvedRelationshipMapping>,
   diagnostics: DiagnosticCollector,
   language: string,
 ): ViewBuildResult {

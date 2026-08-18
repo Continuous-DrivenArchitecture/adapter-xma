@@ -1,13 +1,13 @@
-import type { ArchiModel, ArchiView } from '@cda/archi-semantic-core';
+import type { ArchiModel } from '@cda/archi-semantic-core';
 import { renderXmlDocument, type XmlElement } from '../infrastructure/xml-writer.js';
 import { XmaIdAllocator, XmaIdRegistry } from '../infrastructure/id-allocator.js';
 import { DiagnosticCollector, type XmaDiagnostic } from '../diagnostics/diagnostics.js';
 import { XmaSerializationError } from '../diagnostics/errors.js';
 import { buildSemanticElements } from './semantic-writer.js';
 import { buildSemanticRelationships } from './relationship-writer.js';
-import { buildView, type ViewBuildResult } from './view-writer.js';
+import { buildView } from './view-writer.js';
 import { buildGraphicalModule } from './graphical-writer.js';
-import { buildXmaDocument } from './document-writer.js';
+import { buildXmaDocument, type BuiltView } from './document-writer.js';
 
 export interface XmaSerializeOptions {
   /** BCP-47-ish language code applied to every `xml:lang` and the default `MM_Language`. Defaults to `'en'`. Never inferred from content. */
@@ -35,11 +35,11 @@ function planXmaDocument(model: ArchiModel, options?: XmaSerializeOptions): Plan
   const ids = new XmaIdRegistry(allocator);
   const refIds = new XmaIdRegistry(allocator);
 
-  const { schemeBuilds, mappedElements } = buildSemanticElements(model, ids, diagnostics, language);
+  const { schemeBuilds, mappedElements, rootConnectorsXml } = buildSemanticElements(model, ids, diagnostics, language);
 
   const elementIndex = new Map(model.elements.map((e) => [e.id, e]));
   const relationshipIndex = new Map(model.relationships.map((r) => [r.id, r]));
-  const mappedRelationships = buildSemanticRelationships(
+  const { mappedRelationships, rootRelationsXml } = buildSemanticRelationships(
     model,
     ids,
     elementIndex,
@@ -49,19 +49,9 @@ function planXmaDocument(model: ArchiModel, options?: XmaSerializeOptions): Plan
     diagnostics,
   );
 
-  let view: ArchiView | null = null;
-  let viewResult: ViewBuildResult | null = null;
-  let graphicalDiagramXml: XmlElement | null = null;
-
-  if (model.views.length > 1) {
-    diagnostics.error({
-      code: 'unsupported-multiple-views',
-      message: `Model has ${model.views.length} views; XMA v0.1 supports serializing exactly one view. Split the model or remove extra views before converting.`,
-    });
-  } else if (model.views.length === 1) {
-    view = model.views[0];
-    viewResult = buildView(model, view, ids, refIds, mappedElements, mappedRelationships, diagnostics, language);
-    const graphicalResult = buildGraphicalModule(
+  const builtViews: BuiltView[] = model.views.map((view) => {
+    const viewResult = buildView(model, view, ids, refIds, mappedElements, mappedRelationships, diagnostics, language);
+    const { diagramXml } = buildGraphicalModule(
       model,
       view,
       ids,
@@ -72,8 +62,8 @@ function planXmaDocument(model: ArchiModel, options?: XmaSerializeOptions): Plan
       viewResult,
       diagnostics,
     );
-    graphicalDiagramXml = graphicalResult.diagramXml;
-  }
+    return { view, viewResult, graphicalDiagramXml: diagramXml };
+  });
 
   if (diagnostics.hasErrors) {
     return { diagnostics: diagnostics.all, documentXml: null };
@@ -86,9 +76,9 @@ function planXmaDocument(model: ArchiModel, options?: XmaSerializeOptions): Plan
     ids,
     schemeBuilds,
     folders: model.folders,
-    view,
-    viewResult,
-    graphicalDiagramXml,
+    views: builtViews,
+    rootConnectorsXml,
+    rootRelationsXml,
   });
 
   return { diagnostics: diagnostics.all, documentXml };

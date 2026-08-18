@@ -9,17 +9,15 @@ const FIXTURE_DIR = fileURLToPath(new URL('../fixtures/sabsa/', import.meta.url)
 
 /**
  * SABSA is a large, real-world model (463 elements, 551 relationships, 38
- * views) — nowhere near fully convertible in v0.1 (it alone has 38 views;
- * v0.1 supports exactly one). Unlike the `relaciones`/`catalogo` fixtures,
- * this integration test does not assert a clean `serializeXma` round-trip.
- * Its purpose is narrower: prove every relationship-mapping entry derived
- * from this fixture (see relationship-mapping.ts's docstring) is actually
- * recognized as supported by `inspectXmaSupport` against the real fixture
- * it was derived from, and that relationship types deliberately left
- * unmodeled (AssociationRelationship; any Grouping/Junction endpoint) are
- * still reported, not silently accepted.
+ * views). Unlike the `relaciones`/`catalogo` fixtures, this integration test
+ * does not assert a clean `serializeXma` round-trip — the model still has
+ * plenty of genuinely unconfirmed constructs (arbitrary model properties,
+ * for one). Its purpose is narrower: prove every relationship-mapping entry
+ * and generic form derived from this fixture is actually recognized as
+ * supported by `inspectXmaSupport` against the real fixture it was derived
+ * from.
  */
-describe('integration: sabsa fixture (67-mapping relationship coverage)', () => {
+describe('integration: sabsa fixture', () => {
   let model: ArchiModel;
   let diagnostics: XmaDiagnostic[];
   let unsupportedRelationshipIds: Set<string>;
@@ -39,7 +37,7 @@ describe('integration: sabsa fixture (67-mapping relationship coverage)', () => 
     expect(model.views.length).toBe(38);
   });
 
-  it('reports every relationship matching a confirmed mapping triple as supported', () => {
+  it('reports every relationship matching a confirmed exact-triple mapping as supported', () => {
     const elementById = new Map(model.elements.map((e) => [e.id, e]));
     const confirmedKeys = new Set(
       RELATIONSHIP_MAPPINGS.map((m) => `${m.archiRelationshipType}|${m.sourceArchiType}|${m.targetArchiType}`),
@@ -55,12 +53,10 @@ describe('integration: sabsa fixture (67-mapping relationship coverage)', () => 
       checkedCount += 1;
       expect(unsupportedRelationshipIds.has(rel.id)).toBe(false);
     }
-    // Sanity check that this test actually exercised a meaningful slice of the model,
-    // not zero relationships due to a broken lookup.
     expect(checkedCount).toBeGreaterThan(300);
   });
 
-  it('still reports AssociationRelationship as unsupported (generic-form mapping is deliberately not modeled)', () => {
+  it('now reports AssociationRelationship as supported (the generic ElementElementAssociation form)', () => {
     const elementById = new Map(model.elements.map((e) => [e.id, e]));
     const associationRel = model.relationships.find((r) => {
       const src = elementById.get(r.sourceId);
@@ -68,10 +64,36 @@ describe('integration: sabsa fixture (67-mapping relationship coverage)', () => 
       return r.type === 'AssociationRelationship' && src && tgt && src.type !== 'Grouping' && tgt.type !== 'Grouping';
     });
     expect(associationRel).toBeDefined();
-    expect(unsupportedRelationshipIds.has(associationRel!.id)).toBe(true);
+    expect(unsupportedRelationshipIds.has(associationRel!.id)).toBe(false);
   });
 
-  it('still reports the model as having more views than v0.1 supports', () => {
-    expect(diagnostics.some((d) => d.code === 'unsupported-multiple-views')).toBe(true);
+  it('now reports a CompositionRelationship with a Grouping endpoint as supported (the generic GroupingElementComposition form)', () => {
+    const elementById = new Map(model.elements.map((e) => [e.id, e]));
+    const groupingRel = model.relationships.find((r) => {
+      const src = elementById.get(r.sourceId);
+      const tgt = elementById.get(r.targetId);
+      return r.type === 'CompositionRelationship' && (src?.type === 'Grouping' || tgt?.type === 'Grouping');
+    });
+    expect(groupingRel).toBeDefined();
+    expect(unsupportedRelationshipIds.has(groupingRel!.id)).toBe(false);
+  });
+
+  it('now reports a RealizationRelationship with a Junction endpoint as supported (the generic RealisationRelation form)', () => {
+    const elementById = new Map(model.elements.map((e) => [e.id, e]));
+    const junctionRel = model.relationships.find((r) => {
+      const src = elementById.get(r.sourceId);
+      const tgt = elementById.get(r.targetId);
+      return r.type === 'RealizationRelationship' && (src?.type === 'Junction' || tgt?.type === 'Junction');
+    });
+    expect(junctionRel).toBeDefined();
+    expect(unsupportedRelationshipIds.has(junctionRel!.id)).toBe(false);
+  });
+
+  it('no longer reports the model as having an unsupported element type for Junction', () => {
+    expect(diagnostics.some((d) => d.code === 'unsupported-element-type')).toBe(false);
+  });
+
+  it('no longer reports multiple views as unsupported (all 38 are serialized)', () => {
+    expect(diagnostics.some((d) => d.code === 'unsupported-multiple-views')).toBe(false);
   });
 });

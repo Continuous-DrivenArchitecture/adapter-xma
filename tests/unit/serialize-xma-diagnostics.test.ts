@@ -12,7 +12,7 @@ import {
 
 describe('strict-by-default diagnostics', () => {
   it('throws XmaSerializationError for an unknown element type, without silently dropping it', () => {
-    const model = makeModel({ elements: [makeElement({ id: 'j1', type: 'Junction' })] });
+    const model = makeModel({ elements: [makeElement({ id: 'j1', type: 'NotARealArchiMateType' })] });
     expect(() => serializeXma(model)).toThrow(XmaSerializationError);
     try {
       serializeXma(model);
@@ -26,7 +26,7 @@ describe('strict-by-default diagnostics', () => {
   });
 
   it('inspectXmaSupport reports the same diagnostics without throwing', () => {
-    const model = makeModel({ elements: [makeElement({ id: 'j1', type: 'Junction' })] });
+    const model = makeModel({ elements: [makeElement({ id: 'j1', type: 'NotARealArchiMateType' })] });
     const diagnostics = inspectXmaSupport(model);
     expect(diagnostics.some((d) => d.code === 'unsupported-element-type')).toBe(true);
   });
@@ -59,10 +59,12 @@ describe('strict-by-default diagnostics', () => {
     expect(diagnostics.some((d) => d.code === 'unsupported-relationship-endpoint' && d.entityId === 'outer')).toBe(true);
   });
 
-  it('diagnoses more than one view instead of silently serializing only the first', () => {
-    const model = makeModel({ views: [makeView({ id: 'v1' }), makeView({ id: 'v2' })] });
-    const diagnostics = inspectXmaSupport(model);
-    expect(diagnostics.some((d) => d.code === 'unsupported-multiple-views')).toBe(true);
+  it('serializes multiple views, each as its own AllView and its own GraphicalModule (not a diagnostic)', () => {
+    const model = makeModel({ views: [makeView({ id: 'v1' }), makeView({ id: 'v2' }), makeView({ id: 'v3' })] });
+    expect(inspectXmaSupport(model).some((d) => d.code === 'unsupported-multiple-views')).toBe(false);
+    const xma = serializeXma(model);
+    expect([...xma.matchAll(/<ArchiMate:AllView /g)]).toHaveLength(3);
+    expect([...xma.matchAll(/nm="GraphicalModule"/g)]).toHaveLength(3);
   });
 
   it('diagnoses a diagram object with incomplete geometry', () => {

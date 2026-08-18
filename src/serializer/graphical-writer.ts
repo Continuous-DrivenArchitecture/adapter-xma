@@ -10,7 +10,7 @@ import { element, textElement } from '../infrastructure/xml-writer.js';
 import { XmaIdRegistry, type XmaIdAllocator } from '../infrastructure/id-allocator.js';
 import type { DiagnosticCollector } from '../diagnostics/diagnostics.js';
 import type { ElementMappingEntry } from '../mapping/element-mapping.js';
-import type { RelationshipMappingEntry } from '../mapping/relationship-mapping.js';
+import type { ResolvedRelationshipMapping } from './relationship-writer.js';
 import { CATEGORY_FILL_COLOR, DEFAULT_FONT_NAME, DEFAULT_FONT_SIZE, DEFAULT_LINE_COLOR, DEFAULT_OPACITY, GROUP_FILL_COLOR, NOTE_FILL_COLOR, CANVAS_EXTENT, parseArchiHexColor, type Rgb } from '../mapping/visual-mapping.js';
 import { scaleRect, scalePoint, hasCompleteBounds, type Rect } from '../geometry/geometry.js';
 import { resolveBendpoint } from '../geometry/bendpoints.js';
@@ -200,6 +200,35 @@ function buildStyledNode(
   ]);
 }
 
+const JUNCTION_XMA_TYPES = new Set(['Junction', 'OrJunction']);
+
+/**
+ * Builds a `Junction`/`OrJunction` node — confirmed structurally different
+ * from every other element node: `mm_graphicType="3"` (not `"5"`), and no
+ * `MM_Color`/`MM_Colors` at all (a Junction carries no fill/line styling in
+ * either fixture). Fabricating a color here would contradict that evidence,
+ * not fill a gap in it.
+ */
+function buildJunctionNode(ids: XmaIdRegistry, nodeXmaId: number, concept: string, semanticObject: number, bounds: Rect): XmlElement {
+  return element(
+    'MM_Diagram:MM_Node',
+    [
+      ['id', String(nodeXmaId)],
+      ['mm_graphicType', '3'],
+      ['mm_concept', concept],
+      ['mm_lineOpacity', String(DEFAULT_OPACITY)],
+      ['mm_fillOpacity', String(DEFAULT_OPACITY)],
+      ['mm_semanticObject', String(semanticObject)],
+    ],
+    [
+      element('MM_Diagram:MM_Graphics', [['name', 'mm_graphics'], ['id', String(ids.fresh())]], [
+        buildLabelDecoration(ids.fresh(), DEFAULT_FONT_NAME),
+      ]),
+      rectElement(ids.fresh(), bounds),
+    ],
+  );
+}
+
 /**
  * Builds the `GraphicalModule`'s `MM_Diagram` for the single supported
  * view: a Canvas node wrapping one `MM_Node` per drawable diagram
@@ -220,7 +249,7 @@ export function buildGraphicalModule(
   refIds: XmaIdRegistry,
   allocator: XmaIdAllocator,
   mappedElements: ReadonlyMap<string, ElementMappingEntry>,
-  mappedRelationships: ReadonlyMap<string, RelationshipMappingEntry>,
+  mappedRelationships: ReadonlyMap<string, ResolvedRelationshipMapping>,
   viewResult: ViewBuildResult,
   diagnostics: DiagnosticCollector,
 ): GraphicalModuleResult {
@@ -237,11 +266,15 @@ export function buildGraphicalModule(
     if (viewResult.validElementNodeObjectIds.has(objId) && obj.archimateElementId) {
       const mapping = mappedElements.get(obj.archimateElementId)!;
       const refId = refIds.get(obj.archimateElementId)!;
-      const visuals = resolveNodeVisuals(obj.style, CATEGORY_FILL_COLOR[mapping.category], diagnostics, obj.id, 'ArchiDiagramObject');
       const nodeXmaId = nodeIds.idFor(obj.id);
-      canvasChildren.push(
-        buildStyledNode(ids, nodeXmaId, mapping.xmaType, refId, mapping.hasIcon, visuals, obj.bounds as Rect, null),
-      );
+      if (JUNCTION_XMA_TYPES.has(mapping.xmaType)) {
+        canvasChildren.push(buildJunctionNode(ids, nodeXmaId, mapping.xmaType, refId, obj.bounds as Rect));
+      } else {
+        const visuals = resolveNodeVisuals(obj.style, CATEGORY_FILL_COLOR[mapping.category], diagnostics, obj.id, 'ArchiDiagramObject');
+        canvasChildren.push(
+          buildStyledNode(ids, nodeXmaId, mapping.xmaType, refId, mapping.hasIcon, visuals, obj.bounds as Rect, null),
+        );
+      }
     } else if (viewResult.validGroupObjectIds.has(objId)) {
       const groupSemanticId = ids.get(obj.id)!;
       const visuals = resolveNodeVisuals(obj.style, GROUP_FILL_COLOR, diagnostics, obj.id, 'ArchiDiagramObject');

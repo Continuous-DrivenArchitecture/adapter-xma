@@ -74,6 +74,14 @@ function renderNestedScheme(build: SchemeBuild | undefined, ids: XmaIdRegistry):
   return element(`ArchiMate:${build.tag}`, [['id', String(ids.fresh())]], children);
 }
 
+/** One view fully built by `view-writer`/`graphical-writer`, ready to assemble into the document. */
+export interface BuiltView {
+  view: ArchiView;
+  viewResult: ViewBuildResult;
+  /** The `MM_Diagram:MM_Diagram` built by `graphical-writer` for this view. */
+  graphicalDiagramXml: XmlElement;
+}
+
 export interface DocumentAssemblyInput {
   modelName: string;
   packageName: string;
@@ -81,14 +89,28 @@ export interface DocumentAssemblyInput {
   ids: XmaIdRegistry;
   schemeBuilds: Map<string, SchemeBuild>;
   folders: readonly ArchiFolder[];
-  view: ArchiView | null;
-  viewResult: ViewBuildResult | null;
-  /** The `MM_Diagram:MM_Diagram` built by `graphical-writer`, when a view is present. */
-  graphicalDiagramXml: XmlElement | null;
+  /**
+   * Every view in the model, already built. Confirmed against
+   * tests/fixtures/sabsa (38 views) and tests/fixtures/agile-manifesto (3
+   * views): all views nest as siblings inside one shared `AbstractViews`
+   * container, while each gets its own separate `GraphicalModule` (with its
+   * own `MM_Diagram` and its own `Any/Objectref` pointing back to its
+   * `AllView`) — see tests/fixtures/README.md for the full derivation.
+   */
+  views: readonly BuiltView[];
+  /**
+   * `Junction`/`OrJunction` elements — a root-level `<ArchiMate:Connectors>`
+   * container, a sibling of `AbstractSchemes` under `ArchiMateComponent`.
+   * Confirmed order relative to `rootRelationsXml`: `Relations` then
+   * `Connectors` (see tests/fixtures/README.md).
+   */
+  rootConnectorsXml: readonly XmlElement[];
+  /** Generic-form relations (`AssociationRelationship`, `Grouping`/`Junction` endpoints) — see relationship-writer.ts. */
+  rootRelationsXml: readonly XmlElement[];
 }
 
 export function buildXmaDocument(input: DocumentAssemblyInput): XmlElement {
-  const { modelName, packageName, language, ids, schemeBuilds, folders, view, viewResult, graphicalDiagramXml } = input;
+  const { modelName, packageName, language, ids, schemeBuilds, folders, views, rootConnectorsXml, rootRelationsXml } = input;
 
   const emittedSchemeTags = new Set<string>();
   const rootSchemesXml = ROOT_LEVEL_CATEGORIES.map((category) =>
@@ -111,25 +133,28 @@ export function buildXmaDocument(input: DocumentAssemblyInput): XmlElement {
     );
   }
 
-  let allViewXmaId: number | null = null;
-  if (view && viewResult) {
-    allViewXmaId = ids.idFor(view.id);
-    const allViewXml = element(
-      'ArchiMate:AllView',
-      [['id', String(allViewXmaId)]],
-      [
-        buildProfileValues(language, view.name ?? '', view.documentation),
-        ...(viewResult.viewGraphicsXml.length > 0
-          ? [element('ArchiMate:ViewGraphics', [['name', 'viewGraphics'], ['id', String(ids.fresh())]], viewResult.viewGraphicsXml)]
-          : []),
-        element('ArchiMate:RefObjects', [['name', 'refObjects'], ['id', String(ids.fresh())]], viewResult.refObjectsXml),
-      ],
-    );
+  const allViewXmaIds: number[] = [];
+  if (views.length > 0) {
+    const allViewXmlEntries = views.map(({ view, viewResult }) => {
+      const allViewXmaId = ids.idFor(view.id);
+      allViewXmaIds.push(allViewXmaId);
+      return element(
+        'ArchiMate:AllView',
+        [['id', String(allViewXmaId)]],
+        [
+          buildProfileValues(language, view.name ?? '', view.documentation),
+          ...(viewResult.viewGraphicsXml.length > 0
+            ? [element('ArchiMate:ViewGraphics', [['name', 'viewGraphics'], ['id', String(ids.fresh())]], viewResult.viewGraphicsXml)]
+            : []),
+          element('ArchiMate:RefObjects', [['name', 'refObjects'], ['id', String(ids.fresh())]], viewResult.refObjectsXml),
+        ],
+      );
+    });
     topLevelFolders.push(
       element('ArchiMate:AbstractFolder', [['id', String(ids.fresh())]], [
         textElement('nm', findFolderName(folders, VIEWS_FOLDER.archiFolderType, VIEWS_FOLDER.defaultLabel)),
         element('ArchiMate:AbstractSchemes', [['name', 'schemes'], ['id', String(ids.fresh())]]),
-        element('ArchiMate:AbstractViews', [['name', 'views'], ['id', String(ids.fresh())]], [allViewXml]),
+        element('ArchiMate:AbstractViews', [['name', 'views'], ['id', String(ids.fresh())]], allViewXmlEntries),
         element('ArchiMate:AbstractFolders', [['name', 'folders'], ['id', String(ids.fresh())]]),
       ]),
     );
@@ -142,6 +167,12 @@ export function buildXmaDocument(input: DocumentAssemblyInput): XmlElement {
     [
       modelNameProfile,
       element('ArchiMate:DomainDataSet', [['name', 'domainDataSet'], ['id', String(ids.fresh())]]),
+      ...(rootRelationsXml.length > 0
+        ? [element('ArchiMate:Relations', [['name', 'relations'], ['id', String(ids.fresh())]], [...rootRelationsXml])]
+        : []),
+      ...(rootConnectorsXml.length > 0
+        ? [element('ArchiMate:Connectors', [['name', 'connectors'], ['id', String(ids.fresh())]], [...rootConnectorsXml])]
+        : []),
       element('ArchiMate:AbstractCommandContainers', [['name', 'commandContainers'], ['id', String(ids.fresh())]]),
       element('ArchiMate:AbstractSchemes', [['name', 'schemes'], ['id', String(ids.fresh())]], rootSchemesXml),
       element('ArchiMate:AbstractViews', [['name', 'views'], ['id', String(ids.fresh())]]),
@@ -156,15 +187,15 @@ export function buildXmaDocument(input: DocumentAssemblyInput): XmlElement {
   );
 
   const modules: XmlElement[] = [semanticModule];
-  if (graphicalDiagramXml && allViewXmaId !== null) {
+  views.forEach(({ graphicalDiagramXml }, index) => {
     modules.push(
       element(
         'MM_ModelPackage:MM_Module',
         [['id', String(ids.fresh())], ['nm', 'GraphicalModule'], ['metaModel', 'MM_Diagram']],
-        [graphicalDiagramXml, element('Any', [['name', 'tag']], [element('Objectref', [['value', String(allViewXmaId)]])])],
+        [graphicalDiagramXml, element('Any', [['name', 'tag']], [element('Objectref', [['value', String(allViewXmaIds[index])]])])],
       ),
     );
-  }
+  });
 
   const archiMateMMModel = element('ArchiMate:ArchiMateMM_Model', [['id', String(ids.fresh())]], [
     buildProfileValues(language, modelName),

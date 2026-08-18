@@ -9,13 +9,11 @@ const FIXTURE_DIR = fileURLToPath(new URL('../fixtures/agile-manifesto/', import
 
 /**
  * Like tests/integration/sabsa.test.ts: this model (73 elements, 104
- * relationships, 3 views) has more than the one view v0.1 supports, so this
- * doesn't assert a clean serializeXma round-trip. It proves the 20
- * mappings derived from this fixture (see relationship-mapping.ts) are
- * recognized as supported, and specifically that a `BusinessCollaboration`
- * endpoint — confirmed to collapse to `BusinessRole` for relationship
- * naming, not modeled in relationship-mapping.ts — is still correctly
- * diagnosed as unsupported rather than silently mismapped.
+ * relationships, 3 views) has more than the one view v0.1 originally
+ * supported. It proves the 20 exact-triple mappings derived from this
+ * fixture are recognized as supported, and specifically that
+ * `BusinessCollaboration` — confirmed to collapse to `BusinessRole` for
+ * relationship naming — is now correctly mapped rather than diagnosed.
  */
 describe('integration: agile-manifesto fixture', () => {
   let model: ArchiModel;
@@ -37,7 +35,7 @@ describe('integration: agile-manifesto fixture', () => {
     expect(model.views.length).toBe(3);
   });
 
-  it('reports every relationship matching a confirmed mapping triple as supported', () => {
+  it('reports every relationship matching a confirmed exact-triple mapping as supported', () => {
     const elementById = new Map(model.elements.map((e) => [e.id, e]));
     const confirmedKeys = new Set(
       RELATIONSHIP_MAPPINGS.map((m) => `${m.archiRelationshipType}|${m.sourceArchiType}|${m.targetArchiType}`),
@@ -56,14 +54,44 @@ describe('integration: agile-manifesto fixture', () => {
     expect(checkedCount).toBeGreaterThan(20);
   });
 
-  it('still reports a BusinessCollaboration-endpoint relationship as unsupported (the Collaboration-collapse form is not modeled)', () => {
+  it('now reports every BusinessCollaboration-endpoint relationship as supported (the confirmed Collaboration-collapse mapping)', () => {
     const elementById = new Map(model.elements.map((e) => [e.id, e]));
-    const collaborationRel = model.relationships.find((r) => {
+    const collaborationRels = model.relationships.filter((r) => {
       const src = elementById.get(r.sourceId);
       const tgt = elementById.get(r.targetId);
       return src?.type === 'BusinessCollaboration' || tgt?.type === 'BusinessCollaboration';
     });
-    expect(collaborationRel).toBeDefined();
-    expect(unsupportedRelationshipIds.has(collaborationRel!.id)).toBe(true);
+    expect(collaborationRels.length).toBeGreaterThan(0);
+    for (const rel of collaborationRels) {
+      expect(unsupportedRelationshipIds.has(rel.id)).toBe(false);
+    }
+  });
+
+  it('now reports the Junction element and its InfluenceRelationship endpoints as supported', () => {
+    expect(diagnostics.some((d) => d.code === 'unsupported-element-type')).toBe(false);
+    const elementById = new Map(model.elements.map((e) => [e.id, e]));
+    const junctionRels = model.relationships.filter((r) => {
+      const src = elementById.get(r.sourceId);
+      const tgt = elementById.get(r.targetId);
+      return src?.type === 'Junction' || tgt?.type === 'Junction';
+    });
+    expect(junctionRels.length).toBeGreaterThan(0);
+    for (const rel of junctionRels) {
+      expect(unsupportedRelationshipIds.has(rel.id)).toBe(false);
+    }
+  });
+
+  it('no longer reports diagnostics for anything this session set out to fix (Junction, Association, Grouping, Collaboration-collapse, multi-view)', () => {
+    // The model still has diagnostics unrelated to this session's scope (incomplete
+    // geometry on some diagram objects, an explicit font style/size override on a
+    // Note, one inconsistent bendpoint) — those are real, pre-existing limitations,
+    // not something the four mapping items + multi-view support were meant to fix.
+    const inScope = new Set([
+      'unsupported-element-type',
+      'unsupported-relationship',
+      'unsupported-relationship-endpoint-type',
+      'unsupported-multiple-views',
+    ]);
+    expect(diagnostics.filter((d) => inScope.has(d.code))).toEqual([]);
   });
 });
