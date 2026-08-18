@@ -1,3 +1,9 @@
+## [0.4.1](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.4.0...v0.4.1) (2026-08-18)
+
+### Bug Fixes
+
+* stop blocking serialization on 3 recoverable diagnostics ([d6fbae3](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/d6fbae3365a360f8b205971d156dfc5e883fc34c))
+
 ## [0.4.0](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.3.0...v0.4.0) (2026-08-18)
 
 ### Features
