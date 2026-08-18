@@ -1,4 +1,9 @@
-## 1.0.0 (2026-08-18)
+## 0.3.0 (2026-08-18)
+
+Retroactive changelog entry covering all history up to and including the
+0.3.0 npm release (published before semantic-release was configured; this
+was the first run of the automated changelog, which by default summarized
+the entire commit history rather than only what changed since 0.3.0).
 
 ### Features
 
