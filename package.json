@@ -1,6 +1,6 @@
 {
   "name": "@cda/adapter-xma",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "XMA output adapter for the Continuous-Driven Architecture (CDA) ecosystem. Serializes the ArchiModel produced by @cda/archi-semantic-core into an XMA document.",
   "keywords": [
     "archimate",
