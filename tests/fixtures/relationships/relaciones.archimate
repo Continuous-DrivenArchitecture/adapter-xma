@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archimate:model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:archimate="http://www.archimatetool.com/archimate" name="Ejemplos" id="id-d527b28475444e0c90282a7bd170a2f5" version="5.0.0">
+  <folder name="Strategy" id="id-b86b96105c92474d9ec37233cb53d941" type="strategy"/>
+  <folder name="Business" id="id-928cb7511e6c4c828f08e9d71e499467" type="business">
+    <element xsi:type="archimate:BusinessActor" name="Business Actor" id="id-f041a754963746bcbb35e360f760cc5e"/>
+    <element xsi:type="archimate:BusinessProcess" name="Business Process" id="id-35b8200f25fd40edb60702887100f156"/>
+    <element xsi:type="archimate:BusinessProcess" name="Business Process A" id="id-72260e698a7b4079a1eb365d0b402c96"/>
+    <element xsi:type="archimate:BusinessProcess" name="Business Process B" id="id-403656925f5947e4b526d6c02b037259"/>
+  </folder>
+  <folder name="Application" id="id-d3ed37ae110a4d2eb9e73397379b6c05" type="application">
+    <element xsi:type="archimate:ApplicationService" name="Application Service" id="id-548fa057260847faad6ba140d721219c"/>
+  </folder>
+  <folder name="Technology &amp; Physical" id="id-7657626e43d5485db911a0aa9a087a6d" type="technology"/>
+  <folder name="Motivation" id="id-667a0000104b4fa2b98132d96124ee0e" type="motivation"/>
+  <folder name="Implementation &amp; Migration" id="id-5da14f5922d54b34ad6f51e460679925" type="implementation_migration"/>
+  <folder name="Other" id="id-ccbe937c27db4ce4b76593abdb5e5cdb" type="other"/>
+  <folder name="Relations" id="id-3d8d505416ab453cb900993bb6ae1055" type="relations">
+    <element xsi:type="archimate:AssignmentRelationship" id="id-46c1b095283e42598002adeb5304a364" source="id-f041a754963746bcbb35e360f760cc5e" target="id-35b8200f25fd40edb60702887100f156"/>
+    <element xsi:type="archimate:ServingRelationship" id="id-7ddd2f5de8114a69a9d9c1eeb33ce909" source="id-548fa057260847faad6ba140d721219c" target="id-35b8200f25fd40edb60702887100f156"/>
+    <element xsi:type="archimate:FlowRelationship" id="id-e734e6fbabe34fd488ef234df3d42fdf" source="id-72260e698a7b4079a1eb365d0b402c96" target="id-403656925f5947e4b526d6c02b037259"/>
+  </folder>
+  <folder name="Views" id="id-043fd6d25eaa438d92bd2ee50db7deff" type="diagrams">
+    <element xsi:type="archimate:ArchimateDiagramModel" name="Relaciones" id="id-2ee2f36b6f7647e2821976ed27bb8952">
+      <child xsi:type="archimate:DiagramObject" id="id-6ef9ffeb3e9e4bb1b7f6f12fdc8ba72e" archimateElement="id-f041a754963746bcbb35e360f760cc5e">
+        <bounds x="48" y="84" width="120" height="55"/>
+        <sourceConnection xsi:type="archimate:Connection" id="id-a6fa4fd6bb4848e49e4b803a5ad5384c" source="id-6ef9ffeb3e9e4bb1b7f6f12fdc8ba72e" target="id-96c543db609b4e1490b7f550fb95de24" archimateRelationship="id-46c1b095283e42598002adeb5304a364"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-96c543db609b4e1490b7f550fb95de24" targetConnections="id-a6fa4fd6bb4848e49e4b803a5ad5384c id-d5ef60a27ec842549f4293855b1261cb" archimateElement="id-35b8200f25fd40edb60702887100f156">
+        <bounds x="216" y="84" width="120" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-417a8dfdf107486b873b474a0dceaeab" archimateElement="id-548fa057260847faad6ba140d721219c">
+        <bounds x="372" y="84" width="120" height="55"/>
+        <sourceConnection xsi:type="archimate:Connection" id="id-d5ef60a27ec842549f4293855b1261cb" source="id-417a8dfdf107486b873b474a0dceaeab" target="id-96c543db609b4e1490b7f550fb95de24" archimateRelationship="id-7ddd2f5de8114a69a9d9c1eeb33ce909"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-9025debfac4f4c4ca7d6f7bee88c8839" archimateElement="id-72260e698a7b4079a1eb365d0b402c96">
+        <bounds x="48" y="180" width="120" height="55"/>
+        <sourceConnection xsi:type="archimate:Connection" id="id-eee4b9fe6b02454a81cb0c24567a3507" source="id-9025debfac4f4c4ca7d6f7bee88c8839" target="id-3a54ab14923349d0b8d5e864ec995583" archimateRelationship="id-e734e6fbabe34fd488ef234df3d42fdf">
+          <bendpoint startX="-12" startY="93" endX="-168" endY="-3"/>
+        </sourceConnection>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-3a54ab14923349d0b8d5e864ec995583" targetConnections="id-eee4b9fe6b02454a81cb0c24567a3507" archimateElement="id-403656925f5947e4b526d6c02b037259">
+        <bounds x="204" y="276" width="120" height="55"/>
+      </child>
+    </element>
+  </folder>
+</archimate:model>

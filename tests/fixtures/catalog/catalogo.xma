@@ -1,0 +1,1363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MM_Document version="2.0" format="XML" includeMetaModels="false" requiredEngineVersion="1" xmlns:builtins="http://www.bizzdesign.com/metamodels/builtins" xmlns:Base="http://www.bizzdesign.com/metamodels/Base" xmlns:MM_ModelPackage="http://www.bizzdesign.com/metamodels/MM_ModelPackage" xmlns:Component="http://www.bizzdesign.com/metamodels/Component" xmlns:Amber="http://www.bizzdesign.com/metamodels/Amber" xmlns:ArchiMate="http://www.bizzdesign.com/metamodels/ArchiMate3.0" xmlns:BMC="http://www.bizzdesign.com/metamodels/BMC" xmlns:BPMN="http://www.bizzdesign.com/metamodels/BPMN" xmlns:Connection="http://www.bizzdesign.com/metamodels/Connection" xmlns:DMN="http://www.bizzdesign.com/metamodels/DMN" xmlns:ERD="http://www.bizzdesign.com/metamodels/ERD" xmlns:Lean="http://www.bizzdesign.com/metamodels/Lean" xmlns:META="http://www.bizzdesign.com/metamodels/META" xmlns:MM_Diagram="http://www.bizzdesign.com/metamodels/MM_Diagram" xmlns:TDM="http://www.bizzdesign.com/metamodels/TDM" xmlns:UML="http://www.bizzdesign.com/metamodels/UML">
+<MM_StorageUnit>
+<MM_ModelPackage:MM_ModelPackage id="0">
+<nm>desktop-pe0bkqf\home's Model package 2</nm>
+<MM_ModelPackage:MM_Folders name="folders" id="14"/>
+<MM_ModelPackage:MM_Models name="models" id="1">
+<ArchiMate:ArchiMateMM_Model id="2">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">catalogo</MM_Value>
+</MM_ProfileValues>
+<MM_ModelPackage:MM_Modules name="modules" id="3">
+<MM_ModelPackage:MM_Module id="4" nm="SemanticModule" metaModel="ArchiMate">
+<ArchiMate:ArchiMateComponent name="root" id="5">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Empty model</MM_Value>
+</MM_ProfileValues>
+<ArchiMate:DomainDataSet name="domainDataSet" id="6"/>
+<ArchiMate:AbstractCommandContainers name="commandContainers" id="7"/>
+<ArchiMate:AbstractSchemes name="schemes" id="8">
+<ArchiMate:StrategyScheme id="17">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Strategy</MM_Value>
+</MM_ProfileValues>
+<ArchiMate:StrategyCoursesOfAction name="courses" id="24">
+<ArchiMate:StrategyCourseOfAction id="25">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Course of Action</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:StrategyCourseOfAction>
+</ArchiMate:StrategyCoursesOfAction>
+<ArchiMate:StrategyResources name="resources" id="18">
+<ArchiMate:StrategyResource id="19">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Resource</MM_Value>
+<MM_Value name="doc" type="rtf" xml:lang="en">{\rtf1 Esto es un Resource}</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:StrategyResource>
+</ArchiMate:StrategyResources>
+<ArchiMate:StrategyValueStreams name="streams" id="20">
+<ArchiMate:StrategyValueStream id="21">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Value Stream</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:StrategyValueStream>
+</ArchiMate:StrategyValueStreams>
+<ArchiMate:StrategyCapabilities name="capabilities" id="22">
+<ArchiMate:StrategyCapability id="23">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Capability</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:StrategyCapability>
+</ArchiMate:StrategyCapabilities>
+</ArchiMate:StrategyScheme>
+<ArchiMate:BusinessScheme id="26">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Business</MM_Value>
+</MM_ProfileValues>
+<ArchiMate:BusinessProcesses name="processes" id="38">
+<ArchiMate:BusinessProcess id="39">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Business Process</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:BusinessProcess>
+</ArchiMate:BusinessProcesses>
+<ArchiMate:BusinessActors name="actors" id="42">
+<ArchiMate:BusinessActor id="43">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Business Actor</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:BusinessActor>
+</ArchiMate:BusinessActors>
+<ArchiMate:BusinessEvents name="events" id="31">
+<ArchiMate:BusinessEvent id="32">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Business Event</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:BusinessEvent>
+</ArchiMate:BusinessEvents>
+<ArchiMate:BusinessServices name="services" id="44">
+<ArchiMate:BusinessService id="45">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Business Service</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:BusinessService>
+</ArchiMate:BusinessServices>
+<ArchiMate:BusinessObjects name="objects" id="46">
+<ArchiMate:BusinessContract id="47">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Contract</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:BusinessContract>
+<ArchiMate:BusinessObject id="48">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Business Object</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:BusinessObject>
+</ArchiMate:BusinessObjects>
+<ArchiMate:BusinessRoles name="roles" id="33">
+<ArchiMate:BusinessRole id="34">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Business Role</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:BusinessRole>
+<ArchiMate:BusinessCollaboration id="35">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Business Collaboration</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:BusinessCollaboration>
+</ArchiMate:BusinessRoles>
+<ArchiMate:BusinessFunctions name="functions" id="27">
+<ArchiMate:BusinessFunction id="28">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Business Function</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:BusinessFunction>
+</ArchiMate:BusinessFunctions>
+<ArchiMate:BusinessProducts name="products" id="29">
+<ArchiMate:BusinessProduct id="30">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Product</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:BusinessProduct>
+</ArchiMate:BusinessProducts>
+<ArchiMate:BusinessRepresentations name="representations" id="49">
+<ArchiMate:BusinessRepresentation id="50">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Representation</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:BusinessRepresentation>
+</ArchiMate:BusinessRepresentations>
+<ArchiMate:BusinessInteractions name="interactions" id="36">
+<ArchiMate:BusinessInteraction id="37">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Business Interaction</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:BusinessInteraction>
+</ArchiMate:BusinessInteractions>
+<ArchiMate:BusinessInterfaces name="interfaces" id="40">
+<ArchiMate:BusinessInterface id="41">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Business Interface</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:BusinessInterface>
+</ArchiMate:BusinessInterfaces>
+</ArchiMate:BusinessScheme>
+<ArchiMate:IMScheme id="69">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Implementation &amp; Migration</MM_Value>
+</MM_ProfileValues>
+<ArchiMate:IMPlateaus name="plateaus" id="74">
+<ArchiMate:IMPlateau id="75">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Plateau</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:IMPlateau>
+</ArchiMate:IMPlateaus>
+<ArchiMate:IMDeliverables name="deliverables" id="70">
+<ArchiMate:IMDeliverable id="71">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Deliverable</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:IMDeliverable>
+</ArchiMate:IMDeliverables>
+<ArchiMate:IMWorkpackages name="workpackages" id="78">
+<ArchiMate:IMWorkpackage id="79">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Work Package</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:IMWorkpackage>
+</ArchiMate:IMWorkpackages>
+<ArchiMate:IMImplementationEvents name="events" id="72">
+<ArchiMate:IMImplementationEvent id="73">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Implementation Event</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:IMImplementationEvent>
+</ArchiMate:IMImplementationEvents>
+<ArchiMate:IMGaps name="gaps" id="76">
+<ArchiMate:IMGap id="77">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Gap</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:IMGap>
+</ArchiMate:IMGaps>
+</ArchiMate:IMScheme>
+<ArchiMate:ApplicationScheme id="51">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Application</MM_Value>
+</MM_ProfileValues>
+<ArchiMate:ApplicationInteractions name="interactions" id="63">
+<ArchiMate:ApplicationInteraction id="64">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Application Interaction</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:ApplicationInteraction>
+</ArchiMate:ApplicationInteractions>
+<ArchiMate:ApplicationInterfaces name="interfaces" id="61">
+<ArchiMate:ApplicationInterface id="62">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Application Interface</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:ApplicationInterface>
+</ArchiMate:ApplicationInterfaces>
+<ArchiMate:ApplicationProcesses name="processes" id="67">
+<ArchiMate:ApplicationProcess id="68">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Application Process</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:ApplicationProcess>
+</ArchiMate:ApplicationProcesses>
+<ArchiMate:ApplicationComponents name="components" id="56">
+<ArchiMate:ApplicationCollaboration id="58">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Application Collaboration</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:ApplicationCollaboration>
+<ArchiMate:ApplicationComponent id="57">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Application Component</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:ApplicationComponent>
+</ArchiMate:ApplicationComponents>
+<ArchiMate:ApplicationEvents name="events" id="54">
+<ArchiMate:ApplicationEvent id="55">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Application Event</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:ApplicationEvent>
+</ArchiMate:ApplicationEvents>
+<ArchiMate:ApplicationServices name="services" id="59">
+<ArchiMate:ApplicationService id="60">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Application Service</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:ApplicationService>
+</ArchiMate:ApplicationServices>
+<ArchiMate:ApplicationFunctions name="functions" id="52">
+<ArchiMate:ApplicationFunction id="53">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Application Function</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:ApplicationFunction>
+</ArchiMate:ApplicationFunctions>
+<ArchiMate:ApplicationDataObjects name="dataObjects" id="65">
+<ArchiMate:ApplicationDataObject id="66">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Data Object</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:ApplicationDataObject>
+</ArchiMate:ApplicationDataObjects>
+</ArchiMate:ApplicationScheme>
+<ArchiMate:MotivationScheme id="85">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Motivation</MM_Value>
+</MM_ProfileValues>
+<ArchiMate:MotivationStakeholders name="stakeholders" id="86">
+<ArchiMate:MotivationStakeholder id="87">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Stakeholder</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:MotivationStakeholder>
+</ArchiMate:MotivationStakeholders>
+<ArchiMate:MotivationElements name="motivations" id="88">
+<ArchiMate:MotivationOutcome id="90">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Outcome</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:MotivationOutcome>
+<ArchiMate:MotivationMeaning id="96">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Meaning</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:MotivationMeaning>
+<ArchiMate:MotivationDriver id="89">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Driver</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:MotivationDriver>
+<ArchiMate:MotivationAssessment id="91">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Assessment</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:MotivationAssessment>
+<ArchiMate:MotivationGoal id="97">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Goal</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:MotivationGoal>
+<ArchiMate:MotivationConstraint id="92">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Constraint</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:MotivationConstraint>
+<ArchiMate:MotivationRequirement id="94">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Requirement</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:MotivationRequirement>
+<ArchiMate:MotivationValue id="93">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Value</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:MotivationValue>
+<ArchiMate:MotivationPrinciple id="95">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Principle</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:MotivationPrinciple>
+</ArchiMate:MotivationElements>
+</ArchiMate:MotivationScheme>
+<ArchiMate:CompositeScheme id="80">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Other</MM_Value>
+</MM_ProfileValues>
+<ArchiMate:CompositeLocations name="locations" id="83">
+<ArchiMate:CompositeLocation id="84">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Location</MM_Value>
+<MM_Value name="doc" type="rtf" xml:lang="en">{\rtf1 Esto es un Location}</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:CompositeLocation>
+</ArchiMate:CompositeLocations>
+<ArchiMate:CompositeGroupings name="groupings" id="81">
+<ArchiMate:CompositeGrouping id="82">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Grouping</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:CompositeGrouping>
+</ArchiMate:CompositeGroupings>
+</ArchiMate:CompositeScheme>
+</ArchiMate:AbstractSchemes>
+<ArchiMate:AbstractViews name="views" id="9"/>
+<ArchiMate:AbstractFolders name="folders" id="10">
+<ArchiMate:AbstractFolder id="98">
+<nm>Technology &amp; Physical</nm>
+<ArchiMate:AbstractSchemes name="schemes" id="99">
+<ArchiMate:TechnologyScheme id="100">
+<ArchiMate:TechnologyNodes name="nodes" id="111">
+<ArchiMate:TechnologyCollaboration id="112">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Technology Collaboration</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:TechnologyCollaboration>
+<ArchiMate:TechnologyNode id="113">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Node</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:TechnologyNode>
+<ArchiMate:TechnologyDevice id="114">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Device</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:TechnologyDevice>
+<ArchiMate:TechnologySystemSoftware id="115">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">System Software</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:TechnologySystemSoftware>
+</ArchiMate:TechnologyNodes>
+<ArchiMate:TechnologyCommunicationNetworks name="networks" id="103">
+<ArchiMate:TechnologyCommunicationNetwork id="104">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Communication Network</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:TechnologyCommunicationNetwork>
+</ArchiMate:TechnologyCommunicationNetworks>
+<ArchiMate:TechnologyInterfaces name="interfaces" id="109">
+<ArchiMate:TechnologyInterface id="110">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Technology Interface</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:TechnologyInterface>
+</ArchiMate:TechnologyInterfaces>
+<ArchiMate:TechnologyProcesses name="processes" id="118">
+<ArchiMate:TechnologyProcess id="119">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Technology Process</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:TechnologyProcess>
+</ArchiMate:TechnologyProcesses>
+<ArchiMate:TechnologyInteractions name="interactions" id="101">
+<ArchiMate:TechnologyInteraction id="102">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Technology Interaction</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:TechnologyInteraction>
+</ArchiMate:TechnologyInteractions>
+<ArchiMate:TechnologyFunctions name="functions" id="120">
+<ArchiMate:TechnologyFunction id="121">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Technology Function</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:TechnologyFunction>
+</ArchiMate:TechnologyFunctions>
+<ArchiMate:TechnologyArtifacts name="artifacts" id="107">
+<ArchiMate:TechnologyArtifact id="108">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Artifact</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:TechnologyArtifact>
+</ArchiMate:TechnologyArtifacts>
+<ArchiMate:TechnologyEvents name="events" id="116">
+<ArchiMate:TechnologyEvent id="117">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Technology Event</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:TechnologyEvent>
+</ArchiMate:TechnologyEvents>
+<ArchiMate:TechnologyPaths name="paths" id="105">
+<ArchiMate:TechnologyPath id="106">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Path</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:TechnologyPath>
+</ArchiMate:TechnologyPaths>
+<ArchiMate:TechnologyServices name="services" id="122">
+<ArchiMate:TechnologyService id="123">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Technology Service</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:TechnologyService>
+</ArchiMate:TechnologyServices>
+</ArchiMate:TechnologyScheme>
+<ArchiMate:PhysicalScheme id="124">
+<ArchiMate:PhysicalDistributionNetworks name="networks" id="127">
+<ArchiMate:PhysicalDistributionNetwork id="128">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Distribution Network</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:PhysicalDistributionNetwork>
+</ArchiMate:PhysicalDistributionNetworks>
+<ArchiMate:PhysicalMaterials name="materials" id="129">
+<ArchiMate:PhysicalMaterial id="130">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Material</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:PhysicalMaterial>
+</ArchiMate:PhysicalMaterials>
+<ArchiMate:PhysicalEquipments name="equipments" id="131">
+<ArchiMate:PhysicalEquipment id="132">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Equipment</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:PhysicalEquipment>
+</ArchiMate:PhysicalEquipments>
+<ArchiMate:PhysicalFacilities name="facilities" id="125">
+<ArchiMate:PhysicalFacility id="126">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Facility</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:PhysicalFacility>
+</ArchiMate:PhysicalFacilities>
+</ArchiMate:PhysicalScheme>
+</ArchiMate:AbstractSchemes>
+<ArchiMate:AbstractViews name="views" id="133"/>
+<ArchiMate:AbstractFolders name="folders" id="134"/>
+</ArchiMate:AbstractFolder>
+<ArchiMate:AbstractFolder id="135">
+<nm>Views</nm>
+<ArchiMate:AbstractSchemes name="schemes" id="136"/>
+<ArchiMate:AbstractViews name="views" id="137">
+<ArchiMate:AllView id="138">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Default View</MM_Value>
+</MM_ProfileValues>
+<ArchiMate:ViewGraphics name="viewGraphics" id="139">
+<ArchiMate:ViewGraphic id="140">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Group</MM_Value>
+<MM_Value name="doc" type="rtf" xml:lang="en">{\rtf1 Esto es un Group}</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:ViewGraphic>
+<ArchiMate:ViewGraphic id="141">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="en">Esto es un Note</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:ViewGraphic>
+</ArchiMate:ViewGraphics>
+<ArchiMate:RefObjects name="refObjects" id="142">
+<ArchiMate:CompositeGroupingRef id="152" to="82"/>
+<ArchiMate:ApplicationInteractionRef id="146" to="64"/>
+<ArchiMate:ApplicationProcessRef id="147" to="68"/>
+<ArchiMate:ApplicationEventRef id="145" to="55"/>
+<ArchiMate:IMDeliverableRef id="150" to="71"/>
+<ArchiMate:IMImplementationEventRef id="151" to="73"/>
+<ArchiMate:IMWorkpackageRef id="149" to="79"/>
+<ArchiMate:ApplicationServiceRef id="148" to="60"/>
+<ArchiMate:IMGapRef id="143" to="77"/>
+<ArchiMate:IMPlateauRef id="144" to="75"/>
+<ArchiMate:BusinessContractRef id="177" to="47"/>
+<ArchiMate:BusinessObjectRef id="178" to="48"/>
+<ArchiMate:ApplicationComponentRef id="179" to="57"/>
+<ArchiMate:StrategyValueStreamRef id="166" to="21"/>
+<ArchiMate:TechnologyCommunicationNetworkRef id="173" to="104"/>
+<ArchiMate:ApplicationCollaborationRef id="180" to="58"/>
+<ArchiMate:ApplicationInterfaceRef id="181" to="62"/>
+<ArchiMate:ApplicationFunctionRef id="182" to="53"/>
+<ArchiMate:BusinessCollaborationRef id="160" to="35"/>
+<ArchiMate:PhysicalMaterialRef id="183" to="130"/>
+<ArchiMate:TechnologyInterfaceRef id="169" to="110"/>
+<ArchiMate:PhysicalEquipmentRef id="184" to="132"/>
+<ArchiMate:BusinessRepresentationRef id="176" to="50"/>
+<ArchiMate:TechnologySystemSoftwareRef id="170" to="115"/>
+<ArchiMate:TechnologyPathRef id="172" to="106"/>
+<ArchiMate:StrategyResourceRef id="167" to="19"/>
+<ArchiMate:StrategyCourseOfActionRef id="165" to="25"/>
+<ArchiMate:TechnologyCollaborationRef id="171" to="112"/>
+<ArchiMate:BusinessInteractionRef id="159" to="37"/>
+<ArchiMate:BusinessFunctionRef id="157" to="28"/>
+<ArchiMate:TechnologyNodeRef id="174" to="113"/>
+<ArchiMate:BusinessActorRef id="161" to="43"/>
+<ArchiMate:BusinessProductRef id="175" to="30"/>
+<ArchiMate:TechnologyServiceRef id="168" to="123"/>
+<ArchiMate:BusinessProcessRef id="155" to="39"/>
+<ArchiMate:ApplicationDataObjectRef id="153" to="66"/>
+<ArchiMate:BusinessInterfaceRef id="163" to="41"/>
+<ArchiMate:BusinessEventRef id="158" to="32"/>
+<ArchiMate:BusinessServiceRef id="156" to="45"/>
+<ArchiMate:BusinessRoleRef id="162" to="34"/>
+<ArchiMate:TechnologyDeviceRef id="154" to="114"/>
+<ArchiMate:StrategyCapabilityRef id="164" to="23"/>
+<ArchiMate:MotivationPrincipleRef id="195" to="95"/>
+<ArchiMate:MotivationOutcomeRef id="194" to="90"/>
+<ArchiMate:TechnologyProcessRef id="199" to="119"/>
+<ArchiMate:PhysicalDistributionNetworkRef id="186" to="128"/>
+<ArchiMate:MotivationDriverRef id="187" to="89"/>
+<ArchiMate:MotivationRequirementRef id="191" to="94"/>
+<ArchiMate:MotivationConstraintRef id="192" to="92"/>
+<ArchiMate:MotivationAssessmentRef id="190" to="91"/>
+<ArchiMate:CompositeLocationRef id="193" to="84"/>
+<ArchiMate:TechnologyFunctionRef id="202" to="121"/>
+<ArchiMate:PhysicalFacilityRef id="185" to="126"/>
+<ArchiMate:MotivationStakeholderRef id="189" to="87"/>
+<ArchiMate:MotivationGoalRef id="188" to="97"/>
+<ArchiMate:MotivationMeaningRef id="196" to="96"/>
+<ArchiMate:TechnologyEventRef id="200" to="117"/>
+<ArchiMate:MotivationValueRef id="197" to="93"/>
+<ArchiMate:TechnologyArtifactRef id="198" to="108"/>
+<ArchiMate:TechnologyInteractionRef id="201" to="102"/>
+</ArchiMate:RefObjects>
+</ArchiMate:AllView>
+</ArchiMate:AbstractViews>
+<ArchiMate:AbstractFolders name="folders" id="203"/>
+</ArchiMate:AbstractFolder>
+</ArchiMate:AbstractFolders>
+</ArchiMate:ArchiMateComponent>
+</MM_ModelPackage:MM_Module>
+<MM_ModelPackage:MM_Module id="204" nm="GraphicalModule" metaModel="MM_Diagram">
+<MM_Diagram:MM_Diagram name="root" id="205">
+<MM_Diagram:MM_Node name="mm_canvas" id="206" mm_graphicType="5" mm_concept="Canvas" mm_semanticObject="138">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="207">
+<MM_Diagram:MM_Node id="208" mm_graphicType="5" mm_concept="TechnologyNode" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="174">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="209">
+<MM_Diagram:MM_Decoration id="210" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="211" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="212">
+<MM_Diagram:MM_Color id="213" mm_r="201" mm_g="231" mm_b="183"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="102" y="750" w="363" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="214" mm_graphicType="5" mm_concept="TechnologyDevice" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="154">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="215">
+<MM_Diagram:MM_Decoration id="216" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="217" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="218">
+<MM_Diagram:MM_Color id="219" mm_r="201" mm_g="231" mm_b="183"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="498" y="750" w="366" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="220" mm_graphicType="5" mm_concept="TechnologySystemSoftware" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="170">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="221">
+<MM_Diagram:MM_Decoration id="222" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="223" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="224" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="225">
+<MM_Diagram:MM_Color id="226" mm_r="201" mm_g="231" mm_b="183"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="894" y="750" w="363" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="227" mm_graphicType="5" mm_concept="TechnologyCollaboration" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="171">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="228">
+<MM_Diagram:MM_Decoration id="229" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="230" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="231" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="232">
+<MM_Diagram:MM_Color id="233" mm_r="201" mm_g="231" mm_b="183"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="1290" y="750" w="363" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="234" mm_graphicType="5" mm_concept="TechnologyInterface" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="169">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="235">
+<MM_Diagram:MM_Decoration id="236" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="237" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="238" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="239">
+<MM_Diagram:MM_Color id="240" mm_r="201" mm_g="231" mm_b="183"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="1686" y="750" w="363" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="241" mm_graphicType="5" mm_concept="TechnologyPath" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="172">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="242">
+<MM_Diagram:MM_Decoration id="243" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="244" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="245" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="246">
+<MM_Diagram:MM_Color id="247" mm_r="201" mm_g="231" mm_b="183"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="2082" y="750" w="363" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="248" mm_graphicType="5" mm_concept="TechnologyCommunicationNetwork" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="173">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="249">
+<MM_Diagram:MM_Decoration id="250" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="251" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="252" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="253">
+<MM_Diagram:MM_Color id="254" mm_r="201" mm_g="231" mm_b="183"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="4854" y="750" w="363" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="255" mm_graphicType="5" mm_concept="TechnologyFunction" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="202">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="256">
+<MM_Diagram:MM_Decoration id="257" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="258" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="259" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="260">
+<MM_Diagram:MM_Color id="261" mm_r="201" mm_g="231" mm_b="183"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="2478" y="750" w="363" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="262" mm_graphicType="5" mm_concept="TechnologyProcess" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="199">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="263">
+<MM_Diagram:MM_Decoration id="264" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="265" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="266" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="267">
+<MM_Diagram:MM_Color id="268" mm_r="201" mm_g="231" mm_b="183"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="2874" y="750" w="363" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="269" mm_graphicType="5" mm_concept="TechnologyInteraction" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="201">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="270">
+<MM_Diagram:MM_Decoration id="271" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="272" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="273" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="274">
+<MM_Diagram:MM_Color id="275" mm_r="201" mm_g="231" mm_b="183"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="3270" y="750" w="363" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="276" mm_graphicType="5" mm_concept="TechnologyEvent" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="200">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="277">
+<MM_Diagram:MM_Decoration id="278" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="279" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="280">
+<MM_Diagram:MM_Color id="281" mm_r="201" mm_g="231" mm_b="183"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="3666" y="750" w="363" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="282" mm_graphicType="5" mm_concept="TechnologyService" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="168">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="283">
+<MM_Diagram:MM_Decoration id="284" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="285" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="286">
+<MM_Diagram:MM_Color id="287" mm_r="201" mm_g="231" mm_b="183"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="4062" y="750" w="363" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="288" mm_graphicType="5" mm_concept="TechnologyArtifact" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="198">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="289">
+<MM_Diagram:MM_Decoration id="290" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="291" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="292">
+<MM_Diagram:MM_Color id="293" mm_r="201" mm_g="231" mm_b="183"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="4458" y="750" w="363" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="294" mm_graphicType="5" mm_concept="PhysicalEquipment" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="184">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="295">
+<MM_Diagram:MM_Decoration id="296" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="297" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="298" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="299">
+<MM_Diagram:MM_Color id="300" mm_r="201" mm_g="231" mm_b="183"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="105" y="966" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="301" mm_graphicType="5" mm_concept="PhysicalFacility" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="185">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="302">
+<MM_Diagram:MM_Decoration id="303" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="304" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="305" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="306">
+<MM_Diagram:MM_Color id="307" mm_r="201" mm_g="231" mm_b="183"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="501" y="966" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="308" mm_graphicType="5" mm_concept="PhysicalDistributionNetwork" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="186">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="309">
+<MM_Diagram:MM_Decoration id="310" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="311" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="312" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="313">
+<MM_Diagram:MM_Color id="314" mm_r="201" mm_g="231" mm_b="183"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="894" y="966" w="363" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="315" mm_graphicType="5" mm_concept="PhysicalMaterial" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="183">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="316">
+<MM_Diagram:MM_Decoration id="317" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="318" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="319" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="320">
+<MM_Diagram:MM_Color id="321" mm_r="201" mm_g="231" mm_b="183"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="1290" y="966" w="363" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="322" mm_graphicType="5" mm_concept="MotivationStakeholder" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="189">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="323">
+<MM_Diagram:MM_Decoration id="324" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="325" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="326" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="327">
+<MM_Diagram:MM_Color id="328" mm_r="204" mm_g="204" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="99" y="1182" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="329" mm_graphicType="5" mm_concept="MotivationDriver" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="187">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="330">
+<MM_Diagram:MM_Decoration id="331" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="332" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="333" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="334">
+<MM_Diagram:MM_Color id="335" mm_r="204" mm_g="204" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="501" y="1182" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="336" mm_graphicType="5" mm_concept="MotivationAssessment" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="190">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="337">
+<MM_Diagram:MM_Decoration id="338" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="339" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="340" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="341">
+<MM_Diagram:MM_Color id="342" mm_r="204" mm_g="204" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="897" y="1182" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="343" mm_graphicType="5" mm_concept="MotivationGoal" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="188">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="344">
+<MM_Diagram:MM_Decoration id="345" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="346" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="347" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="348">
+<MM_Diagram:MM_Color id="349" mm_r="204" mm_g="204" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="1293" y="1182" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="350" mm_graphicType="5" mm_concept="MotivationOutcome" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="194">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="351">
+<MM_Diagram:MM_Decoration id="352" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="353" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="354" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="355">
+<MM_Diagram:MM_Color id="356" mm_r="204" mm_g="204" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="1683" y="1182" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="357" mm_graphicType="5" mm_concept="MotivationPrinciple" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="195">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="358">
+<MM_Diagram:MM_Decoration id="359" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="360" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="361" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="362">
+<MM_Diagram:MM_Color id="363" mm_r="204" mm_g="204" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="2085" y="1182" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="364" mm_graphicType="5" mm_concept="MotivationRequirement" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="191">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="365">
+<MM_Diagram:MM_Decoration id="366" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="367" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="368" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="369">
+<MM_Diagram:MM_Color id="370" mm_r="204" mm_g="204" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="2481" y="1182" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="371" mm_graphicType="5" mm_concept="MotivationConstraint" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="192">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="372">
+<MM_Diagram:MM_Decoration id="373" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="374" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="375" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="376">
+<MM_Diagram:MM_Color id="377" mm_r="204" mm_g="204" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="2877" y="1182" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="378" mm_graphicType="5" mm_concept="MotivationMeaning" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="196">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="379">
+<MM_Diagram:MM_Decoration id="380" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="381" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="382">
+<MM_Diagram:MM_Color id="383" mm_r="204" mm_g="204" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="3273" y="1182" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="384" mm_graphicType="5" mm_concept="MotivationValue" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="197">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="385">
+<MM_Diagram:MM_Decoration id="386" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="387" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="388">
+<MM_Diagram:MM_Color id="389" mm_r="204" mm_g="204" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="3669" y="1182" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="390" mm_graphicType="5" mm_concept="ViewGraphic" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="141">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="391">
+<MM_Diagram:MM_Decoration id="392" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="393" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="394">
+<MM_Diagram:MM_Color id="395" mm_r="255" mm_g="255" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="2082" y="102" w="360" h="162"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="396" mm_graphicType="5" mm_concept="ViewGraphic" mm_symbolName="group" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="140">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="397">
+<MM_Diagram:MM_Decoration id="398" mm_fontSize="180" mm_graphicType="2" mm_concept="label" mm_frameStrategy="12">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="399" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="400">
+<MM_Diagram:MM_Color id="401" mm_r="210" mm_g="215" mm_b="215"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="2472" y="102" w="366" h="162"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="402" mm_graphicType="5" mm_concept="CompositeLocation" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="193">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="403">
+<MM_Diagram:MM_Decoration id="404" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="405" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="406" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="407">
+<MM_Diagram:MM_Color id="408" mm_r="237" mm_g="207" mm_b="226"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="1683" y="102" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="409" mm_graphicType="5" mm_concept="StrategyResource" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="167">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="410">
+<MM_Diagram:MM_Decoration id="411" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="412" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="413" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="414">
+<MM_Diagram:MM_Color id="415" mm_r="245" mm_g="222" mm_b="170"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="102" y="102" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="416" mm_graphicType="5" mm_concept="StrategyCapability" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="164">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="417">
+<MM_Diagram:MM_Decoration id="418" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="419" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="420" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="421">
+<MM_Diagram:MM_Color id="422" mm_r="245" mm_g="222" mm_b="170"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="498" y="102" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="423" mm_graphicType="5" mm_concept="StrategyValueStream" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="166">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="424">
+<MM_Diagram:MM_Decoration id="425" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="426" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="427" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="428">
+<MM_Diagram:MM_Color id="429" mm_r="245" mm_g="222" mm_b="170"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="1290" y="102" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="430" mm_graphicType="5" mm_concept="StrategyCourseOfAction" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="165">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="431">
+<MM_Diagram:MM_Decoration id="432" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="433" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="434" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="435">
+<MM_Diagram:MM_Color id="436" mm_r="245" mm_g="222" mm_b="170"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="894" y="102" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="437" mm_graphicType="5" mm_concept="BusinessActor" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="161">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="438">
+<MM_Diagram:MM_Decoration id="439" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="440" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="441" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="442">
+<MM_Diagram:MM_Color id="443" mm_r="255" mm_g="255" mm_b="181"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="102" y="318" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="444" mm_graphicType="5" mm_concept="BusinessRole" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="162">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="445">
+<MM_Diagram:MM_Decoration id="446" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="447" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="448" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="449">
+<MM_Diagram:MM_Color id="450" mm_r="255" mm_g="255" mm_b="181"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="495" y="318" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="451" mm_graphicType="5" mm_concept="BusinessCollaboration" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="160">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="452">
+<MM_Diagram:MM_Decoration id="453" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="454" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="455" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="456">
+<MM_Diagram:MM_Color id="457" mm_r="255" mm_g="255" mm_b="181"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="894" y="318" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="458" mm_graphicType="5" mm_concept="BusinessInterface" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="163">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="459">
+<MM_Diagram:MM_Decoration id="460" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="461" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="462" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="463">
+<MM_Diagram:MM_Color id="464" mm_r="255" mm_g="255" mm_b="181"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="1293" y="318" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="465" mm_graphicType="5" mm_concept="BusinessProcess" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="155">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="466">
+<MM_Diagram:MM_Decoration id="467" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="468" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="469" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="470">
+<MM_Diagram:MM_Color id="471" mm_r="255" mm_g="255" mm_b="181"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="1689" y="318" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="472" mm_graphicType="5" mm_concept="BusinessFunction" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="157">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="473">
+<MM_Diagram:MM_Decoration id="474" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="475" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="476" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="477">
+<MM_Diagram:MM_Color id="478" mm_r="255" mm_g="255" mm_b="181"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="2085" y="318" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="479" mm_graphicType="5" mm_concept="BusinessInteraction" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="159">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="480">
+<MM_Diagram:MM_Decoration id="481" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="482" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="483" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="484">
+<MM_Diagram:MM_Color id="485" mm_r="255" mm_g="255" mm_b="181"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="2481" y="318" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="486" mm_graphicType="5" mm_concept="BusinessEvent" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="158">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="487">
+<MM_Diagram:MM_Decoration id="488" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="489" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="490">
+<MM_Diagram:MM_Color id="491" mm_r="255" mm_g="255" mm_b="181"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="2877" y="318" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="492" mm_graphicType="5" mm_concept="BusinessService" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="156">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="493">
+<MM_Diagram:MM_Decoration id="494" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="495" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="496">
+<MM_Diagram:MM_Color id="497" mm_r="255" mm_g="255" mm_b="181"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="3270" y="318" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="498" mm_graphicType="5" mm_concept="BusinessObject" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="178">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="499">
+<MM_Diagram:MM_Decoration id="500" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="501" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="502">
+<MM_Diagram:MM_Color id="503" mm_r="255" mm_g="255" mm_b="181"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="3669" y="318" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="504" mm_graphicType="5" mm_concept="BusinessContract" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="177">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="505">
+<MM_Diagram:MM_Decoration id="506" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="507" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="508">
+<MM_Diagram:MM_Color id="509" mm_r="255" mm_g="255" mm_b="181"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="4065" y="318" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="510" mm_graphicType="5" mm_concept="BusinessRepresentation" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="176">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="511">
+<MM_Diagram:MM_Decoration id="512" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="513" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="514">
+<MM_Diagram:MM_Color id="515" mm_r="255" mm_g="255" mm_b="181"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="4461" y="318" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="516" mm_graphicType="5" mm_concept="BusinessProduct" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="175">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="517">
+<MM_Diagram:MM_Decoration id="518" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="519" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="520">
+<MM_Diagram:MM_Color id="521" mm_r="255" mm_g="255" mm_b="181"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="4857" y="318" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="522" mm_graphicType="5" mm_concept="ApplicationComponent" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="179">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="523">
+<MM_Diagram:MM_Decoration id="524" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="525" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="526" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="527">
+<MM_Diagram:MM_Color id="528" mm_r="181" mm_g="255" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="99" y="534" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="529" mm_graphicType="5" mm_concept="ApplicationCollaboration" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="180">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="530">
+<MM_Diagram:MM_Decoration id="531" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="532" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="533" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="534">
+<MM_Diagram:MM_Color id="535" mm_r="181" mm_g="255" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="498" y="534" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="536" mm_graphicType="5" mm_concept="ApplicationInterface" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="181">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="537">
+<MM_Diagram:MM_Decoration id="538" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="539" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="540" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="541">
+<MM_Diagram:MM_Color id="542" mm_r="181" mm_g="255" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="894" y="534" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="543" mm_graphicType="5" mm_concept="ApplicationFunction" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="182">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="544">
+<MM_Diagram:MM_Decoration id="545" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="546" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="547" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="548">
+<MM_Diagram:MM_Color id="549" mm_r="181" mm_g="255" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="1293" y="534" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="550" mm_graphicType="5" mm_concept="ApplicationInteraction" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="146">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="551">
+<MM_Diagram:MM_Decoration id="552" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="553" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="554" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="555">
+<MM_Diagram:MM_Color id="556" mm_r="181" mm_g="255" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="1689" y="534" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="557" mm_graphicType="5" mm_concept="ApplicationProcess" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="147">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="558">
+<MM_Diagram:MM_Decoration id="559" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="560" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="561" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="562">
+<MM_Diagram:MM_Color id="563" mm_r="181" mm_g="255" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="2085" y="534" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="564" mm_graphicType="5" mm_concept="ApplicationEvent" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="145">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="565">
+<MM_Diagram:MM_Decoration id="566" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="567" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="568">
+<MM_Diagram:MM_Color id="569" mm_r="181" mm_g="255" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="2481" y="534" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="570" mm_graphicType="5" mm_concept="ApplicationService" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="148">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="571">
+<MM_Diagram:MM_Decoration id="572" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="573" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="574">
+<MM_Diagram:MM_Color id="575" mm_r="181" mm_g="255" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="2874" y="534" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="576" mm_graphicType="5" mm_concept="ApplicationDataObject" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="153">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="577">
+<MM_Diagram:MM_Decoration id="578" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="579" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="580">
+<MM_Diagram:MM_Color id="581" mm_r="181" mm_g="255" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="3273" y="534" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="582" mm_graphicType="5" mm_concept="CompositeGrouping" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="152">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="583">
+<MM_Diagram:MM_Decoration id="584" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="585" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="586">
+<MM_Diagram:MM_Color id="587" mm_r="255" mm_g="255" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="2877" y="102" w="354" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="588" mm_graphicType="5" mm_concept="IMWorkpackage" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="149">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="589">
+<MM_Diagram:MM_Decoration id="590" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="591" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="592" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="593">
+<MM_Diagram:MM_Color id="594" mm_r="255" mm_g="224" mm_b="224"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="3270" y="102" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="595" mm_graphicType="5" mm_concept="IMDeliverable" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="150">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="596">
+<MM_Diagram:MM_Decoration id="597" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="598" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="599">
+<MM_Diagram:MM_Color id="600" mm_r="255" mm_g="224" mm_b="224"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="3666" y="99" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="601" mm_graphicType="5" mm_concept="IMImplementationEvent" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="151">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="602">
+<MM_Diagram:MM_Decoration id="603" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="604" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="605">
+<MM_Diagram:MM_Color id="606" mm_r="255" mm_g="224" mm_b="224"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="4065" y="102" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="607" mm_graphicType="5" mm_concept="IMGap" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="143">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="608">
+<MM_Diagram:MM_Decoration id="609" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="610" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="611" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="612">
+<MM_Diagram:MM_Color id="613" mm_r="255" mm_g="224" mm_b="224"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="4857" y="102" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="614" mm_graphicType="5" mm_concept="IMPlateau" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="144">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="615">
+<MM_Diagram:MM_Decoration id="616" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="617" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="618" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="619">
+<MM_Diagram:MM_Color id="620" mm_r="255" mm_g="224" mm_b="224"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="4461" y="102" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+</MM_Diagram:MM_Graphics>
+<MM_Rect name="mm_rect" x="0" y="0" w="2147483647" h="2147483647"/>
+</MM_Diagram:MM_Node>
+</MM_Diagram:MM_Diagram>
+<Any name="tag"><Objectref value="138"/></Any>
+</MM_ModelPackage:MM_Module>
+</MM_ModelPackage:MM_Modules>
+<Any name="taggedValues"><Structure><String name="createdBy">Enterprise Studio 4 (24 Dic 2025)</String></Structure></Any>
+</ArchiMate:ArchiMateMM_Model>
+</MM_ModelPackage:MM_Models>
+<MM_ModelPackage:DependencyRelations name="dependencyRelations" id="15"/>
+<MM_ModelPackage:MM_Languages name="languages" id="11">
+<MM_ModelPackage:MM_Language id="12" isDefault="true">
+<nm>en</nm>
+</MM_ModelPackage:MM_Language>
+</MM_ModelPackage:MM_Languages>
+<MM_ModelPackage:MM_Users name="users" id="13">
+<MM_ModelPackage:MM_User id="16">
+<nm>desktop-pe0bkqf\home</nm>
+<Any name="taggedValues"><Structure><List name="viewSettings"><Structure><Objectref value="138" name="diagObj"/><List name="selectedObjects"/></Structure></List></Structure></Any>
+</MM_ModelPackage:MM_User>
+</MM_ModelPackage:MM_Users>
+<Any name="taggedValues"><Structure><Structure name="grid"><Long value="20" name="y"/><Long value="20" name="x"/></Structure><String name="lastSavedWith">Enterprise Studio 4 (24 Dic 2025)</String></Structure></Any>
+</MM_ModelPackage:MM_ModelPackage>
+</MM_StorageUnit>
+</MM_Document>

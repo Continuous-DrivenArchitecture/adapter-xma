@@ -1,0 +1,58 @@
+{
+  "name": "@cda/adapter-xma",
+  "version": "0.1.0",
+  "description": "XMA output adapter for the Continuous-Driven Architecture (CDA) ecosystem. Serializes the ArchiModel produced by @cda/archi-semantic-core into an XMA document.",
+  "keywords": [
+    "archimate",
+    "xma",
+    "enterprise-architecture",
+    "cda",
+    "typescript"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": "^20.0.0 || ^22.0.0 || >=24.0.0"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "sideEffects": false,
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run typecheck && npm run build && npm test"
+  },
+  "peerDependencies": {
+    "@cda/archi-semantic-core": ">=0.4.1"
+  },
+  "devDependencies": {
+    "@cda/archi-semantic-core": "^0.4.2",
+    "@types/node": "^24.0.0",
+    "fast-xml-parser": "^5.10.1",
+    "typescript": "5.9.3",
+    "vitest": "^4.1.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Continuous-DrivenArchitecture/adapter-xma.git"
+  },
+  "homepage": "https://github.com/Continuous-DrivenArchitecture/adapter-xma#readme",
+  "bugs": {
+    "url": "https://github.com/Continuous-DrivenArchitecture/adapter-xma/issues"
+  }
+}

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MM_Document version="2.0" format="XML" includeMetaModels="false" requiredEngineVersion="1" xmlns:builtins="http://www.bizzdesign.com/metamodels/builtins" xmlns:Base="http://www.bizzdesign.com/metamodels/Base" xmlns:MM_ModelPackage="http://www.bizzdesign.com/metamodels/MM_ModelPackage" xmlns:Component="http://www.bizzdesign.com/metamodels/Component" xmlns:Amber="http://www.bizzdesign.com/metamodels/Amber" xmlns:ArchiMate="http://www.bizzdesign.com/metamodels/ArchiMate3.0" xmlns:BMC="http://www.bizzdesign.com/metamodels/BMC" xmlns:BPMN="http://www.bizzdesign.com/metamodels/BPMN" xmlns:Connection="http://www.bizzdesign.com/metamodels/Connection" xmlns:DMN="http://www.bizzdesign.com/metamodels/DMN" xmlns:ERD="http://www.bizzdesign.com/metamodels/ERD" xmlns:Lean="http://www.bizzdesign.com/metamodels/Lean" xmlns:META="http://www.bizzdesign.com/metamodels/META" xmlns:MM_Diagram="http://www.bizzdesign.com/metamodels/MM_Diagram" xmlns:TDM="http://www.bizzdesign.com/metamodels/TDM" xmlns:UML="http://www.bizzdesign.com/metamodels/UML">
+<MM_StorageUnit>
+<MM_ModelPackage:MM_ModelPackage id="0">
+<nm>desktop-pe0bkqf\home's Paquete de  modelo 2</nm>
+<MM_ModelPackage:MM_Folders name="folders" id="14"/>
+<MM_ModelPackage:MM_Models name="models" id="1">
+<ArchiMate:ArchiMateMM_Model id="2">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="es">Modelo vacio</MM_Value>
+</MM_ProfileValues>
+<MM_ModelPackage:MM_Modules name="modules" id="3">
+<MM_ModelPackage:MM_Module id="4" nm="SemanticModule" metaModel="ArchiMate">
+<ArchiMate:ArchiMateComponent name="root" id="5">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="es">Modelo vacio</MM_Value>
+</MM_ProfileValues>
+<ArchiMate:DomainDataSet name="domainDataSet" id="6"/>
+<ArchiMate:AbstractCommandContainers name="commandContainers" id="7"/>
+<ArchiMate:AbstractSchemes name="schemes" id="8">
+<ArchiMate:ApplicationScheme id="17">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="es">Capa de aplicaciones</MM_Value>
+</MM_ProfileValues>
+<ArchiMate:ApplicationProcesses name="processes" id="18"/>
+<ArchiMate:ApplicationDataObjects name="dataObjects" id="19"/>
+<ArchiMate:ApplicationInteractions name="interactions" id="20"/>
+<ArchiMate:ApplicationInterfaces name="interfaces" id="21"/>
+<ArchiMate:ApplicationComponents name="components" id="22"/>
+<ArchiMate:ApplicationFunctions name="functions" id="23"/>
+<ArchiMate:ApplicationEvents name="events" id="24"/>
+<ArchiMate:ApplicationServices name="services" id="25">
+<ArchiMate:ApplicationService id="26">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="es">Servicio de aplicación</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:ApplicationService>
+</ArchiMate:ApplicationServices>
+<ArchiMate:Relations name="relations" id="27">
+<ArchiMate:ApplicationServiceBusinessProcessUse id="28" from="26" to="29"/>
+</ArchiMate:Relations>
+</ArchiMate:ApplicationScheme>
+<ArchiMate:BusinessScheme id="30">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="es">Capa de negocio</MM_Value>
+</MM_ProfileValues>
+<ArchiMate:BusinessProcesses name="processes" id="31">
+<ArchiMate:BusinessProcess id="29">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="es">Proceso de negocio</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:BusinessProcess>
+<ArchiMate:BusinessProcess id="32">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="es">Proceso de negocio (2)</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:BusinessProcess>
+<ArchiMate:BusinessProcess id="33">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="es">Proceso de negocio (3)</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:BusinessProcess>
+</ArchiMate:BusinessProcesses>
+<ArchiMate:BusinessServices name="services" id="34"/>
+<ArchiMate:BusinessFunctions name="functions" id="35"/>
+<ArchiMate:BusinessInteractions name="interactions" id="36"/>
+<ArchiMate:BusinessInterfaces name="interfaces" id="37"/>
+<ArchiMate:BusinessRepresentations name="representations" id="38"/>
+<ArchiMate:BusinessActors name="actors" id="39">
+<ArchiMate:BusinessActor id="40">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="es">Actor de negocio</MM_Value>
+</MM_ProfileValues>
+</ArchiMate:BusinessActor>
+</ArchiMate:BusinessActors>
+<ArchiMate:BusinessEvents name="events" id="41"/>
+<ArchiMate:BusinessRoles name="roles" id="42"/>
+<ArchiMate:BusinessProducts name="products" id="43"/>
+<ArchiMate:BusinessObjects name="objects" id="44"/>
+<ArchiMate:Relations name="relations" id="45">
+<ArchiMate:BusinessActorBusinessProcessAssignment id="46" from="40" to="29"/>
+<ArchiMate:BusinessProcessBusinessProcessFlow id="47" from="32" to="33"/>
+</ArchiMate:Relations>
+</ArchiMate:BusinessScheme>
+</ArchiMate:AbstractSchemes>
+<ArchiMate:AbstractViews name="views" id="9"/>
+<ArchiMate:AbstractFolders name="folders" id="10">
+<ArchiMate:AbstractFolder id="48">
+<nm>Views</nm>
+<ArchiMate:AbstractSchemes name="schemes" id="49"/>
+<ArchiMate:AbstractViews name="views" id="50">
+<ArchiMate:AllView id="51">
+<MM_ProfileValues>
+<MM_Value name="nm" type="string" xml:lang="es">Vista total</MM_Value>
+</MM_ProfileValues>
+<ArchiMate:RefObjects name="refObjects" id="52">
+<ArchiMate:BusinessProcessRef id="53" to="29"/>
+<ArchiMate:BusinessProcessRef id="54" to="32"/>
+<ArchiMate:ApplicationServiceRef id="55" to="26"/>
+<ArchiMate:BusinessProcessRef id="56" to="33"/>
+<ArchiMate:BusinessActorBusinessProcessAssignmentRef id="57" to="46"/>
+<ArchiMate:ApplicationServiceBusinessProcessUseRef id="58" to="28"/>
+<ArchiMate:BusinessActorRef id="59" to="40"/>
+<ArchiMate:BusinessProcessBusinessProcessFlowRef id="60" to="47"/>
+</ArchiMate:RefObjects>
+</ArchiMate:AllView>
+</ArchiMate:AbstractViews>
+<ArchiMate:AbstractFolders name="folders" id="61"/>
+</ArchiMate:AbstractFolder>
+</ArchiMate:AbstractFolders>
+</ArchiMate:ArchiMateComponent>
+</MM_ModelPackage:MM_Module>
+<MM_ModelPackage:MM_Module id="62" nm="GraphicalModule" metaModel="MM_Diagram">
+<MM_Diagram:MM_Diagram name="root" id="63">
+<MM_Diagram:MM_Node name="mm_canvas" id="64" mm_graphicType="5" mm_concept="Canvas" mm_semanticObject="51">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="65">
+<MM_Diagram:MM_Node id="66" mm_graphicType="5" mm_concept="BusinessActor" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="59">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="67">
+<MM_Diagram:MM_Decoration id="68" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="69" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="70" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="71">
+<MM_Diagram:MM_Color id="72" mm_r="255" mm_g="255" mm_b="181"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="144" y="252" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="73" mm_graphicType="5" mm_concept="BusinessProcess" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="53">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="74">
+<MM_Diagram:MM_Decoration id="75" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="76" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="77" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="78">
+<MM_Diagram:MM_Color id="79" mm_r="255" mm_g="255" mm_b="181"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="648" y="252" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="80" mm_graphicType="5" mm_concept="ApplicationService" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="55">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="81">
+<MM_Diagram:MM_Decoration id="82" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="83" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="84">
+<MM_Diagram:MM_Color id="85" mm_r="181" mm_g="255" mm_b="255"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="1116" y="252" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="86" mm_graphicType="5" mm_concept="BusinessProcess" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="54">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="87">
+<MM_Diagram:MM_Decoration id="88" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="89" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="90" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="91">
+<MM_Diagram:MM_Color id="92" mm_r="255" mm_g="255" mm_b="181"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="144" y="540" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_Node id="93" mm_graphicType="5" mm_concept="BusinessProcess" mm_lineOpacity="255" mm_fillOpacity="255" mm_semanticObject="56">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="94">
+<MM_Diagram:MM_Decoration id="95" mm_graphicType="2" mm_concept="icon"/>
+<MM_Diagram:MM_Decoration id="96" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="97" mm_r="92" mm_g="92" mm_b="92"/>
+<MM_Diagram:MM_Colors name="mm_fillColors" id="98">
+<MM_Diagram:MM_Color id="99" mm_r="255" mm_g="255" mm_b="181"/>
+</MM_Diagram:MM_Colors>
+<MM_Rect name="mm_rect" x="612" y="828" w="360" h="165"/>
+</MM_Diagram:MM_Node>
+<MM_Diagram:MM_DirectedRel id="100" mm_from="66" mm_to="73" mm_graphicType="7" mm_concept="BusinessActorBusinessProcessAssignment" mm_semanticObject="57">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="101">
+<MM_Diagram:MM_Decoration id="102" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="103"/>
+</MM_Diagram:MM_DirectedRel>
+<MM_Diagram:MM_DirectedRel id="104" mm_from="80" mm_to="73" mm_graphicType="7" mm_concept="ApplicationServiceBusinessProcessUse" mm_semanticObject="58">
+<MM_Diagram:MM_Graphics name="mm_graphics" id="105">
+<MM_Diagram:MM_Decoration id="106" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="107"/>
+</MM_Diagram:MM_DirectedRel>
+<MM_Diagram:MM_DirectedRel id="108" mm_from="86" mm_to="93" mm_fromx="144" mm_fromy="83" mm_tox="180" mm_toy="72" mm_graphicType="7" mm_concept="BusinessProcessBusinessProcessFlow" mm_semanticObject="60">
+<MM_Diagram:MM_MultiLine name="mm_line" id="109">
+<MM_Diagram:MM_Point id="110" mm_x="288" mm_y="900"/>
+</MM_Diagram:MM_MultiLine>
+<MM_Diagram:MM_Graphics name="mm_graphics" id="111">
+<MM_Diagram:MM_Decoration id="112" mm_fontSize="180" mm_graphicType="2" mm_concept="label">
+<mm_font>Segoe UI</mm_font>
+</MM_Diagram:MM_Decoration>
+</MM_Diagram:MM_Graphics>
+<MM_Diagram:MM_Color name="mm_lineColor" id="113"/>
+</MM_Diagram:MM_DirectedRel>
+</MM_Diagram:MM_Graphics>
+<MM_Rect name="mm_rect" x="0" y="0" w="2147483647" h="2147483647"/>
+</MM_Diagram:MM_Node>
+</MM_Diagram:MM_Diagram>
+<Any name="tag"><Objectref value="51"/></Any>
+</MM_ModelPackage:MM_Module>
+</MM_ModelPackage:MM_Modules>
+<Any name="taggedValues"><Structure><String name="createdBy">Enterprise Studio 4 (24 Dic 2025)</String></Structure></Any>
+</ArchiMate:ArchiMateMM_Model>
+</MM_ModelPackage:MM_Models>
+<MM_ModelPackage:DependencyRelations name="dependencyRelations" id="15"/>
+<MM_ModelPackage:MM_Languages name="languages" id="11">
+<MM_ModelPackage:MM_Language id="12" isDefault="true">
+<nm>es</nm>
+</MM_ModelPackage:MM_Language>
+</MM_ModelPackage:MM_Languages>
+<MM_ModelPackage:MM_Users name="users" id="13">
+<MM_ModelPackage:MM_User id="16">
+<nm>desktop-pe0bkqf\home</nm>
+<Any name="taggedValues"><Structure><List name="viewSettings"><Structure><Objectref value="51" name="diagObj"/><List name="selectedObjects"/></Structure></List></Structure></Any>
+</MM_ModelPackage:MM_User>
+</MM_ModelPackage:MM_Users>
+<Any name="taggedValues"><Structure><Structure name="grid"><Long value="20" name="y"/><Long value="20" name="x"/></Structure><String name="lastSavedWith">Enterprise Studio 4 (24 Dic 2025)</String></Structure></Any>
+</MM_ModelPackage:MM_ModelPackage>
+</MM_StorageUnit>
+</MM_Document>
