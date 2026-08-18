@@ -1,3 +1,14 @@
+## [0.4.0](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.3.0...v0.4.0) (2026-08-18)
+
+### Features
+
+* support nested diagram objects up to 3 levels deep ([e04eb6d](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/e04eb6df32f495b983f1e230c5912f71839fd27d))
+
+### Bug Fixes
+
+* **release:** correct package.json version and changelog after semantic-release miscomputed 1.0.0 ([357f488](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/357f488aeb64fb617d0a4e6a1f492ae7c71958c2))
+* **release:** disable npm provenance (repo is private, sigstore requires public) ([4b4f3a5](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/4b4f3a5849b52072674f5b129338e4bc61b931ee))
+
 ## 0.3.0 (2026-08-18)
 
 Retroactive changelog entry covering all history up to and including the
