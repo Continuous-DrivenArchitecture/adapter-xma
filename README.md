@@ -88,7 +88,7 @@ interface XmaSerializeOptions {
 
 This is **initial, evidence-backed XMA serialization support** — not a
 complete, universal XMA converter. Everything below was confirmed against
-three reference `.archimate`/`.xma` fixture pairs (see
+four reference `.archimate`/`.xma` fixture pairs (see
 [`tests/fixtures/README.md`](tests/fixtures/README.md)); nothing here is
 extrapolated beyond that evidence.
 
@@ -103,11 +103,11 @@ extrapolated beyond that evidence.
   default per-category fill colors, line color, opacity, and font.
 - Notes and Groups (as `ArchiMate:ViewGraphic`), including Group
   documentation.
-- **67 confirmed semantic relationship mappings** (up from 3), spanning all
+- **87 confirmed semantic relationship mappings** (up from 3), spanning all
   eight schemes — see `src/mapping/relationship-mapping.ts` for the full
   table and `tests/fixtures/README.md` for how each was derived and
   verified. The original 3 (below) additionally have their graphical
-  `MM_DirectedRel` representation confirmed end-to-end; the other 64 were
+  `MM_DirectedRel` representation confirmed end-to-end; the other 84 were
   confirmed at the semantic layer only (the same generic serializer code
   path, not independently fixture-checked for the graphical layer):
   - `AssignmentRelationship` `BusinessActor` → `BusinessProcess`
@@ -124,7 +124,7 @@ extrapolated beyond that evidence.
 
 ### Not yet guaranteed
 
-- Relationship type/source/target combinations beyond the 67 confirmed above
+- Relationship type/source/target combinations beyond the 87 confirmed above
   (reported as a diagnostic, not silently dropped or guessed).
 - `AssociationRelationship` — confirmed to always serialize as the generic
   `ElementElementAssociation` regardless of source/target type, but not yet
@@ -135,10 +135,14 @@ extrapolated beyond that evidence.
 - Any relationship with a `Grouping` or `Junction` endpoint — confirmed to
   use a generic form (`GroupingElementComposition`, `RealisationRelation`,
   ...) instead of a type-specific tag, also not yet modeled. Same doc.
-- A handful of concrete types (`TechnologyCollaboration`, `SystemSoftware`,
-  and likely `Constraint`) that collapse to a coarser XMA category
+- A handful of concrete types that collapse to a coarser XMA category
   specifically for relationship naming, distinct from their own element
-  mapping — confirmed in two cases, circumstantial in the third. Same doc.
+  mapping — confirmed for `TechnologyCollaboration` → `TechnologyNode`,
+  `BusinessCollaboration` → `BusinessRole`, and `SystemSoftware` →
+  `TechnologyNode`; circumstantial for `Constraint` → `MotivationRequirement`.
+  The two `...Collaboration` cases suggest a pattern (collapse to the type's
+  own singular "active structure" counterpart) but it isn't confirmed beyond
+  those two. Same doc.
 - More than one view per model (reported as a diagnostic).
 - Nested diagram objects, `DiagramModelReference` ("insert view as
   reference"), and purely visual (non-semantic) connections.

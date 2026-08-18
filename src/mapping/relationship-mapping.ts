@@ -2,13 +2,14 @@
  * Archi relationship mapping, resolved by (relationship type, source
  * semantic type, target semantic type) — never by relationship type alone.
  *
- * 67 mappings are proven: the original 3 confirmed against
- * `tests/fixtures/relationships/relaciones.{archimate,xma}`, plus 64 more
- * confirmed against `tests/fixtures/sabsa/sabsa.{archimate,xma}` (see that
- * fixture pair's entry in `tests/fixtures/README.md` for the full derivation
- * method and the open questions it also surfaced). Every other relationship
- * type/source/target combination is unsupported for v0.1 and must be
- * diagnosed, never guessed (see `serializer/relationship-writer.ts`).
+ * 87 mappings are proven: the original 3 confirmed against
+ * `tests/fixtures/relationships/relaciones.{archimate,xma}`, 64 more
+ * confirmed against `tests/fixtures/sabsa/sabsa.{archimate,xma}`, and 20 more
+ * confirmed against `tests/fixtures/agile-manifesto/agile-manifesto.{archimate,xma}`
+ * (see each fixture pair's entry in `tests/fixtures/README.md` for the full
+ * derivation method and the open questions they surfaced). Every other
+ * relationship type/source/target combination is unsupported for v0.1 and
+ * must be diagnosed, never guessed (see `serializer/relationship-writer.ts`).
  *
  * `scheme` is always the scheme of the *source* type (confirmed even across
  * schemes, e.g. `WorkPackage -> BusinessFunction` lives in `IMScheme`, the
@@ -22,11 +23,14 @@
  *     generic form (e.g. `GroupingElementComposition`, `RealisationRelation`)
  *     instead of a type-specific one.
  *   - A handful of concrete types collapse to a coarser XMA "category" only
- *     for relationship naming (not for their own element mapping) — e.g. a
- *     `TechnologyCollaboration` endpoint produces a `TechnologyNode`-prefixed
- *     relationship type. Confirmed instances: `SystemSoftware` and
- *     `TechnologyCollaboration` both collapse to `TechnologyNode`;
- *     `Constraint` collapses to `MotivationRequirement`.
+ *     for relationship naming (not for their own element mapping) — always a
+ *     type's own singular "active structure" counterpart, confirmed twice
+ *     now for the `...Collaboration` pattern specifically: `TechnologyCollaboration`
+ *     collapses to `TechnologyNode`, and `BusinessCollaboration` collapses to
+ *     `BusinessRole` (verified directly against raw relation instances in
+ *     both fixtures, not inferred). Also confirmed: `SystemSoftware`
+ *     collapses to `TechnologyNode`; `Constraint` collapses to
+ *     `MotivationRequirement`.
  */
 
 export interface RelationshipMappingEntry {
@@ -524,6 +528,149 @@ export const RELATIONSHIP_MAPPINGS: readonly RelationshipMappingEntry[] = [
     targetArchiType: 'Deliverable',
     xmaType: 'IMDeliverableIMDeliverableComposition',
     scheme: 'IMScheme',
+  },
+
+  // From tests/fixtures/agile-manifesto/ (20 more, including the first confirmed
+  // Driver-involving Influence/Specialization mappings)
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationComponent',
+    targetArchiType: 'BusinessInteraction',
+    xmaType: 'ApplicationComponentBusinessInteractionUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'BusinessFunction',
+    targetArchiType: 'BusinessFunction',
+    xmaType: 'BusinessFunctionBusinessFunctionUse',
+    scheme: 'BusinessScheme',
+  },
+  {
+    archiRelationshipType: 'RealizationRelationship',
+    sourceArchiType: 'Deliverable',
+    targetArchiType: 'BusinessProcess',
+    xmaType: 'IMDeliverableBusinessProcessRealisation',
+    scheme: 'IMScheme',
+  },
+  {
+    archiRelationshipType: 'RealizationRelationship',
+    sourceArchiType: 'Deliverable',
+    targetArchiType: 'ApplicationComponent',
+    xmaType: 'IMDeliverableApplicationComponentRealisation',
+    scheme: 'IMScheme',
+  },
+  {
+    archiRelationshipType: 'RealizationRelationship',
+    sourceArchiType: 'ApplicationComponent',
+    targetArchiType: 'BusinessProcess',
+    xmaType: 'ApplicationComponentBusinessProcessRealisation',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'SpecializationRelationship',
+    sourceArchiType: 'BusinessProcess',
+    targetArchiType: 'BusinessProcess',
+    xmaType: 'BusinessProcessBusinessProcessSpecialization',
+    scheme: 'BusinessScheme',
+  },
+  {
+    archiRelationshipType: 'AssignmentRelationship',
+    sourceArchiType: 'BusinessActor',
+    targetArchiType: 'BusinessInteraction',
+    xmaType: 'BusinessActorBusinessInteractionAssignment',
+    scheme: 'BusinessScheme',
+  },
+  {
+    archiRelationshipType: 'RealizationRelationship',
+    sourceArchiType: 'ApplicationComponent',
+    targetArchiType: 'BusinessInteraction',
+    xmaType: 'ApplicationComponentBusinessInteractionRealisation',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'BusinessProcess',
+    targetArchiType: 'BusinessProcess',
+    xmaType: 'BusinessProcessBusinessProcessUse',
+    scheme: 'BusinessScheme',
+  },
+  {
+    archiRelationshipType: 'SpecializationRelationship',
+    sourceArchiType: 'Driver',
+    targetArchiType: 'Driver',
+    xmaType: 'MotivationDriverMotivationDriverSpecialization',
+    scheme: 'MotivationScheme',
+  },
+  {
+    archiRelationshipType: 'InfluenceRelationship',
+    sourceArchiType: 'Principle',
+    targetArchiType: 'Driver',
+    xmaType: 'MotivationPrincipleMotivationDriverInfluence',
+    scheme: 'MotivationScheme',
+  },
+  {
+    archiRelationshipType: 'InfluenceRelationship',
+    sourceArchiType: 'Driver',
+    targetArchiType: 'Driver',
+    xmaType: 'MotivationDriverMotivationDriverInfluence',
+    scheme: 'MotivationScheme',
+  },
+  {
+    archiRelationshipType: 'SpecializationRelationship',
+    sourceArchiType: 'Meaning',
+    targetArchiType: 'Meaning',
+    xmaType: 'MotivationMeaningMotivationMeaningSpecialization',
+    scheme: 'MotivationScheme',
+  },
+  {
+    archiRelationshipType: 'InfluenceRelationship',
+    sourceArchiType: 'Requirement',
+    targetArchiType: 'Driver',
+    xmaType: 'MotivationRequirementMotivationDriverInfluence',
+    scheme: 'MotivationScheme',
+  },
+  {
+    archiRelationshipType: 'InfluenceRelationship',
+    sourceArchiType: 'Requirement',
+    targetArchiType: 'Requirement',
+    xmaType: 'MotivationRequirementMotivationRequirementInfluence',
+    scheme: 'MotivationScheme',
+  },
+  {
+    archiRelationshipType: 'InfluenceRelationship',
+    sourceArchiType: 'Principle',
+    targetArchiType: 'Requirement',
+    xmaType: 'MotivationPrincipleMotivationRequirementInfluence',
+    scheme: 'MotivationScheme',
+  },
+  {
+    archiRelationshipType: 'InfluenceRelationship',
+    sourceArchiType: 'Assessment',
+    targetArchiType: 'Driver',
+    xmaType: 'MotivationAssessmentMotivationDriverInfluence',
+    scheme: 'MotivationScheme',
+  },
+  {
+    archiRelationshipType: 'InfluenceRelationship',
+    sourceArchiType: 'Principle',
+    targetArchiType: 'Assessment',
+    xmaType: 'MotivationPrincipleMotivationAssessmentInfluence',
+    scheme: 'MotivationScheme',
+  },
+  {
+    archiRelationshipType: 'InfluenceRelationship',
+    sourceArchiType: 'Driver',
+    targetArchiType: 'Requirement',
+    xmaType: 'MotivationDriverMotivationRequirementInfluence',
+    scheme: 'MotivationScheme',
+  },
+  {
+    archiRelationshipType: 'InfluenceRelationship',
+    sourceArchiType: 'Assessment',
+    targetArchiType: 'Requirement',
+    xmaType: 'MotivationAssessmentMotivationRequirementInfluence',
+    scheme: 'MotivationScheme',
   },
 ];
 

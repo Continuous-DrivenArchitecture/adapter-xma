@@ -1,6 +1,6 @@
 # Reference fixtures
 
-These are the two immutable, empirically-paired `.archimate` / `.xma` fixture
+These are the immutable, empirically-paired `.archimate` / `.xma` fixture
 sets this library's mapping tables were reverse-engineered from. **Do not
 edit their contents** — tests assert against them as ground truth.
 
@@ -16,18 +16,27 @@ This is the source of truth for `src/mapping/element-mapping.ts` and
 The three original confirmed semantic relationship mappings (Assignment,
 Serving→Use, Flow), their graphical `MM_DirectedRel` representation, and one
 manually routed connection with a bendpoint. This is the source of truth for
-`src/geometry/bendpoints.ts`, and (jointly with `sabsa/`, below) for
-`src/mapping/relationship-mapping.ts`.
+`src/geometry/bendpoints.ts`, and (jointly with `sabsa/` and
+`agile-manifesto/`, below) for `src/mapping/relationship-mapping.ts`.
 
 ## `sabsa/` — `sabsa.archimate` / `sabsa.xma`
 
 A large, real-world model (SABSA framework: 463 elements, 551 relationships,
 38 views), contributed by the project maintainer specifically to expand
 relationship-mapping coverage beyond the original three. Confirmed **64
-additional** relationship mappings (67 total, up from 3), using the method
-below. `sabsa.archimate` is stored decompressed (Archi's zip-archive variant,
-decoded once with `extractArchiModelXml`), matching the plain-XML convention
-of the other two fixture pairs.
+additional** relationship mappings, using the method below. `sabsa.archimate`
+is stored decompressed (Archi's zip-archive variant, decoded once with
+`extractArchiModelXml`), matching the plain-XML convention of the other
+fixture pairs.
+
+## `agile-manifesto/` — `agile-manifesto.archimate` / `agile-manifesto.xma`
+
+A second real-world model (73 elements, 104 relationships, 3 views),
+contributed by the project maintainer after `sabsa/`. Confirmed **20 more**
+relationship mappings using the same method — bringing the running total to
+**87** (up from the original 3) — including the first confirmed mappings
+with a `Driver` endpoint, and independent confirmation of the
+`...Collaboration`-collapse pattern (see "Known limitation" below).
 
 ### Derivation method (exact-triple mappings only — see "Known limitation" below)
 
@@ -81,22 +90,39 @@ mapping shape without weakening its "never guess" guarantee:
    type-specific tag either endpoint would otherwise produce.
 3. **A handful of concrete types collapse to a coarser XMA "category" only
    for relationship-type naming** — distinct from their own element mapping
-   in `element-mapping.ts`. Confirmed directly in the raw XML (not inferred):
-   a `TechnologyCollaboration` endpoint (`element-mapping.ts` gives it its
-   own `xmaType: 'TechnologyCollaboration'`) produces a
-   `TechnologyNode`-prefixed relationship tag instead
-   (`TechnologyNodeApplicationComponentUse`). The same collapse was observed
-   for `SystemSoftware` (own `xmaType: 'TechnologySystemSoftware'`, but also
-   collapses to `TechnologyNode` in relationship tags), and circumstantial
-   evidence (an otherwise-unexplained count mismatch) suggests `Constraint`
-   collapses to `MotivationRequirement`'s category for this same purpose.
-   The exact boundary of which types collapse into which category, and why,
-   is not yet fully mapped — do not assume categories from `element-mapping.ts`
-   apply here without fixture evidence per case.
+   in `element-mapping.ts`. Confirmed directly in the raw XML (not inferred),
+   now in two independent fixtures:
+   - `sabsa/`: a `TechnologyCollaboration` endpoint (`element-mapping.ts`
+     gives it its own `xmaType: 'TechnologyCollaboration'`) produces a
+     `TechnologyNode`-prefixed relationship tag instead
+     (`TechnologyNodeApplicationComponentUse`). The same collapse was
+     observed for `SystemSoftware` (own `xmaType:
+     'TechnologySystemSoftware'`, but also collapses to `TechnologyNode` in
+     relationship tags), and circumstantial evidence (an otherwise-unexplained
+     count mismatch) suggests `Constraint` collapses to
+     `MotivationRequirement`'s category for this same purpose.
+   - `agile-manifesto/`: a `BusinessCollaboration` endpoint — verified
+     directly (element id traced to its `<ArchiMate:BusinessCollaboration
+     id="39">` declaration, appearing as `from`/`to` in a
+     `BusinessRoleBusinessProcessTriggering` and an
+     `ApplicationComponentBusinessRoleUse` relation) — collapses to
+     `BusinessRole`, matching the `TechnologyCollaboration` pattern exactly:
+     **every confirmed `...Collaboration` type collapses to its own
+     "singular active structure" counterpart** (`Role` for Business,
+     `Node` for Technology). This is the closest thing to a general rule
+     found so far, but it's confirmed only for these two `...Collaboration`
+     types — do not extend it to `ApplicationCollaboration` (which shares
+     `ApplicationComponent`'s `collectionTag` in `element-mapping.ts`, so it
+     is a plausible next candidate) without fixture evidence; a shared
+     `collectionTag` alone is not sufficient evidence of a naming collapse —
+     the whole Motivation-layer group (`Driver`, `Assessment`, `Goal`, ...)
+     shares one `collectionTag` in `element-mapping.ts` and yet each keeps
+     its own distinct name in every confirmed relationship mapping above.
 
 None of this is silently dropped: relationships hitting any of these three
 cases are still correctly diagnosed as unsupported by `inspectXmaSupport`
-today (see `tests/integration/sabsa.test.ts`) — the gap is coverage, not
+today (see `tests/integration/sabsa.test.ts` and
+`tests/integration/agile-manifesto.test.ts`) — the gap is coverage, not
 correctness.
 
 ## Provenance
