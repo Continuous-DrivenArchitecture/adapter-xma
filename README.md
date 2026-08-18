@@ -109,6 +109,11 @@ extrapolated beyond that evidence.
   opacity, and font are unaffected by view count.
 - Notes and Groups (as `ArchiMate:ViewGraphic`), including Group
   documentation.
+- **Nested diagram objects, up to 3 levels deep** — a child's `MM_Node`
+  nests inside its parent's `MM_Graphics`, using its bounds as-is (already
+  relative to the parent in Archi, no offset math). Groups nest children the
+  same way. Confirmed against 283-nested-object and 15-nested-object
+  real-world fixtures. See `tests/fixtures/README.md`.
 - **90 confirmed exact-triple semantic relationship mappings** (up from 3),
   spanning all eight schemes, plus **3 confirmed generic (type-independent)
   forms** — `AssociationRelationship`, a `Grouping` endpoint (Composition,
@@ -146,8 +151,11 @@ extrapolated beyond that evidence.
   remains circumstantial (one otherwise-unexplained count mismatch, no
   direct confirmation) and is **not** implemented. See "Generic and
   collapsed forms" in [`tests/fixtures/README.md`](tests/fixtures/README.md).
-- Nested diagram objects, `DiagramModelReference` ("insert view as
-  reference"), and purely visual (non-semantic) connections.
+- A nested `ArchiNote` (as opposed to a nested `ArchiDiagramObject`, now
+  supported) — only one instance exists across all four fixtures, not
+  enough to confirm its representation.
+- `DiagramModelReference` ("insert view as reference"), and purely visual
+  (non-semantic) connections.
 - Profiles/specializations and arbitrary model properties.
 - Explicit font size, bold/italic, line width, font color, or connector
   line color overrides (reported as diagnostics; the confirmed defaults are

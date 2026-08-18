@@ -81,17 +81,31 @@ describe('integration: agile-manifesto fixture', () => {
     }
   });
 
-  it('no longer reports diagnostics for anything this session set out to fix (Junction, Association, Grouping, Collaboration-collapse, multi-view)', () => {
-    // The model still has diagnostics unrelated to this session's scope (incomplete
-    // geometry on some diagram objects, an explicit font style/size override on a
-    // Note, one inconsistent bendpoint) — those are real, pre-existing limitations,
-    // not something the four mapping items + multi-view support were meant to fix.
+  it('now reports every nested diagram object as supported', () => {
+    // The exact graphical nesting structure (child MM_Node inside parent's
+    // MM_Graphics) is verified against a controlled synthetic model in
+    // tests/unit/serialize-xma-diagnostics.test.ts; this fixture (which still
+    // has a few genuinely unrelated diagnostics — DiagramModelReference,
+    // incomplete Note geometry, bendpoint mismatches — that block a full
+    // serializeXma call) only re-confirms the diagnostic no longer fires here.
+    expect(diagnostics.some((d) => d.code === 'unsupported-nested-diagram-object')).toBe(false);
+    const nested = model.diagramObjects.filter((o) => o.parentId !== null || o.childrenIds.length > 0);
+    expect(nested.length).toBe(15);
+  });
+
+  it('no longer reports diagnostics for anything this session set out to fix (Junction, Association, Grouping, Collaboration-collapse, multi-view, nested diagram objects)', () => {
+    // The model still has diagnostics unrelated to this session's scope (a
+    // DiagramModelReference, incomplete geometry on a Note, explicit font
+    // style/size overrides, inconsistent bendpoints) — those are real,
+    // pre-existing limitations, not something this session's fixes were meant
+    // to address.
     const inScope = new Set([
       'unsupported-element-type',
       'unsupported-relationship',
       'unsupported-relationship-endpoint-type',
       'unsupported-multiple-views',
+      'unsupported-nested-diagram-object',
     ]);
-    expect(diagnostics.filter((d) => inScope.has(d.code))).toEqual([]);
+    expect(diagnostics.filter((d) => inScope.has(d.code) && d.entityType !== 'ArchiNote')).toEqual([]);
   });
 });

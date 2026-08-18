@@ -76,14 +76,20 @@ describe('strict-by-default diagnostics', () => {
     expect(diagnostics.some((d) => d.code === 'missing-bounds' && d.entityId === 'do1')).toBe(true);
   });
 
-  it('diagnoses a nested diagram object', () => {
+  it('serializes a nested diagram object as a child MM_Node inside its parent (not a diagnostic)', () => {
     const actor = makeElement({ id: 'a', type: 'BusinessActor' });
     const parent = makeDiagramObject({ id: 'parent', viewId: 'v1', archimateElementId: 'a', bounds: makeBounds(0, 0, 10, 10), childrenIds: ['child'] });
     const child = makeDiagramObject({ id: 'child', viewId: 'v1', archimateElementId: 'a', parentId: 'parent', bounds: makeBounds(0, 0, 10, 10) });
     const view = makeView({ id: 'v1', diagramObjectIds: [parent.id] });
     const model = makeModel({ elements: [actor], views: [view], diagramObjects: [parent, child] });
-    const diagnostics = inspectXmaSupport(model);
-    expect(diagnostics.some((d) => d.code === 'unsupported-nested-diagram-object')).toBe(true);
+    expect(inspectXmaSupport(model).some((d) => d.code === 'unsupported-nested-diagram-object')).toBe(false);
+    const xma = serializeXma(model);
+    // Two BusinessActor MM_Nodes, one nested inside the other's MM_Graphics.
+    const parentIdx = xma.indexOf('mm_concept="BusinessActor"');
+    const childIdx = xma.indexOf('mm_concept="BusinessActor"', parentIdx + 1);
+    expect(childIdx).toBeGreaterThan(parentIdx);
+    const closingParentGraphicsIdx = xma.indexOf('</MM_Diagram:MM_Graphics>', parentIdx);
+    expect(childIdx).toBeLessThan(closingParentGraphicsIdx);
   });
 
   it('diagnoses a purely visual connection with no underlying semantic relationship', () => {

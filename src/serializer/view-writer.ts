@@ -19,17 +19,14 @@ export interface ViewBuildResult {
   validNoteIds: Set<string>;
 }
 
-function hasNesting(parentId: string | null, childrenIds: readonly string[]): boolean {
-  return parentId !== null || childrenIds.length > 0;
-}
-
 /**
- * Builds the `AllView`'s `ViewGraphics` (Notes/Groups) and `RefObjects`
+ * Builds one `AllView`'s `ViewGraphics` (Notes/Groups) and `RefObjects`
  * (the three-layer view-reference indirection — see module docs on
- * `graphical-writer.ts`) for the single supported view. Also validates
- * every diagram object/note/connection in the view, since geometry and view
- * membership are model-wide preservation guarantees, not just node drawing
- * concerns.
+ * `graphical-writer.ts`). Also validates every diagram object/note/connection
+ * in the view, since geometry and view membership are model-wide
+ * preservation guarantees, not just node drawing concerns. Nested diagram
+ * objects (a `parentId` or non-empty `childrenIds`) are valid here — see
+ * `graphical-writer.ts`'s recursive node building for how nesting is drawn.
  */
 export function buildView(
   model: ArchiModel,
@@ -49,15 +46,6 @@ export function buildView(
 
   for (const obj of model.diagramObjects) {
     if (obj.viewId !== view.id) {
-      continue;
-    }
-    if (hasNesting(obj.parentId, obj.childrenIds)) {
-      diagnostics.error({
-        code: 'unsupported-nested-diagram-object',
-        message: `Diagram object "${obj.id}" is nested (has a parent or children) — nested diagram objects are not supported in XMA v0.1.`,
-        entityId: obj.id,
-        entityType: 'ArchiDiagramObject',
-      });
       continue;
     }
     if (obj.referencedModelId !== null) {
@@ -131,6 +119,9 @@ export function buildView(
       continue;
     }
     if (note.parentId !== null) {
+      // Unlike nested ArchiDiagramObjects (supported — see graphical-writer.ts's
+      // buildNodeTree), a nested Note has no fixture evidence: only one instance
+      // exists across all four fixtures, not enough to confirm its representation.
       diagnostics.error({
         code: 'unsupported-nested-diagram-object',
         message: `Note "${note.id}" is nested inside another diagram object — not supported in XMA v0.1.`,

@@ -156,7 +156,15 @@ function buildIconDecoration(id: number): XmlElement {
   ]);
 }
 
-/** Builds a fully-styled `MM_Node` for an element-backed diagram object, a Group, or a Note/ViewGraphic. */
+/**
+ * Builds a fully-styled `MM_Node` for an element-backed diagram object, a
+ * Group, or a Note/ViewGraphic. `nestedChildrenXml` are already-built child
+ * `MM_Node`s (from nested diagram objects) — confirmed to nest as siblings
+ * of the icon/label `MM_Decoration`s inside the same `MM_Graphics`, after
+ * them, in both fixtures. Their `MM_Rect` bounds are used as-is (the same
+ * ×3 scale as every other node) — confirmed to already be relative to the
+ * parent in both Archi and XMA, so no offset math is needed.
+ */
 function buildStyledNode(
   ids: XmaIdRegistry,
   nodeXmaId: number,
@@ -167,12 +175,14 @@ function buildStyledNode(
   bounds: Rect,
   symbolName: string | null,
   labelExtraAttrs: Array<[string, string]> = [],
+  nestedChildrenXml: XmlElement[] = [],
 ): XmlElement {
   const graphicsChildren: XmlElement[] = [];
   if (hasIcon) {
     graphicsChildren.push(buildIconDecoration(ids.fresh()));
   }
   graphicsChildren.push(buildLabelDecoration(ids.fresh(), visuals.fontName, labelExtraAttrs));
+  graphicsChildren.push(...nestedChildrenXml);
 
   const attrs: Array<[string, string]> = [
     ['id', String(nodeXmaId)],
@@ -230,9 +240,11 @@ function buildJunctionNode(ids: XmaIdRegistry, nodeXmaId: number, concept: strin
 }
 
 /**
- * Builds the `GraphicalModule`'s `MM_Diagram` for the single supported
- * view: a Canvas node wrapping one `MM_Node` per drawable diagram
- * object/group/note, and one `MM_DirectedRel` per drawable connection.
+ * Builds the `GraphicalModule`'s `MM_Diagram` for one view: a Canvas node
+ * wrapping one `MM_Node` per drawable diagram object/group/note (nested
+ * diagram objects recursively nested inside their parent's `MM_Node`, via
+ * `buildNodeTree` — see `tests/fixtures/README.md`, "Nested diagram
+ * objects"), and one `MM_DirectedRel` per drawable connection.
  *
  * `mm_fromx`/`mm_fromy`/`mm_tox`/`mm_toy` (manual connector anchor
  * metadata) are deliberately omitted — exactly one fixture exhibited them,
@@ -259,32 +271,69 @@ export function buildGraphicalModule(
 
   const canvasChildren: XmlElement[] = [];
 
-  for (const objId of view.diagramObjectIds) {
+  /**
+   * Builds one diagram object's node, recursively building and nesting its
+   * children first (bottom-up) — confirmed structure: a child `MM_Node`
+   * nests as a sibling of its parent's icon/label decorations, inside the
+   * same `MM_Graphics`, up to 3 levels deep in the sabsa fixture. Applies
+   * equally to element-backed objects and Groups (both confirmed to nest
+   * children this way). Returns `null` for an object this pass can't draw
+   * (already diagnosed elsewhere).
+   */
+  function buildNodeTree(objId: string): XmlElement | null {
     const obj = diagramObjectById.get(objId);
-    if (!obj) continue;
+    if (!obj) return null;
+
+    const nestedChildrenXml = obj.childrenIds
+      .map((childId) => buildNodeTree(childId))
+      .filter((xml): xml is XmlElement => xml !== null);
 
     if (viewResult.validElementNodeObjectIds.has(objId) && obj.archimateElementId) {
       const mapping = mappedElements.get(obj.archimateElementId)!;
       const refId = refIds.get(obj.archimateElementId)!;
       const nodeXmaId = nodeIds.idFor(obj.id);
       if (JUNCTION_XMA_TYPES.has(mapping.xmaType)) {
-        canvasChildren.push(buildJunctionNode(ids, nodeXmaId, mapping.xmaType, refId, obj.bounds as Rect));
-      } else {
-        const visuals = resolveNodeVisuals(obj.style, CATEGORY_FILL_COLOR[mapping.category], diagnostics, obj.id, 'ArchiDiagramObject');
-        canvasChildren.push(
-          buildStyledNode(ids, nodeXmaId, mapping.xmaType, refId, mapping.hasIcon, visuals, obj.bounds as Rect, null),
-        );
+        return buildJunctionNode(ids, nodeXmaId, mapping.xmaType, refId, obj.bounds as Rect);
       }
-    } else if (viewResult.validGroupObjectIds.has(objId)) {
+      const visuals = resolveNodeVisuals(obj.style, CATEGORY_FILL_COLOR[mapping.category], diagnostics, obj.id, 'ArchiDiagramObject');
+      return buildStyledNode(
+        ids,
+        nodeXmaId,
+        mapping.xmaType,
+        refId,
+        mapping.hasIcon,
+        visuals,
+        obj.bounds as Rect,
+        null,
+        [],
+        nestedChildrenXml,
+      );
+    }
+
+    if (viewResult.validGroupObjectIds.has(objId)) {
       const groupSemanticId = ids.get(obj.id)!;
       const visuals = resolveNodeVisuals(obj.style, GROUP_FILL_COLOR, diagnostics, obj.id, 'ArchiDiagramObject');
       const nodeXmaId = nodeIds.idFor(obj.id);
-      canvasChildren.push(
-        buildStyledNode(ids, nodeXmaId, 'ViewGraphic', groupSemanticId, false, visuals, obj.bounds as Rect, 'group', [
-          ['mm_frameStrategy', '12'],
-        ]),
+      return buildStyledNode(
+        ids,
+        nodeXmaId,
+        'ViewGraphic',
+        groupSemanticId,
+        false,
+        visuals,
+        obj.bounds as Rect,
+        'group',
+        [['mm_frameStrategy', '12']],
+        nestedChildrenXml,
       );
     }
+
+    return null;
+  }
+
+  for (const objId of view.diagramObjectIds) {
+    const nodeXml = buildNodeTree(objId);
+    if (nodeXml) canvasChildren.push(nodeXml);
   }
 
   for (const noteId of view.noteIds) {

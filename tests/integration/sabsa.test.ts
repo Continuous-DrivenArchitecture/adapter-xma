@@ -96,4 +96,20 @@ describe('integration: sabsa fixture', () => {
   it('no longer reports multiple views as unsupported (all 38 are serialized)', () => {
     expect(diagnostics.some((d) => d.code === 'unsupported-multiple-views')).toBe(false);
   });
+
+  it('now reports nested diagram objects (up to 3 levels deep) as supported, drawn inside their parent', () => {
+    const nestedObjectDiagnostics = diagnostics.filter(
+      (d) => d.code === 'unsupported-nested-diagram-object' && d.entityType === 'ArchiDiagramObject',
+    );
+    expect(nestedObjectDiagnostics).toEqual([]);
+    const nested = model.diagramObjects.filter((o) => o.parentId !== null || o.childrenIds.length > 0);
+    expect(nested.length).toBe(283);
+  });
+
+  it('still reports a nested Note as unsupported (no fixture evidence for that, unlike nested diagram objects)', () => {
+    const nestedNoteDiagnostics = diagnostics.filter(
+      (d) => d.code === 'unsupported-nested-diagram-object' && d.entityType === 'ArchiNote',
+    );
+    expect(nestedNoteDiagnostics.length).toBe(1);
+  });
 });

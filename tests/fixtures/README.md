@@ -155,6 +155,37 @@ other element node: `mm_graphicType="3"` (not the usual `"5"`), and no
 either fixture. Implemented in `graphical-writer.ts`'s `buildJunctionNode`,
 which is used instead of the normal styled-node path.
 
+### Nested diagram objects
+
+`sabsa.archimate` has 283 nested `ArchiDiagramObject`s (parent-and/or-child),
+up to 3 levels deep; `agile-manifesto.archimate` has 15, 1 level deep — both
+independently disprove the "nested diagram objects aren't supported"
+assumption v0.1 originally shipped with. Confirmed structure (verified with
+a structural walk of both `.xma` files, matching parent/child `MM_Rect`
+values against the source `.archimate`'s parent/child bounds × 3):
+
+- A child's `MM_Node` nests as a sibling of its parent's icon/label
+  `MM_Decoration`s, inside the parent's own `MM_Graphics` — not as a sibling
+  of the parent in the Canvas.
+- A child's `MM_Rect` bounds are used exactly as Archi stores them (already
+  relative to the parent), scaled ×3 like every other node — **no offset
+  math**. Confirmed by exact match: a parent/child pair with Archi bounds
+  `{264,96,445,124}` / `{288,36,145,73}` produces XMA `MM_Rect`s of exactly
+  `{792,288,1335,372}` / `{864,108,435,219}` (×3, no addition).
+- Groups nest children the same way a normal element-backed node does
+  (confirmed: a `ViewGraphic` node with 3 nested `MM_Node` children exists in
+  `sabsa.xma`) — the same recursive structure, not a special case.
+
+Implemented in `graphical-writer.ts`'s `buildNodeTree` (recursive,
+bottom-up: children are built first, then passed into `buildStyledNode`'s
+`nestedChildrenXml` parameter) and `view-writer.ts` (dropped the outright
+rejection of any object with a `parentId`/non-empty `childrenIds`).
+
+**Not implemented — no fixture evidence:** a nested `ArchiNote` (as opposed
+to a nested `ArchiDiagramObject`). Only one instance exists across all four
+fixtures combined, not enough to confirm its representation; still
+diagnosed as unsupported.
+
 ### Multi-view support
 
 `sabsa.xma` has 38 `<ArchiMate:AllView>` elements; `agile-manifesto.xma` has
