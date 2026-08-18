@@ -31,11 +31,12 @@ describe('strict-by-default diagnostics', () => {
     expect(diagnostics.some((d) => d.code === 'unsupported-element-type')).toBe(true);
   });
 
-  it('diagnoses an unsupported relationship (type/source/target combination not in the confirmed 3)', () => {
-    const actor = makeElement({ id: 'a', type: 'BusinessActor' });
+  it('diagnoses an unsupported relationship (type/source/target combination not in the confirmed set)', () => {
     const role = makeElement({ id: 'r', type: 'BusinessRole' });
-    const rel = makeRelationship({ id: 'rel', type: 'AssignmentRelationship', sourceId: 'a', targetId: 'r' });
-    const model = makeModel({ elements: [actor, role], relationships: [rel] });
+    const actor = makeElement({ id: 'a', type: 'BusinessActor' });
+    // Reversed direction of a confirmed mapping (BusinessActor -> BusinessRole is confirmed; the reverse isn't).
+    const rel = makeRelationship({ id: 'rel', type: 'AssignmentRelationship', sourceId: 'r', targetId: 'a' });
+    const model = makeModel({ elements: [role, actor], relationships: [rel] });
     const diagnostics = inspectXmaSupport(model);
     expect(diagnostics.some((d) => d.code === 'unsupported-relationship' && d.entityId === 'rel')).toBe(true);
   });

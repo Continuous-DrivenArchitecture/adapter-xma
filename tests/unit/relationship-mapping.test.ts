@@ -25,14 +25,26 @@ describe('relationship-mapping', () => {
     });
   });
 
+  it('maps RealizationRelationship WorkPackage -> BusinessProcess, in IMScheme (the source\'s scheme, not the target\'s)', () => {
+    const mapping = lookupRelationshipMapping('RealizationRelationship', 'WorkPackage', 'BusinessProcess');
+    expect(mapping).toMatchObject({
+      xmaType: 'IMWorkpackageBusinessProcessRealisation',
+      scheme: 'IMScheme',
+    });
+  });
+
   it('resolves by the full (type, source, target) triple, not by relationship type alone', () => {
     // Same relationship type, unconfirmed source/target combination -> unsupported.
-    expect(lookupRelationshipMapping('AssignmentRelationship', 'BusinessRole', 'BusinessProcess')).toBeUndefined();
+    expect(lookupRelationshipMapping('AssignmentRelationship', 'BusinessRole', 'BusinessRole')).toBeUndefined();
     expect(lookupRelationshipMapping('ServingRelationship', 'ApplicationComponent', 'BusinessProcess')).toBeUndefined();
     expect(lookupRelationshipMapping('FlowRelationship', 'ApplicationProcess', 'ApplicationProcess')).toBeUndefined();
   });
 
   it('returns undefined for entirely unconfirmed relationship types', () => {
-    expect(lookupRelationshipMapping('RealizationRelationship', 'ApplicationComponent', 'ApplicationService')).toBeUndefined();
+    expect(lookupRelationshipMapping('RealizationRelationship', 'BusinessActor', 'BusinessProcess')).toBeUndefined();
+  });
+
+  it('never resolves AssociationRelationship by triple — it only ever serializes as the generic ElementElementAssociation (not modeled in this table)', () => {
+    expect(lookupRelationshipMapping('AssociationRelationship', 'BusinessObject', 'BusinessActor')).toBeUndefined();
   });
 });
