@@ -1,3 +1,9 @@
+## [0.4.3](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.4.2...v0.4.3) (2026-08-18)
+
+### Bug Fixes
+
+* omit the graphical connector for a relationship already conveyed by nesting ([b4bfbea](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/b4bfbea4e5b895baa114e04dd054236ac9b572df))
+
 ## [0.4.2](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.4.1...v0.4.2) (2026-08-18)
 
 ### Bug Fixes
