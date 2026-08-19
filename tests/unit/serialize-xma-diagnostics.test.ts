@@ -151,7 +151,12 @@ describe('strict-by-default diagnostics', () => {
     expect(xma.match(/MM_DirectedRel /g) ?? []).toHaveLength(1);
   });
 
-  it('diagnoses a purely visual connection with no underlying semantic relationship', () => {
+  it('represents a purely visual connection (no underlying relationship) between two drawable objects as an ArchiMate:ViewEdge, not a diagnostic', () => {
+    // Corrected: this was previously diagnosed as unsupported. Confirmed
+    // against two independent real fixtures (agile-manifesto, sabsa) that
+    // Archi's own XMA export represents this as an ArchiMate:ViewEdge whose
+    // from/to are each endpoint's own semantic id — see view-writer.ts's
+    // resolveObjectSemanticId and tests/fixtures/README.md.
     const actor = makeElement({ id: 'a', type: 'BusinessActor' });
     const process = makeElement({ id: 'p', type: 'BusinessProcess' });
     const objA = makeDiagramObject({ id: 'oa', viewId: 'v1', archimateElementId: 'a', bounds: makeBounds(0, 0, 10, 10) });
@@ -159,6 +164,20 @@ describe('strict-by-default diagnostics', () => {
     const conn = makeDiagramConnection({ id: 'c1', viewId: 'v1', sourceId: 'oa', targetId: 'op', archimateRelationshipId: null });
     const view = makeView({ id: 'v1', diagramObjectIds: [objA.id, objP.id], diagramConnectionIds: [conn.id] });
     const model = makeModel({ elements: [actor, process], views: [view], diagramObjects: [objA, objP], diagramConnections: [conn] });
+
+    expect(inspectXmaSupport(model).some((d) => d.code === 'unsupported-connection-no-relationship')).toBe(false);
+    const xma = serializeXma(model);
+    expect(xma).toMatch(/<ArchiMate:ViewEdge id="\d+" from="\d+" to="\d+"\/>/);
+    expect(xma).toContain('mm_concept="ViewEdge"');
+  });
+
+  it('still diagnoses a purely visual connection when an endpoint is not itself a drawable object', () => {
+    const actor = makeElement({ id: 'a', type: 'BusinessActor' });
+    const objA = makeDiagramObject({ id: 'oa', viewId: 'v1', archimateElementId: 'a', bounds: makeBounds(0, 0, 10, 10) });
+    // Connects to an object id that doesn't exist in the model at all — the endpoint can never resolve to a semantic id.
+    const conn = makeDiagramConnection({ id: 'c1', viewId: 'v1', sourceId: 'oa', targetId: 'does-not-exist', archimateRelationshipId: null });
+    const view = makeView({ id: 'v1', diagramObjectIds: [objA.id], diagramConnectionIds: [conn.id] });
+    const model = makeModel({ elements: [actor], views: [view], diagramObjects: [objA], diagramConnections: [conn] });
     const diagnostics = inspectXmaSupport(model);
     expect(diagnostics.some((d) => d.code === 'unsupported-connection-no-relationship')).toBe(true);
   });

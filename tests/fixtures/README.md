@@ -301,14 +301,71 @@ real `agile-manifesto.xma`:
   `ArchiView` at all — that case remains genuinely unrepresentable and is
   reported as a `warning`, not guessed.
 - The one connection *between* the two reference nodes (a purely-visual
-  `mm_concept="ViewEdge"` `MM_DirectedRel`) is a separate, still-open gap —
-  see "Nesting suppresses the graphical connector..." above and the 92-vs-93
-  connector count discussion in `tests/integration/agile-manifesto.test.ts`;
-  `archi-semantic-core` doesn't parse that connection at all (no `xsi:type`
-  on its source XML), so it never reaches this library's input.
+  `mm_concept="ViewEdge"` `MM_DirectedRel`) was a separate, initially-open
+  gap: `archi-semantic-core` didn't parse it at all (no `xsi:type` on its
+  source XML), so it never reached this library's input. Closed on both
+  ends — see "ArchiMate:ViewEdge" below.
 
 Implemented in `view-writer.ts` (validates the reference, resolves the
 target view's ref) and `graphical-writer.ts`'s `buildViewReferenceNode`.
+
+### `ArchiMate:ViewEdge` (purely-visual connections)
+
+A connection with no underlying ArchiMate relationship
+(`archimateRelationshipId: null`) — Archi allows this for a link between
+two objects that aren't themselves ArchiMate concepts with relationship
+semantics (a `DiagramModelReference`, a Note, a Group), and represents it
+untyped (`sourceConnection` with no `xsi:type`).
+
+**Two-stage finding.** `archi-semantic-core` originally discarded any
+`sourceConnection` lacking an `xsi:type`, so this construct never reached
+`adapter-xma`'s input at all — confirmed as the exact cause of the 92-vs-93
+connector-count gap in agile-manifesto (see previous section). Fixed
+upstream in `@cda/archi-semantic-core@0.4.3`
+(`fix(parser): preserve sourceConnection when xsi:type is absent`):
+`ArchiDiagramConnection.xsiType` is now `string | null`, and the connection
+is kept with `xsiType: null` rather than fabricated or dropped.
+
+With that data now available, re-verified its XMA representation directly
+against **two independent real instances in two different fixtures**:
+
+- agile-manifesto: the connection between its two `DiagramModelReference`
+  nodes (`from`/`to` referencing their `AllViewRef` ids — see previous
+  section).
+- sabsa: a connection between a Note/Group (`ArchiMate:ViewGraphic id="1842"`)
+  and a `BusinessRole` element (`ArchiMate:BusinessRoleRef id="1845"`).
+
+Both confirm the same structure:
+
+- **Semantic layer**: a per-view `<ArchiMate:ViewEdges name="viewEdges">`
+  container (a sibling of `ViewGraphics`/`RefObjects` inside `AllView`,
+  confirmed order `ViewGraphics → ViewEdges → RefObjects` from the sabsa
+  instance, which has all three), holding one
+  `<ArchiMate:ViewEdge id="X" from="Y" to="Z"/>` per connection. Only
+  emitted when the view has at least one (like `ViewGraphics`, unlike the
+  always-present `RefObjects`).
+- **`from`/`to` are each endpoint's own semantic id** — confirmed by
+  cross-referencing: in the sabsa instance, `from="1842"` is exactly the
+  Note/Group's own `ArchiMate:ViewGraphic` id, and `to="1845"` is exactly
+  the `BusinessRoleRef` id that the `BusinessRole`'s own `MM_Node` also uses
+  as its `mm_semanticObject`. In other words: whatever semantic id an
+  object already exposes for its own node, a `ViewEdge` touching it reuses
+  verbatim — no new indirection layer.
+- **Graphical layer**: an `MM_Diagram:MM_DirectedRel` with
+  `mm_graphicType="7"`, `mm_concept="ViewEdge"`, `mm_semanticObject`
+  pointing directly at the `ViewEdge`'s own id (not through a further Ref
+  layer), one label decoration (`mm_fontSize="180"`, `Segoe UI`), and a bare
+  `mm_lineColor` (no `mm_r`/`mm_g`/`mm_b` — identical shape to a relationship
+  connector with no explicit line color override). Identical in both
+  instances; neither has bendpoints.
+
+Implemented in `view-writer.ts`'s `resolveObjectSemanticId` (generalizes
+"what is this object's own semantic id" across element-backed/Group/Note/
+`DiagramModelReference` — reusing the exact same lookups each object type
+already does for its own node) and `graphical-writer.ts`'s connection loop.
+Falls back to the pre-existing `unsupported-connection-no-relationship`
+diagnostic when an endpoint doesn't resolve to a drawable object — that
+remains genuinely unsupported, not guessed.
 
 ## Provenance
 

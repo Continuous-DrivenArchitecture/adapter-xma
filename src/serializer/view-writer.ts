@@ -10,6 +10,8 @@ import { hasCompleteBounds } from '../geometry/geometry.js';
 
 export interface ViewBuildResult {
   viewGraphicsXml: XmlElement[];
+  /** `<ArchiMate:ViewEdge>` elements for this view's purely-visual connections — see the connection loop below. */
+  viewEdgesXml: XmlElement[];
   refObjectsXml: XmlElement[];
   /** Ids of diagram objects that passed validation and should be drawn (element-backed nodes only). */
   validElementNodeObjectIds: Set<string>;
@@ -19,6 +21,8 @@ export interface ViewBuildResult {
   validNoteIds: Set<string>;
   /** Ids of DiagramModelReference objects that passed validation and should be drawn. */
   validViewReferenceObjectIds: Set<string>;
+  /** Archi connection id -> its ArchiMate:ViewEdge's own semantic XMA id, for graphical-writer's mm_semanticObject. */
+  viewEdgeSemanticIds: Map<string, number>;
 }
 
 /**
@@ -41,12 +45,38 @@ export function buildView(
   language: string,
 ): ViewBuildResult {
   const viewGraphicsXml: XmlElement[] = [];
+  const viewEdgesXml: XmlElement[] = [];
   const refObjectsXml: XmlElement[] = [];
   const validElementNodeObjectIds = new Set<string>();
   const validGroupObjectIds = new Set<string>();
   const validNoteIds = new Set<string>();
   const validViewReferenceObjectIds = new Set<string>();
+  const viewEdgeSemanticIds = new Map<string, number>();
   const viewIds = new Set(model.views.map((v) => v.id));
+  const diagramObjectById = new Map(model.diagramObjects.map((o) => [o.id, o]));
+
+  /**
+   * Resolves the semantic XMA id a diagram object (or note) uses for its
+   * *own* node's `mm_semanticObject` — confirmed (across an
+   * element-backed/Group/Note/DiagramModelReference mix, in two independent
+   * fixtures) to be exactly the value an `ArchiMate:ViewEdge`'s `from`/`to`
+   * references for that same object. `undefined` when the id isn't a
+   * validated, drawable object/note in this view.
+   */
+  function resolveObjectSemanticId(objectOrNoteId: string): number | undefined {
+    if (validElementNodeObjectIds.has(objectOrNoteId)) {
+      const archimateElementId = diagramObjectById.get(objectOrNoteId)?.archimateElementId;
+      return archimateElementId ? refIds.get(archimateElementId) : undefined;
+    }
+    if (validGroupObjectIds.has(objectOrNoteId) || validNoteIds.has(objectOrNoteId)) {
+      return ids.get(objectOrNoteId);
+    }
+    if (validViewReferenceObjectIds.has(objectOrNoteId)) {
+      const referencedModelId = diagramObjectById.get(objectOrNoteId)?.referencedModelId;
+      return referencedModelId ? refIds.get(referencedModelId) : undefined;
+    }
+    return undefined;
+  }
 
   for (const obj of model.diagramObjects) {
     if (obj.viewId !== view.id) {
@@ -196,12 +226,36 @@ export function buildView(
       continue;
     }
     if (connection.archimateRelationshipId === null) {
-      diagnostics.error({
-        code: 'unsupported-connection-no-relationship',
-        message: `Connection "${connection.id}" has no underlying semantic relationship (a purely visual connector) — not supported in XMA v0.1.`,
-        entityId: connection.id,
-        entityType: 'ArchiDiagramConnection',
-      });
+      // A purely-visual connection (no underlying ArchiMate relationship).
+      // Confirmed against two independent real instances — agile-manifesto
+      // (between two DiagramModelReferences) and sabsa (between a
+      // Note/Group and a BusinessRole element) — that Archi represents
+      // this as an ArchiMate:ViewEdge, whose from/to are exactly each
+      // endpoint's own semantic id (the same value already used as that
+      // endpoint's own node's mm_semanticObject — see
+      // resolveObjectSemanticId above). Falls back to the pre-existing
+      // diagnostic when either endpoint isn't itself a drawable object —
+      // that remains a genuinely unsupported case, not guessed either way.
+      const fromSemanticId = resolveObjectSemanticId(connection.sourceId);
+      const toSemanticId = resolveObjectSemanticId(connection.targetId);
+      if (fromSemanticId === undefined || toSemanticId === undefined) {
+        diagnostics.error({
+          code: 'unsupported-connection-no-relationship',
+          message: `Connection "${connection.id}" has no underlying semantic relationship (a purely visual connector) and at least one endpoint is not a drawable object — not supported in XMA v0.1.`,
+          entityId: connection.id,
+          entityType: 'ArchiDiagramConnection',
+        });
+        continue;
+      }
+      const viewEdgeId = ids.idFor(connection.id);
+      viewEdgesXml.push(
+        element('ArchiMate:ViewEdge', [
+          ['id', String(viewEdgeId)],
+          ['from', String(fromSemanticId)],
+          ['to', String(toSemanticId)],
+        ]),
+      );
+      viewEdgeSemanticIds.set(connection.id, viewEdgeId);
       continue;
     }
     const mapping = mappedRelationships.get(connection.archimateRelationshipId);
@@ -220,5 +274,14 @@ export function buildView(
     }
   }
 
-  return { viewGraphicsXml, refObjectsXml, validElementNodeObjectIds, validGroupObjectIds, validNoteIds, validViewReferenceObjectIds };
+  return {
+    viewGraphicsXml,
+    viewEdgesXml,
+    refObjectsXml,
+    validElementNodeObjectIds,
+    validGroupObjectIds,
+    validNoteIds,
+    validViewReferenceObjectIds,
+    viewEdgeSemanticIds,
+  };
 }

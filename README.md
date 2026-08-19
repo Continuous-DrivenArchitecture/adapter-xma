@@ -156,6 +156,20 @@ extrapolated beyond that evidence.
   Sketch/Canvas) has no XMA representation and is reported as a `warning`,
   not a blocking error. See `src/serializer/view-writer.ts` and
   `graphical-writer.ts`'s `buildViewReferenceNode`.
+- **A purely-visual connection between two drawable objects (no underlying
+  ArchiMate relationship)** — represented as an `ArchiMate:ViewEdge`
+  (semantic layer) and an `mm_concept="ViewEdge"` `MM_DirectedRel`
+  (graphical layer). Confirmed against two independent real instances in
+  two different fixtures — agile-manifesto (between two
+  `DiagramModelReference`s) and sabsa (between a Note/Group and a
+  `BusinessRole` element) — that the `ViewEdge`'s `from`/`to` are exactly
+  each endpoint's own semantic id, the same value already used as that
+  endpoint's own node's `mm_semanticObject`. Requires
+  `@cda/archi-semantic-core >=0.4.3`, which stopped silently dropping a
+  `sourceConnection` with no `xsi:type` (some of these connections have
+  none); with an older parser version the connection simply never reaches
+  this library's input, so nothing breaks, the improvement just doesn't
+  apply. See `view-writer.ts`'s `resolveObjectSemanticId`.
 - A configurable output language, applied consistently — never inferred
   from element names.
 - Direct, lossless mapping of explicit Archi `fillColor`/`lineColor`
@@ -189,17 +203,6 @@ extrapolated beyond that evidence.
 - A nested `ArchiNote` (as opposed to a nested `ArchiDiagramObject`, now
   supported) — only one instance exists across all four fixtures, not
   enough to confirm its representation.
-- Purely visual (non-semantic) connections not touching a
-  `DiagramModelReference` — no fixture evidence either way (the one
-  purely-visual connection found, between two `DiagramModelReference`
-  nodes, isn't even parsed as a diagram connection by
-  `@cda/archi-semantic-core`, since it lacks an `xsi:type`). This is
-  confirmed to fully account for agile-manifesto's real XMA having 93
-  graphical connectors against this library's 92: the 93rd is exactly that
-  connection, rendered as `mm_concept="ViewEdge"` between two
-  `mm_concept="AllView"` nodes — out of this library's reach since the
-  connection never reaches its input. See
-  `tests/integration/agile-manifesto.test.ts`.
 - Profiles/specializations and arbitrary model properties.
 - Explicit bold/italic, line width, font color, or fill opacity (`alpha`)
   overrides (reported as diagnostics; the confirmed defaults are used

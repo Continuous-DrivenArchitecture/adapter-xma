@@ -193,20 +193,18 @@ describe('integration: agile-manifesto fixture', () => {
     // by tag: GroupingElementComposition and BusinessProcessBusinessFunction-
     // Composition both appear in the semantic Relations collections at their
     // full count, but neither tag appears among the graphical connectors).
-    // The real fixture draws 93 MM_DirectedRel; this implementation
-    // produces 92. Traced (by diffing MM_DirectedRel mm_concept counts
-    // between this output and the real fixture): the real XMA's 93rd
-    // connector is a single mm_concept="ViewEdge" DirectedRel between two
-    // mm_concept="AllView" nodes — the graphical form of a purely-visual
-    // connection between two DiagramModelReference ("insert view as
-    // reference") nodes. This isn't a gap in this library: per the "Purely
-    // visual (non-semantic) connections" note in the README, that specific
-    // connection isn't even parsed as a diagram connection by
-    // @cda/archi-semantic-core (it lacks an xsi:type), so it never reaches
-    // adapter-xma's input at all. 92 is the correct, fully-accounted-for
-    // count given what the model actually exposes.
+    // Previously traced to a 92-vs-93 gap: the real fixture draws 93
+    // MM_DirectedRel, this implementation produced 92, missing exactly one
+    // mm_concept="ViewEdge" connector between the two DiagramModelReference
+    // nodes. That gap is now closed on both ends: @cda/archi-semantic-core
+    // 0.4.3 stopped silently dropping a sourceConnection with no xsi:type
+    // (previously it wasn't even parsed), and this library now represents
+    // any purely-visual connection between two drawable objects as an
+    // ArchiMate:ViewEdge (see view-writer.ts's resolveObjectSemanticId and
+    // tests/fixtures/README.md). 93 now matches the real fixture exactly.
     const xma = serializeXma(model, { language: 'en' });
-    expect(xma.match(/MM_DirectedRel /g) ?? []).toHaveLength(92);
+    expect(xma.match(/MM_DirectedRel /g) ?? []).toHaveLength(93);
+    expect(xma).toContain('mm_concept="ViewEdge"');
     // The semantic definition tag specifically (not its "...Ref" RefObjects
     // counterpart, which view-writer emits unconditionally regardless of
     // whether graphical-writer draws a connector for it).

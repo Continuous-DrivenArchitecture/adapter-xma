@@ -146,6 +146,11 @@ export function buildXmaDocument(input: DocumentAssemblyInput): XmlElement {
           ...(viewResult.viewGraphicsXml.length > 0
             ? [element('ArchiMate:ViewGraphics', [['name', 'viewGraphics'], ['id', String(ids.fresh())]], viewResult.viewGraphicsXml)]
             : []),
+          // Confirmed order (sabsa fixture, the one view with both):
+          // ViewGraphics, then ViewEdges, then RefObjects.
+          ...(viewResult.viewEdgesXml.length > 0
+            ? [element('ArchiMate:ViewEdges', [['name', 'viewEdges'], ['id', String(ids.fresh())]], viewResult.viewEdgesXml)]
+            : []),
           element('ArchiMate:RefObjects', [['name', 'refObjects'], ['id', String(ids.fresh())]], viewResult.refObjectsXml),
         ],
       );

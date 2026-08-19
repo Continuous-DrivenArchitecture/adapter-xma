@@ -46,7 +46,7 @@
     "@cda/archi-semantic-core": "^0.4.1"
   },
   "devDependencies": {
-    "@cda/archi-semantic-core": "^0.4.2",
+    "@cda/archi-semantic-core": "^0.4.3",
     "@eslint/js": "^10.0.1",
     "@semantic-release/changelog": "^7.0.0",
     "@semantic-release/git": "^11.0.1",

@@ -503,9 +503,24 @@ export function buildGraphicalModule(
     const connection = connectionById.get(connId);
     if (!connection || connection.viewId !== view.id) continue;
     const relId = connection.archimateRelationshipId;
-    if (!relId) continue; // already diagnosed by view-writer
-    const mapping = mappedRelationships.get(relId);
-    if (!mapping) continue; // already diagnosed by relationship-writer
+    let xmaType: string;
+    let semanticObjectId: number;
+    if (relId) {
+      const mapping = mappedRelationships.get(relId);
+      if (!mapping) continue; // already diagnosed by relationship-writer
+      xmaType = mapping.xmaType;
+      semanticObjectId = assertDefined(refIds.get(relId), `no ref id registered for relationship "${relId}" (view-writer should have registered it before graphical-writer runs)`);
+    } else {
+      // A purely-visual connection (no underlying ArchiMate relationship) —
+      // view-writer already resolved this to a ViewEdge if both endpoints
+      // had a semantic id to reference; otherwise it already diagnosed the
+      // unsupported-connection-no-relationship error, so there's nothing to
+      // draw here.
+      const viewEdgeSemanticId = viewResult.viewEdgeSemanticIds.get(connection.id);
+      if (viewEdgeSemanticId === undefined) continue;
+      xmaType = 'ViewEdge';
+      semanticObjectId = viewEdgeSemanticId;
+    }
 
     const sourceNodeXmaId = nodeIds.get(connection.sourceId);
     const targetNodeXmaId = nodeIds.get(connection.targetId);
@@ -570,7 +585,6 @@ export function buildGraphicalModule(
       }
     }
 
-    const relRefId = assertDefined(refIds.get(relId), `no ref id registered for relationship "${relId}" (view-writer should have registered it before graphical-writer runs)`);
     const directedRelChildren: XmlElement[] = [];
     if (points.length > 0) {
       directedRelChildren.push(element('MM_Diagram:MM_MultiLine', [['name', 'mm_line'], ['id', String(ids.fresh())]], points));
@@ -607,8 +621,8 @@ export function buildGraphicalModule(
           ['mm_from', String(sourceNodeXmaId)],
           ['mm_to', String(targetNodeXmaId)],
           ['mm_graphicType', '7'],
-          ['mm_concept', mapping.xmaType],
-          ['mm_semanticObject', String(relRefId)],
+          ['mm_concept', xmaType],
+          ['mm_semanticObject', String(semanticObjectId)],
         ],
         directedRelChildren,
       ),
