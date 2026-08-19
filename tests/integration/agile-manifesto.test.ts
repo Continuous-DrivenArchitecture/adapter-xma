@@ -102,14 +102,16 @@ describe('integration: agile-manifesto fixture', () => {
   });
 
   it('reports no errors at all, only warnings, and serializes end to end', () => {
-    // DiagramModelReference (confirmed: Archi's own XMA export omits these
-    // nodes entirely), an omitted-x/y bounds coordinate (confirmed: Archi
-    // omits a bounds coordinate that equals 0, across all fixtures), and a
-    // bendpoint whose source-/target-relative offsets disagree (a resolvable
-    // fallback, not data loss) are all warnings now, not blocking errors —
-    // see geometry.ts, view-writer.ts, graphical-writer.ts. Only explicit
-    // font size/color overrides remain as (separately unconfirmed, also
-    // non-blocking) warnings.
+    // Both this fixture's DiagramModelReference objects resolve cleanly now
+    // (they reference other views within this same model — see
+    // view-writer.ts/graphical-writer.ts's buildViewReferenceNode), so
+    // neither contributes a warning here. An omitted-x/y bounds coordinate
+    // (confirmed: Archi omits a bounds coordinate that equals 0, across all
+    // fixtures), and a bendpoint whose source-/target-relative offsets
+    // disagree (a resolvable fallback, not data loss) are warnings, not
+    // blocking errors — see geometry.ts. Only explicit font color/bold-
+    // italic/line-width/alpha overrides remain as (separately unconfirmed,
+    // also non-blocking) warnings.
     expect(diagnostics.filter((d) => d.severity === 'error')).toEqual([]);
     expect(() => serializeXma(model, { language: 'en' })).not.toThrow();
   });
@@ -161,6 +163,23 @@ describe('integration: agile-manifesto fixture', () => {
     const xma = serializeXma(model, { language: 'en' });
     expect(xma.match(/mm_fontSize="220"/g) ?? []).toHaveLength(2);
     expect(xma.match(/mm_fontSize="280"/g) ?? []).toHaveLength(2);
+  });
+
+  it('draws both DiagramModelReference view-links as AllView nodes, matching the real fixture\'s exact bounds and colors', () => {
+    // This fixture's "Default View" has two DiagramModelReference shapes
+    // linking to "Agile Manifesto" and "12 Agile Principes". The real
+    // agile-manifesto.xma draws both (mm_concept="AllView",
+    // mm_graphicType="3") with MM_Rect x="366" y="720" w="465" h="165" and
+    // x="1008" y="720" w="615" h="165" respectively (confirmed by direct
+    // byte inspection — see view-writer.ts/graphical-writer.ts), and a
+    // fixed fill of mm_r="220" mm_g="235" mm_b="235" on both.
+    const xma = serializeXma(model, { language: 'en' });
+    expect(diagnostics.some((d) => d.code === 'unsupported-diagram-model-reference')).toBe(false);
+    const nodes = [...xma.matchAll(/<MM_Diagram:MM_Node[^>]*mm_concept="AllView"[^>]*>[\s\S]*?<\/MM_Diagram:MM_Node>/g)].map((m) => m[0]);
+    expect(nodes).toHaveLength(2);
+    expect(nodes.some((n) => n.includes('x="366" y="720" w="465" h="165"'))).toBe(true);
+    expect(nodes.some((n) => n.includes('x="1008" y="720" w="615" h="165"'))).toBe(true);
+    expect(nodes.every((n) => /mm_r="220" mm_g="235" mm_b="235"/.test(n))).toBe(true);
   });
 
   it('omits the graphical connector for a nested-parent-child relationship, matching the real fixture', () => {

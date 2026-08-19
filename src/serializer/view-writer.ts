@@ -17,6 +17,8 @@ export interface ViewBuildResult {
   validGroupObjectIds: Set<string>;
   /** Ids of notes that passed validation and should be drawn. */
   validNoteIds: Set<string>;
+  /** Ids of DiagramModelReference objects that passed validation and should be drawn. */
+  validViewReferenceObjectIds: Set<string>;
 }
 
 /**
@@ -43,24 +45,61 @@ export function buildView(
   const validElementNodeObjectIds = new Set<string>();
   const validGroupObjectIds = new Set<string>();
   const validNoteIds = new Set<string>();
+  const validViewReferenceObjectIds = new Set<string>();
+  const viewIds = new Set(model.views.map((v) => v.id));
 
   for (const obj of model.diagramObjects) {
     if (obj.viewId !== view.id) {
       continue;
     }
     if (obj.referencedModelId !== null) {
-      // Confirmed against the agile-manifesto fixture: Archi's own XMA export
-      // contains no trace whatsoever of a DiagramModelReference node or its
-      // connections (grepped for both ids and the referenced view ids — zero
-      // matches). Dropping it here, like the rest of this loop's unsupported
-      // cases, exactly reproduces that behavior, so it's a warning, not a
-      // blocking error.
-      diagnostics.warning({
-        code: 'unsupported-diagram-model-reference',
-        message: `Diagram object "${obj.id}" is a view-reference (DiagramModelReference) and was omitted, matching Archi's own XMA export.`,
-        entityId: obj.id,
-        entityType: 'ArchiDiagramObject',
-      });
+      // Corrected finding: an earlier version of this comment claimed "no
+      // trace whatsoever" of a DiagramModelReference in the real XMA export,
+      // based on grepping for Archi's own string id — which can never match
+      // anything, since XMA never reuses Archi's ids (see id-allocator.ts).
+      // That verification method was broken, not the underlying claim.
+      // Re-verified directly against agile-manifesto.xma: both
+      // DiagramModelReference objects there ARE drawn, as an
+      // `mm_concept="AllView"`/`mm_graphicType="3"` node whose
+      // `mm_semanticObject` resolves — via an `ArchiMate:AllViewRef`, the
+      // same Ref-layer indirection used for every other element/relationship
+      // — to the *referenced view's own* `ArchiMate:AllView` id (no new
+      // semantic concept is minted for the reference itself). See
+      // `graphical-writer.ts`'s `buildViewReferenceNode`.
+      //
+      // This only resolves when the reference targets another `ArchiView` in
+      // *this* model. `referencedModelId` can also point at a Sketch/Canvas
+      // view (per `archi-semantic-core`'s docs on the field) — archi-mate has
+      // no XMA representation at all, so that case remains genuinely
+      // unsupported.
+      if (!hasCompleteBounds(obj.bounds)) {
+        diagnostics.error({
+          code: 'missing-bounds',
+          message: `Diagram object "${obj.id}" has incomplete geometry (x/y/width/height) and cannot be positioned in XMA.`,
+          entityId: obj.id,
+          entityType: 'ArchiDiagramObject',
+        });
+        continue;
+      }
+      if (!viewIds.has(obj.referencedModelId)) {
+        diagnostics.warning({
+          code: 'unsupported-diagram-model-reference',
+          message: `Diagram object "${obj.id}" references a view/model ("${obj.referencedModelId}") not among this model's own ArchiMate views (e.g. a Sketch/Canvas) — not representable in XMA and was omitted.`,
+          entityId: obj.id,
+          entityType: 'ArchiDiagramObject',
+        });
+        continue;
+      }
+      if (!refIds.has(obj.referencedModelId)) {
+        const refId = refIds.idFor(obj.referencedModelId);
+        refObjectsXml.push(
+          element('ArchiMate:AllViewRef', [
+            ['id', String(refId)],
+            ['to', String(ids.idFor(obj.referencedModelId))],
+          ]),
+        );
+      }
+      validViewReferenceObjectIds.add(obj.id);
       continue;
     }
 
@@ -181,5 +220,5 @@ export function buildView(
     }
   }
 
-  return { viewGraphicsXml, refObjectsXml, validElementNodeObjectIds, validGroupObjectIds, validNoteIds };
+  return { viewGraphicsXml, refObjectsXml, validElementNodeObjectIds, validGroupObjectIds, validNoteIds, validViewReferenceObjectIds };
 }

@@ -26,6 +26,15 @@ export const NOTE_FILL_COLOR: Rgb = { r: 255, g: 255, b: 255 };
 /** Default fill for a visual Group (`ArchiMate:ViewGraphic` with `mm_symbolName="group"`). */
 export const GROUP_FILL_COLOR: Rgb = { r: 210, g: 215, b: 215 };
 
+/**
+ * Default fill for a `DiagramModelReference` ("insert view as reference")
+ * node — confirmed identical on both instances in the agile-manifesto
+ * fixture. No `style` element exists on either source object, so this (like
+ * Junction's colorlessness) is the construct's fixed default, not a
+ * style-resolution result.
+ */
+export const VIEW_REFERENCE_FILL_COLOR: Rgb = { r: 220, g: 235, b: 235 };
+
 /** Default node/connection line color — constant across every semantic node in both fixtures. */
 export const DEFAULT_LINE_COLOR: Rgb = { r: 92, g: 92, b: 92 };
 

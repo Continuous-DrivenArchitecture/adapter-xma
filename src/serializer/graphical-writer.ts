@@ -13,7 +13,7 @@ import { assertDefined } from '../infrastructure/assert.js';
 import type { DiagnosticCollector } from '../diagnostics/diagnostics.js';
 import type { ElementMappingEntry } from '../mapping/element-mapping.js';
 import type { ResolvedRelationshipMapping } from './relationship-writer.js';
-import { CATEGORY_FILL_COLOR, DEFAULT_FONT_NAME, DEFAULT_FONT_SIZE, DEFAULT_LINE_COLOR, DEFAULT_OPACITY, GROUP_FILL_COLOR, NOTE_FILL_COLOR, CANVAS_EXTENT, parseArchiHexColor, type Rgb } from '../mapping/visual-mapping.js';
+import { CATEGORY_FILL_COLOR, DEFAULT_FONT_NAME, DEFAULT_FONT_SIZE, DEFAULT_LINE_COLOR, DEFAULT_OPACITY, GROUP_FILL_COLOR, NOTE_FILL_COLOR, VIEW_REFERENCE_FILL_COLOR, CANVAS_EXTENT, parseArchiHexColor, type Rgb } from '../mapping/visual-mapping.js';
 import { scaleRect, scalePoint, hasCompleteBounds, toRect, type Rect } from '../geometry/geometry.js';
 import { resolveBendpoint } from '../geometry/bendpoints.js';
 import type { ViewBuildResult } from './view-writer.js';
@@ -315,6 +315,50 @@ function buildJunctionNode(ids: XmaIdRegistry, nodeXmaId: number, concept: strin
 }
 
 /**
+ * Builds a `DiagramModelReference` ("insert view as reference") node —
+ * confirmed against both instances in the agile-manifesto fixture:
+ * `mm_graphicType="3"` (like Junction, not the usual `"5"`), but *unlike*
+ * Junction it does carry an icon decoration and a fixed fill/line color
+ * (`VIEW_REFERENCE_FILL_COLOR`/`DEFAULT_LINE_COLOR` — no `style` element on
+ * either source object, so this is the construct's fixed default, not a
+ * style-resolution result). `semanticObject` is the Ref id pointing at the
+ * *referenced view's own* `ArchiMate:AllView` — see `view-writer.ts`.
+ */
+function buildViewReferenceNode(
+  ids: XmaIdRegistry,
+  nodeXmaId: number,
+  semanticObject: number,
+  bounds: Rect,
+  nestedChildrenXml: XmlElement[] = [],
+): XmlElement {
+  return element(
+    'MM_Diagram:MM_Node',
+    [
+      ['id', String(nodeXmaId)],
+      ['mm_graphicType', '3'],
+      ['mm_concept', 'AllView'],
+      ['mm_lineOpacity', String(DEFAULT_OPACITY)],
+      ['mm_fillOpacity', String(DEFAULT_OPACITY)],
+      ['mm_semanticObject', String(semanticObject)],
+    ],
+    [
+      element('MM_Diagram:MM_Graphics', [['name', 'mm_graphics'], ['id', String(ids.fresh())]], [
+        buildIconDecoration(ids.fresh()),
+        buildLabelDecoration(ids.fresh(), DEFAULT_FONT_NAME, DEFAULT_FONT_SIZE),
+        ...nestedChildrenXml,
+      ]),
+      colorElement('mm_lineColor', DEFAULT_LINE_COLOR, ids.fresh()),
+      element(
+        'MM_Diagram:MM_Colors',
+        [['name', 'mm_fillColors'], ['id', String(ids.fresh())]],
+        [colorElement(null, VIEW_REFERENCE_FILL_COLOR, ids.fresh())],
+      ),
+      rectElement(ids.fresh(), bounds),
+    ],
+  );
+}
+
+/**
  * Builds the `GraphicalModule`'s `MM_Diagram` for one view: a Canvas node
  * wrapping one `MM_Node` per drawable diagram object/group/note (nested
  * diagram objects recursively nested inside their parent's `MM_Node`, via
@@ -419,6 +463,17 @@ export function buildGraphicalModule(
         [['mm_frameStrategy', '12']],
         nestedChildrenXml,
       );
+    }
+
+    if (viewResult.validViewReferenceObjectIds.has(objId)) {
+      if (obj.referencedModelId === null) {
+        throw new Error(`Internal invariant violation: diagram object "${obj.id}" is in validViewReferenceObjectIds but has no referencedModelId.`);
+      }
+      const refId = assertDefined(refIds.get(obj.referencedModelId), `no ref id registered for referenced view "${obj.referencedModelId}" (view-writer should have registered it before graphical-writer runs)`);
+      const nodeXmaId = nodeIds.idFor(obj.id);
+      const bounds = resolveDrawableBounds(obj.bounds, diagnostics, obj.id, 'ArchiDiagramObject');
+      if (!bounds) return null;
+      return buildViewReferenceNode(ids, nodeXmaId, refId, bounds, nestedChildrenXml);
     }
 
     return null;

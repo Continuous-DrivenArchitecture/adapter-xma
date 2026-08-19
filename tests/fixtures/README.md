@@ -263,6 +263,53 @@ pairing in both fixtures. Implemented across `serialize-xma.ts` (iterates
 `model.views` instead of requiring exactly one) and `document-writer.ts`
 (assembles the shared `AbstractViews` + per-view `GraphicalModule`s).
 
+### DiagramModelReference ("insert view as reference" shape)
+
+**Corrected finding.** An earlier version of this codebase claimed zero
+fixture evidence for this construct's XMA representation, based on grepping
+`agile-manifesto.xma` for the `DiagramModelReference` object's own Archi
+string id and the referenced view's Archi string id. That check could never
+have found a match: XMA never reuses Archi's ids (every XMA id is a
+deterministic, freshly-allocated integer — see `id-allocator.ts`), so the
+absence of those specific strings proved nothing about whether the construct
+was represented, only that XMA ids look different from Archi ids (which was
+already known).
+
+Re-verified directly, by tracing `agile-manifesto.archimate`'s two
+`DiagramModelReference` shapes (linking to the "Agile Manifesto" and "12
+Agile Principes" views) through to their graphical representation in the
+real `agile-manifesto.xma`:
+
+- Both **are** drawn, as an `MM_Diagram:MM_Node` with
+  `mm_graphicType="3"` (like `Junction`, not the usual `"5"`) and
+  `mm_concept="AllView"` — confirmed identical bounds to the source
+  `<bounds>` scaled ×3, an icon decoration (unlike `Junction`, which has
+  none), a fixed line color (`92,92,92`, the same `DEFAULT_LINE_COLOR` used
+  everywhere else), and a fixed fill color (`220,235,235`, unique to this
+  construct — confirmed identical on both instances, and neither source
+  object has a `<style>` element, so it's a construct default, not a
+  style-resolution result).
+- The node's `mm_semanticObject` resolves through an `ArchiMate:AllViewRef`
+  — the exact same Ref-layer indirection pattern used for every other
+  element/relationship reference — to the id of an
+  `ArchiMate:AllView` that already exists in the document as the
+  *referenced view's own* definition. No new semantic concept is minted for
+  the reference itself.
+- This only resolves when `referencedModelId` matches another `ArchiView`
+  in the *same* model. `archi-semantic-core`'s own docs on that field note
+  it can also point at a Sketch/Canvas view, which isn't parsed into an
+  `ArchiView` at all — that case remains genuinely unrepresentable and is
+  reported as a `warning`, not guessed.
+- The one connection *between* the two reference nodes (a purely-visual
+  `mm_concept="ViewEdge"` `MM_DirectedRel`) is a separate, still-open gap —
+  see "Nesting suppresses the graphical connector..." above and the 92-vs-93
+  connector count discussion in `tests/integration/agile-manifesto.test.ts`;
+  `archi-semantic-core` doesn't parse that connection at all (no `xsi:type`
+  on its source XML), so it never reaches this library's input.
+
+Implemented in `view-writer.ts` (validates the reference, resolves the
+target view's ref) and `graphical-writer.ts`'s `buildViewReferenceNode`.
+
 ## Provenance
 
 All three pairs were produced by exporting the same source model from Archi

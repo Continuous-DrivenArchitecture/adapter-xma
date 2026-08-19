@@ -59,9 +59,9 @@ unconfirmed relationship, more than one view, a diagram object missing
 width/height, ...) it throws `XmaSerializationError` carrying a structured
 diagnostic for every problem found, rather than silently dropping content or
 fabricating an approximate result. Lower-severity findings (`warning`) don't
-block serialization — e.g. an explicit font-size override, or a
-`DiagramModelReference` that gets omitted the same way Archi's own XMA
-export omits it.
+block serialization — e.g. an explicit fill-opacity (`alpha`) override, or a
+`DiagramModelReference` pointing outside this model's own ArchiMate views
+(e.g. a Sketch/Canvas), which has no XMA representation.
 
 To preview what is and isn't supported without throwing:
 
@@ -145,11 +145,17 @@ extrapolated beyond that evidence.
   when its value is `0`, per the ArchiMate Exchange Format convention. Not
   treated as incomplete geometry; JS's null-coerces-to-0 arithmetic applies
   the default when scaling/centering. See `src/geometry/geometry.ts`.
-- `DiagramModelReference` ("insert view as reference") nodes are recognized
-  and omitted with a `warning` diagnostic, not a blocking error — confirmed
-  against the agile-manifesto fixture, whose real XMA export contains no
-  trace whatsoever of such a node or its connections. See
-  `src/serializer/view-writer.ts`.
+- `DiagramModelReference` ("insert view as reference") nodes, when they
+  point at another ArchiMate view within the same model — drawn as an
+  `mm_concept="AllView"`/`mm_graphicType="3"` node whose semantic object
+  resolves, via an `ArchiMate:AllViewRef`, to the *referenced view's own*
+  `ArchiMate:AllView` (no new semantic concept is minted for the reference
+  itself). Confirmed byte-for-byte against both instances in the
+  agile-manifesto fixture, including their fixed fill/line color. A
+  reference to something outside this model's own views (e.g. a
+  Sketch/Canvas) has no XMA representation and is reported as a `warning`,
+  not a blocking error. See `src/serializer/view-writer.ts` and
+  `graphical-writer.ts`'s `buildViewReferenceNode`.
 - A configurable output language, applied consistently — never inferred
   from element names.
 - Direct, lossless mapping of explicit Archi `fillColor`/`lineColor`
