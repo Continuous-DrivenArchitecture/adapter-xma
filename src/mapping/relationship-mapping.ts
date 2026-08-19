@@ -2,12 +2,14 @@
  * Archi relationship mapping, resolved by (relationship type, source
  * semantic type, target semantic type) — never by relationship type alone.
  *
- * 90 exact-triple mappings are proven: the original 3 confirmed against
+ * 113 exact-triple mappings are proven: the original 3 confirmed against
  * `tests/fixtures/relationships/relaciones.{archimate,xma}`, 64 more
  * confirmed against `tests/fixtures/sabsa/sabsa.{archimate,xma}`, 20 more
  * confirmed against `tests/fixtures/agile-manifesto/agile-manifesto.{archimate,xma}`,
- * and 3 confirmed "...Collaboration collapses to its singular active-structure
- * counterpart" instances (see below) — see each fixture pair's entry in
+ * 3 confirmed "...Collaboration collapses to its singular active-structure
+ * counterpart" instances (see below), and 23 more confirmed from a private,
+ * non-public model (see the comments on those two blocks, near the end of
+ * this file, for the evidence method) — see each fixture pair's entry in
  * `tests/fixtures/README.md` for the full derivation method. Every other
  * relationship type/source/target combination is unsupported for v0.1 and
  * must be diagnosed, never guessed (see `serializer/relationship-writer.ts`).
@@ -28,10 +30,10 @@
  *   - `AssociationRelationship` always serializes as the generic
  *     `ElementElementAssociation`, regardless of source/target type.
  *   - A `Grouping` endpoint (for the confirmed verbs Composition,
- *     Specialization, Influence, Use) or a `Junction`/`OrJunction` endpoint
- *     (for the confirmed verbs Realisation, Influence) uses a generic form
- *     (e.g. `GroupingElementComposition`, `RealisationRelation`) instead of a
- *     type-specific one.
+ *     Specialization, Influence, Use, Realisation, Access) or a `Junction`/
+ *     `OrJunction` endpoint (for the confirmed verbs Realisation, Influence,
+ *     Use) uses a generic form (e.g. `GroupingElementComposition`,
+ *     `RealisationRelation`) instead of a type-specific one.
  */
 
 export interface RelationshipMappingEntry {
@@ -698,6 +700,188 @@ export const RELATIONSHIP_MAPPINGS: readonly RelationshipMappingEntry[] = [
     targetArchiType: 'ApplicationComponent',
     xmaType: 'TechnologyNodeApplicationComponentUse',
     scheme: 'TechnologyScheme',
+  },
+
+  // 21 more confirmed from a private, non-public source model. Not backed by
+  // a fixture pair in this repo — the source model isn't shareable — but
+  // derived by the same method as every other entry: cross-referencing the
+  // original `.archimate` against a real `.xma` export, by element name,
+  // skipping anything ambiguous or unmatched rather than guessing. The one
+  // procedural difference: the `.xma` here came from Archi -> ArchiMate Open
+  // Exchange Format -> BizzDesign import -> BizzDesign XMA export, not a
+  // direct Archi-authored-and-BizzDesign-exported fixture — fine for
+  // confirming semantic relationship tags (which don't depend on how the
+  // model reached BizzDesign), but this round-trip does NOT preserve
+  // reliable graphical fidelity (routing/bendpoints), so it was not used as
+  // evidence for anything geometry-related.
+  {
+    archiRelationshipType: 'AssignmentRelationship',
+    sourceArchiType: 'ApplicationComponent',
+    targetArchiType: 'ApplicationService',
+    xmaType: 'ApplicationComponentApplicationServiceAssignment',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'AssignmentRelationship',
+    sourceArchiType: 'ApplicationInterface',
+    targetArchiType: 'ApplicationService',
+    xmaType: 'ApplicationInterfaceApplicationServiceAssignment',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'AssignmentRelationship',
+    sourceArchiType: 'SystemSoftware',
+    targetArchiType: 'Artifact',
+    xmaType: 'TechnologySystemSoftwareTechnologyArtifactAssignment',
+    scheme: 'TechnologyScheme',
+  },
+  {
+    archiRelationshipType: 'AssignmentRelationship',
+    sourceArchiType: 'SystemSoftware',
+    targetArchiType: 'TechnologyService',
+    xmaType: 'TechnologyNodeTechnologyServiceAssignment',
+    scheme: 'TechnologyScheme',
+  },
+  {
+    archiRelationshipType: 'CompositionRelationship',
+    sourceArchiType: 'ApplicationComponent',
+    targetArchiType: 'ApplicationInterface',
+    xmaType: 'ApplicationComponentApplicationInterfaceComposition',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'CompositionRelationship',
+    sourceArchiType: 'ApplicationFunction',
+    targetArchiType: 'ApplicationFunction',
+    xmaType: 'ApplicationFunctionApplicationFunctionComposition',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'CompositionRelationship',
+    sourceArchiType: 'ApplicationInterface',
+    targetArchiType: 'ApplicationInterface',
+    xmaType: 'ApplicationInterfaceApplicationInterfaceComposition',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'CompositionRelationship',
+    sourceArchiType: 'DataObject',
+    targetArchiType: 'DataObject',
+    xmaType: 'ApplicationDataObjectApplicationDataObjectComposition',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'CompositionRelationship',
+    sourceArchiType: 'Node',
+    targetArchiType: 'SystemSoftware',
+    xmaType: 'TechnologyNodeTechnologyNodeComposition',
+    scheme: 'TechnologyScheme',
+  },
+  {
+    archiRelationshipType: 'FlowRelationship',
+    sourceArchiType: 'ApplicationFunction',
+    targetArchiType: 'ApplicationFunction',
+    xmaType: 'ApplicationFunctionApplicationFunctionFlow',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'FlowRelationship',
+    sourceArchiType: 'ApplicationService',
+    targetArchiType: 'ApplicationFunction',
+    xmaType: 'ApplicationServiceApplicationFunctionFlow',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'RealizationRelationship',
+    sourceArchiType: 'ApplicationComponent',
+    targetArchiType: 'ApplicationFunction',
+    xmaType: 'ApplicationComponentApplicationFunctionRealisation',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationComponent',
+    targetArchiType: 'ApplicationFunction',
+    xmaType: 'ApplicationComponentApplicationFunctionUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationFunction',
+    targetArchiType: 'ApplicationFunction',
+    xmaType: 'ApplicationFunctionApplicationFunctionUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationFunction',
+    targetArchiType: 'ApplicationInterface',
+    xmaType: 'ApplicationFunctionApplicationInterfaceUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationInterface',
+    targetArchiType: 'ApplicationComponent',
+    xmaType: 'ApplicationInterfaceApplicationComponentUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationInterface',
+    targetArchiType: 'ApplicationFunction',
+    xmaType: 'ApplicationInterfaceApplicationFunctionUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationInterface',
+    targetArchiType: 'ApplicationInterface',
+    xmaType: 'ApplicationInterfaceApplicationInterfaceUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationInterface',
+    targetArchiType: 'ApplicationService',
+    xmaType: 'ApplicationInterfaceApplicationServiceUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationService',
+    targetArchiType: 'ApplicationInterface',
+    xmaType: 'ApplicationServiceApplicationInterfaceUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'TriggeringRelationship',
+    sourceArchiType: 'ApplicationFunction',
+    targetArchiType: 'ApplicationComponent',
+    xmaType: 'ApplicationFunctionApplicationComponentTriggering',
+    scheme: 'ApplicationScheme',
+  },
+
+  // 2 more from the same private, non-public source model as above —
+  // found while investigating why AccessRelationship instances weren't
+  // resolving even after the batch above: turned out to be a second,
+  // independent gap (the missing accessType child — see
+  // relationship-writer.ts's ACCESS_TYPE_XMA_CODE), fixed for every
+  // AccessRelationship regardless of triple, which is what surfaced these
+  // as name-matchable in the round-tripped .xma at all.
+  {
+    archiRelationshipType: 'AccessRelationship',
+    sourceArchiType: 'ApplicationComponent',
+    targetArchiType: 'DataObject',
+    xmaType: 'ApplicationComponentApplicationDataObjectAccess',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'AccessRelationship',
+    sourceArchiType: 'ApplicationInterface',
+    targetArchiType: 'DataObject',
+    xmaType: 'ApplicationInterfaceApplicationDataObjectAccess',
+    scheme: 'ApplicationScheme',
   },
 ];
 

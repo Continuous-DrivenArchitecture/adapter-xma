@@ -1,5 +1,5 @@
-import type { ArchiModel, ArchiElement, ArchiRelationship } from '@cda/archi-semantic-core';
-import { element } from '../infrastructure/xml-writer.js';
+import type { ArchiModel, ArchiElement, ArchiRelationship, ArchiAccessType } from '@cda/archi-semantic-core';
+import { element, textElement } from '../infrastructure/xml-writer.js';
 import type { XmlElement } from '../infrastructure/xml-writer.js';
 import type { XmaIdRegistry } from '../infrastructure/id-allocator.js';
 import { assertDefined } from '../infrastructure/assert.js';
@@ -13,6 +13,25 @@ import type { SchemeBuild } from './semantic-writer.js';
 export interface ResolvedRelationshipMapping {
   xmaType: string;
 }
+
+/**
+ * `AccessRelationship`'s access mode, as an `MM_ProfileValues`/`accessType`
+ * child on the relation element — confirmed against the sabsa fixture
+ * (`accessType="1"` -> `'Read'` -> `r`, `accessType="3"` -> `'ReadWrite'` ->
+ * `rw`) and cross-checked exhaustively (all 4 codes, ~180 instances, zero
+ * unexplained values on either side) against a private, non-public source
+ * model for the remaining two: the default (`'Write'`) -> `w`, and
+ * `accessType="2"` -> `'Unspecified'` -> `n`. Every `AccessRelationship`
+ * instance in every available fixture carries this child — it was
+ * previously omitted entirely, including for the already-confirmed
+ * `AccessRelationship` triples.
+ */
+const ACCESS_TYPE_XMA_CODE: Readonly<Record<ArchiAccessType, string>> = {
+  Write: 'w',
+  Read: 'r',
+  ReadWrite: 'rw',
+  Unspecified: 'n',
+};
 
 function getOrCreateScheme(schemeBuilds: Map<string, SchemeBuild>, tag: string): SchemeBuild {
   let build = schemeBuilds.get(tag);
@@ -128,11 +147,24 @@ export function buildSemanticRelationships(
     mappedRelationships.set(rel.id, mapping);
 
     const xmaId = ids.idFor(rel.id);
-    const relationXml = element(`ArchiMate:${mapping.xmaType}`, [
-      ['id', String(xmaId)],
-      ['from', String(ids.idFor(sourceEl.id))],
-      ['to', String(ids.idFor(targetEl.id))],
-    ]);
+    const relationXml = element(
+      `ArchiMate:${mapping.xmaType}`,
+      [
+        ['id', String(xmaId)],
+        ['from', String(ids.idFor(sourceEl.id))],
+        ['to', String(ids.idFor(targetEl.id))],
+      ],
+      rel.accessType
+        ? [
+            element('MM_ProfileValues', undefined, [
+              textElement('MM_Value', ACCESS_TYPE_XMA_CODE[rel.accessType], [
+                ['name', 'accessType'],
+                ['type', 'AccessRelationType'],
+              ]),
+            ]),
+          ]
+        : undefined,
+    );
 
     const schemeTag = exactMapping
       ? exactMapping.scheme

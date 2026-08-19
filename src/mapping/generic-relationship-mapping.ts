@@ -28,21 +28,30 @@ const VERB_BY_ARCHI_TYPE: Readonly<Record<string, string>> = {
 /**
  * Verbs confirmed (directly, not inferred) to produce the generic
  * `{Verb}Relation` form when a `Junction`/`OrJunction` is an endpoint:
- * `RealizationRelationship` (`RealisationRelation`, sabsa + agile-manifesto)
- * and `InfluenceRelationship` (`InfluenceRelation`, agile-manifesto). Not
- * extended to other verbs without fixture evidence for that specific verb —
- * a relationship type absent from this set is still reported unsupported.
+ * `RealizationRelationship` (`RealisationRelation`, sabsa + agile-manifesto),
+ * `InfluenceRelationship` (`InfluenceRelation`, agile-manifesto), and
+ * `ServingRelationship` (`UseRelation` — a single confirmed instance from a
+ * private, non-public model; cross-referenced by element name between the
+ * source `.archimate` and its BizzDesign-generated `.xma` re-export, same
+ * method as every other entry here, just not backed by a fixture pair in
+ * this repo). Not extended to other verbs without evidence for that
+ * specific verb — a relationship type absent from this set is still
+ * reported unsupported.
  */
-const JUNCTION_CONFIRMED_VERBS = new Set(['Realisation', 'Influence']);
+const JUNCTION_CONFIRMED_VERBS = new Set(['Realisation', 'Influence', 'Use']);
 
 /**
  * Verbs confirmed to produce the `{Grouping|Element}{Grouping|Element}{Verb}`
- * generic form when a `Grouping` is an endpoint (sabsa + agile-manifesto):
- * `CompositionRelationship`, `SpecializationRelationship`,
- * `InfluenceRelationship`, `ServingRelationship`. Same "no evidence, no
- * guess" rule as Junction above.
+ * generic form when a `Grouping` is an endpoint: `CompositionRelationship`,
+ * `SpecializationRelationship`, `InfluenceRelationship`, `ServingRelationship`
+ * (sabsa + agile-manifesto), `RealizationRelationship`
+ * (`ElementGroupingRealisation` — two independent confirmed instances), and
+ * `AccessRelationship` (`ElementGroupingAccess` — one confirmed instance).
+ * The last two came from a private, non-public model; same cross-reference
+ * method as every other entry here, just not backed by a fixture pair in
+ * this repo. Same "no evidence, no guess" rule as Junction above.
  */
-const GROUPING_CONFIRMED_VERBS = new Set(['Composition', 'Specialization', 'Influence', 'Use']);
+const GROUPING_CONFIRMED_VERBS = new Set(['Composition', 'Specialization', 'Influence', 'Use', 'Realisation', 'Access']);
 
 export interface GenericRelationshipMapping {
   xmaType: string;
