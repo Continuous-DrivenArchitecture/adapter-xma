@@ -193,18 +193,17 @@ export function buildView(
     if (note.viewId !== view.id) {
       continue;
     }
-    if (note.parentId !== null) {
-      // Unlike nested ArchiDiagramObjects (supported — see graphical-writer.ts's
-      // buildNodeTree), a nested Note has no fixture evidence: only one instance
-      // exists across all four fixtures, not enough to confirm its representation.
-      diagnostics.error({
-        code: 'unsupported-nested-diagram-object',
-        message: `Note "${note.id}" is nested inside another diagram object — not supported in XMA v0.1.`,
-        entityId: note.id,
-        entityType: 'ArchiNote',
-      });
-      continue;
-    }
+    // A nested Note (note.parentId !== null) is valid here — confirmed
+    // against a private, non-public model: 90 nested-Note instances across
+    // two views, an exact 1:1 count match against the real XMA's nested
+    // ViewGraphic nodes (unambiguous: neither view has any Group, which
+    // shares the same ViewGraphic concept, so every nested ViewGraphic node
+    // found there had to be a Note). Structurally identical to a top-level
+    // Note — same MM_Node shape, just relocated in the tree, exactly like
+    // nested ArchiDiagramObjects/Groups. See graphical-writer.ts's
+    // buildNodeTree, which now threads notes through the same recursive
+    // nesting as diagram objects. Semantic layer (this loop) is unaffected
+    // by nesting either way, same as it already was for diagram objects.
     if (!hasCompleteBounds(note.bounds)) {
       diagnostics.error({
         code: 'missing-bounds',

@@ -202,11 +202,25 @@ values against the source `.archimate`'s parent/child bounds × 3):
 - Groups nest children the same way a normal element-backed node does
   (confirmed: a `ViewGraphic` node with 3 nested `MM_Node` children exists in
   `sabsa.xma`) — the same recursive structure, not a special case.
+- **A nested `ArchiNote` nests the same way too** — corrected finding: this
+  was originally left unsupported ("only one instance across all four
+  fixtures, not enough to confirm"). Re-derived from a private, non-public
+  model: 90 nested-Note instances across two views, an exact 1:1 count
+  match against the real XMA's nested `ViewGraphic` nodes — unambiguous,
+  since neither source view has any Group (which shares the `ViewGraphic`
+  concept), so every nested `ViewGraphic` node found there had to be a
+  Note. Cross-checked against `sabsa.xma`'s own one nested-Note instance:
+  same result. Structurally identical to a top-level Note, just relocated
+  in the tree — no special shape. `ArchiDiagramObject` has no `noteIds`
+  field (only `childrenIds`, for child diagram objects), so
+  `graphical-writer.ts` builds a separate `note.parentId -> note.id[]`
+  index (`noteIdsByParentId`) rather than reusing `childrenIds`.
 
 Implemented in `graphical-writer.ts`'s `buildNodeTree` (recursive,
-bottom-up: children are built first, then passed into `buildStyledNode`'s
-`nestedChildrenXml` parameter) and `view-writer.ts` (dropped the outright
-rejection of any object with a `parentId`/non-empty `childrenIds`).
+bottom-up: children — diagram objects and notes alike — are built first,
+then passed into `buildStyledNode`'s `nestedChildrenXml` parameter) and
+`view-writer.ts` (dropped the outright rejection of any object with a
+`parentId`/non-empty `childrenIds`, and of a Note with a `parentId`).
 
 ### Nesting suppresses the graphical connector for the same relationship
 

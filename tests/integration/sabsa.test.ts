@@ -106,11 +106,20 @@ describe('integration: sabsa fixture', () => {
     expect(nested.length).toBe(283);
   });
 
-  it('still reports a nested Note as unsupported (no fixture evidence for that, unlike nested diagram objects)', () => {
+  it('now reports a nested Note as supported, drawn inside its parent like a nested diagram object', () => {
+    // Corrected: previously diagnosed as unsupported ("only one instance,
+    // not enough to confirm"). Confirmed against a private, non-public
+    // model instead: 90 nested-Note instances across two views, an exact
+    // 1:1 count match against the real XMA's nested ViewGraphic nodes
+    // (unambiguous — neither view has any Group, which shares the same
+    // ViewGraphic concept). Structurally identical to a top-level Note.
+    // See graphical-writer.ts's buildNoteNode/noteIdsByParentId.
     const nestedNoteDiagnostics = diagnostics.filter(
       (d) => d.code === 'unsupported-nested-diagram-object' && d.entityType === 'ArchiNote',
     );
-    expect(nestedNoteDiagnostics.length).toBe(1);
+    expect(nestedNoteDiagnostics).toEqual([]);
+    const nestedNotes = model.notes.filter((n) => n.parentId !== null);
+    expect(nestedNotes.length).toBe(1);
   });
 
   it('no longer diagnoses the one explicit connection lineColor override in this fixture (now applied, confirmed against the real fixture)', () => {

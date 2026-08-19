@@ -393,13 +393,42 @@ export function buildGraphicalModule(
   const canvasChildren: XmlElement[] = [];
 
   /**
+   * Notes nested inside a diagram object (`note.parentId === obj.id`) —
+   * confirmed against a private, non-public model: 90 nested-Note instances
+   * across two views, an exact 1:1 count match against the real XMA's
+   * nested `ViewGraphic` nodes (unambiguous: neither source view has any
+   * Group, which shares the same `ViewGraphic` concept, so every nested
+   * `ViewGraphic` node found there had to be a Note). Structurally
+   * identical to a top-level Note — see `buildNoteNode` below, shared by
+   * both. `ArchiDiagramObject` has no `noteIds` field (only `childrenIds`,
+   * for child diagram objects), so this index is built separately.
+   */
+  const noteIdsByParentId = new Map<string, string[]>();
+  for (const note of model.notes) {
+    if (note.parentId === null) continue;
+    const siblings = noteIdsByParentId.get(note.parentId);
+    if (siblings) siblings.push(note.id);
+    else noteIdsByParentId.set(note.parentId, [note.id]);
+  }
+
+  function buildNoteNode(note: ArchiNote): XmlElement | null {
+    const bounds = resolveDrawableBounds(note.bounds, diagnostics, note.id, 'ArchiNote');
+    if (!bounds) return null;
+    const noteSemanticId = assertDefined(ids.get(note.id), `no semantic id registered for note "${note.id}" (view-writer should have registered it before graphical-writer runs)`);
+    const visuals = resolveNodeVisuals(note.style, NOTE_FILL_COLOR, diagnostics, note.id, 'ArchiNote');
+    const nodeXmaId = nodeIds.idFor(note.id);
+    return buildStyledNode(ids, nodeXmaId, 'ViewGraphic', noteSemanticId, false, visuals, bounds, null);
+  }
+
+  /**
    * Builds one diagram object's node, recursively building and nesting its
    * children first (bottom-up) — confirmed structure: a child `MM_Node`
    * nests as a sibling of its parent's icon/label decorations, inside the
    * same `MM_Graphics`, up to 3 levels deep in the sabsa fixture. Applies
    * equally to element-backed objects and Groups (both confirmed to nest
-   * children this way). Returns `null` for an object this pass can't draw
-   * (already diagnosed elsewhere).
+   * children this way), and to nested Notes (see `noteIdsByParentId`
+   * above). Returns `null` for an object this pass can't draw (already
+   * diagnosed elsewhere).
    */
   function buildNodeTree(objId: string, ancestorIds: ReadonlySet<string> = new Set()): XmlElement | null {
     const obj = diagramObjectById.get(objId);
@@ -419,6 +448,13 @@ export function buildGraphicalModule(
     const nestedChildrenXml = obj.childrenIds
       .map((childId) => buildNodeTree(childId, nextAncestorIds))
       .filter((xml): xml is XmlElement => xml !== null);
+    for (const noteId of noteIdsByParentId.get(objId) ?? []) {
+      if (!viewResult.validNoteIds.has(noteId)) continue;
+      const note = noteById.get(noteId);
+      if (!note) continue;
+      const noteXml = buildNoteNode(note);
+      if (noteXml) nestedChildrenXml.push(noteXml);
+    }
 
     if (viewResult.validElementNodeObjectIds.has(objId) && obj.archimateElementId) {
       const mapping = assertDefined(mappedElements.get(obj.archimateElementId), `no mapping for element "${obj.archimateElementId}" (view-writer should have skipped diagram object "${obj.id}")`);
@@ -487,15 +523,9 @@ export function buildGraphicalModule(
   for (const noteId of view.noteIds) {
     if (!viewResult.validNoteIds.has(noteId)) continue;
     const note = noteById.get(noteId);
-    if (!note) continue;
-    const bounds = resolveDrawableBounds(note.bounds, diagnostics, note.id, 'ArchiNote');
-    if (!bounds) continue;
-    const noteSemanticId = assertDefined(ids.get(note.id), `no semantic id registered for note "${note.id}" (view-writer should have registered it before graphical-writer runs)`);
-    const visuals = resolveNodeVisuals(note.style, NOTE_FILL_COLOR, diagnostics, note.id, 'ArchiNote');
-    const nodeXmaId = nodeIds.idFor(note.id);
-    canvasChildren.push(
-      buildStyledNode(ids, nodeXmaId, 'ViewGraphic', noteSemanticId, false, visuals, bounds, null),
-    );
+    if (!note || note.parentId !== null) continue; // nested notes are drawn via their parent's buildNodeTree instead
+    const noteXml = buildNoteNode(note);
+    if (noteXml) canvasChildren.push(noteXml);
   }
 
   const connectionById = new Map(model.diagramConnections.map((c) => [c.id, c]));
