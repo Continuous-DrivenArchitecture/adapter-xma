@@ -1,3 +1,10 @@
+## [0.6.0](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.5.0...v0.6.0) (2026-08-19)
+
+### Features
+
+* draw DiagramModelReference (view-reference shape) when it targets a view in the same model ([449dc28](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/449dc28546e65dcda4c80e4cc18a9cde7fa26f4a))
+* represent purely-visual connections as ArchiMate:ViewEdge, closing the 92-vs-93 connector gap ([809e399](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/809e39903ca59c2003e80265317e143e81451f97))
+
 ## [0.5.0](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.4.3...v0.5.0) (2026-08-19)
 
 ### Features
