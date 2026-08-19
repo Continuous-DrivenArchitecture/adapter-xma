@@ -256,9 +256,14 @@ values are ever embedded).
 ```
 npm install
 npm run typecheck
+npm run lint
 npm run build
 npm test
 ```
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for this project's core rule
+(every mapping is evidence-backed, never guessed) and how to trace a
+change to fixture bytes.
 
 ## License
 

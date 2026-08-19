@@ -1,0 +1,4 @@
+# Reviews on every pull request are requested from this owner by default.
+# See https://docs.github.com/articles/about-code-owners
+
+* @Continuous-DrivenArchitecture

@@ -1,0 +1,46 @@
+name: Bug report
+description: Something behaves incorrectly, or diverges from a real Archi/XMA export
+labels: ["bug"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: "@cda/adapter-xma version"
+      placeholder: "0.4.2"
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: >
+        A minimal ArchiModel (via the model-builder-style helpers, or a
+        small .archimate snippet parsed with @cda/archi-semantic-core) that
+        reproduces the issue. The smaller the better — this library is
+        evidence-driven, so a precise repro is what turns a report into a
+        fix.
+      render: ts
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs. actual
+      description: >
+        What you expected (ideally: what a real Archi/XMA export actually
+        produces for this case, if you have one) vs. what this library
+        produced — including the full diagnostic list from
+        inspectXmaSupport/XmaSerializationError if relevant.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: >
+        A real .archimate/.xma pair demonstrating the correct behavior is
+        the single most useful thing you can attach — see
+        tests/fixtures/README.md for how existing mappings were derived.

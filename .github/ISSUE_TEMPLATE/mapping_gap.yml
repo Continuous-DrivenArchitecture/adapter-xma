@@ -1,0 +1,36 @@
+name: Unsupported construct / mapping gap
+description: A construct is reported unsupported (or is silently wrong) and you have evidence of the correct XMA representation
+labels: ["mapping-gap"]
+body:
+  - type: textarea
+    id: construct
+    attributes:
+      label: The construct
+      description: >
+        The Archi element/relationship type (and, for a relationship, its
+        source/target types), or the presentation construct (style
+        override, geometry case, ...) that isn't mapped correctly.
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnostic
+    attributes:
+      label: Current diagnostic (if any)
+      description: The exact code/message from inspectXmaSupport, if one is reported.
+      render: text
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: >
+        This is the part that matters most: a real .archimate snippet and
+        the corresponding real .xma output showing the correct
+        representation — ideally byte offsets/attribute values, the way
+        tests/fixtures/README.md documents existing mappings. Without
+        fixture evidence, this library deliberately reports a diagnostic
+        rather than guessing (see CONTRIBUTING.md), so evidence is what
+        turns a gap into a supported mapping.
+    validations:
+      required: true
