@@ -1,3 +1,9 @@
+## [0.6.1](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.6.0...v0.6.1) (2026-08-19)
+
+### Bug Fixes
+
+* emit AccessRelationship accessType, and confirm 23 more relationship mappings ([44d6f0b](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/44d6f0b6da5e97a8755dd0efbc047136c2872cbc))
+
 ## [0.6.0](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.5.0...v0.6.0) (2026-08-19)
 
 ### Features
