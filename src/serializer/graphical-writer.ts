@@ -322,12 +322,14 @@ function buildJunctionNode(ids: XmaIdRegistry, nodeXmaId: number, concept: strin
  * objects"), and one `MM_DirectedRel` per drawable connection.
  *
  * `mm_fromx`/`mm_fromy`/`mm_tox`/`mm_toy` (manual connector anchor
- * metadata) are deliberately omitted — exactly one fixture exhibited them,
- * which is not enough evidence to derive a general formula or confirm
- * they're mandatory for import (see project docs, "unresolved
- * reverse-engineering limitations"). If a future fixture proves them
- * required, add that behavior here, isolated from the rest of this
- * function.
+ * metadata) are deliberately omitted — present on only a minority of
+ * connections in three of the four fixtures (5/93 in agile-manifesto, 1/3
+ * in relaciones, 15/346 in sabsa), never on all of them, which isn't
+ * enough evidence to derive a general formula for which connections get
+ * one or confirm they're mandatory for import (see project docs,
+ * "unresolved reverse-engineering limitations"). If a future fixture
+ * proves them required, add that behavior here, isolated from the rest of
+ * this function.
  */
 export function buildGraphicalModule(
   model: ArchiModel,

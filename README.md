@@ -201,9 +201,11 @@ extrapolated beyond that evidence.
   reference fixtures — no evidence to confirm a mapping, so it's diagnosed
   like every other unconfirmed override rather than applied on a guess.
 - Manual connector anchor metadata (`mm_fromx`/`mm_fromy`/`mm_tox`/`mm_toy`)
-  — only one fixture exhibited these attributes, not enough evidence to
-  derive a general formula or confirm they're required for import. They are
-  deliberately omitted rather than guessed; see
+  — present on a minority of connections in three of the four fixtures
+  (5/93 in agile-manifesto, 1/3 in relaciones, 15/346 in sabsa; catalogo has
+  no connections at all), never on all of them. Not enough evidence to tell
+  what distinguishes an anchored connection from the rest or to derive a
+  general formula, so they're deliberately omitted rather than guessed; see
   `src/serializer/graphical-writer.ts`.
 
 ## Architecture
