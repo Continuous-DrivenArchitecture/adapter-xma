@@ -1,3 +1,14 @@
+## [0.5.0](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.4.3...v0.5.0) (2026-08-19)
+
+### Features
+
+* add CommonJS build alongside ESM, MIT license, and CI hygiene tooling ([7846a2f](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/7846a2f0a54b3416f1e28529aca08c4869767383))
+
+### Bug Fixes
+
+* **ci:** resync package-lock.json with missing platform-specific optional deps ([0270740](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/02707405361c9c40c2dfac5627d337dc0de3883b))
+* harden input handling and resolve confirmed correctness gaps against the reference fixtures ([8d43f70](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/8d43f7088f68683562b66b3a00dd32b7a46b92b7)), closes [#ff0000](https://github.com/Continuous-DrivenArchitecture/adapter-xma/issues/ff0000)
+
 ## [0.4.3](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.4.2...v0.4.3) (2026-08-18)
 
 ### Bug Fixes
