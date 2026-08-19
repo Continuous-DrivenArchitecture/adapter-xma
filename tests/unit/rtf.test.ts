@@ -23,6 +23,7 @@ describe('toRtfDocument', () => {
     expect(rtf).toContain('Aqu\\u237?');
     expect(rtf).toContain('est\\u225?');
     expect(rtf).toContain('ni\\u241?o');
+    // eslint-disable-next-line no-control-regex -- intentional: asserting the whole range 0x00-0x7F (ASCII) is used, not flagging control chars
     expect(rtf).not.toMatch(/[^\x00-\x7f]/); // pure ASCII output
   });
 
@@ -33,5 +34,14 @@ describe('toRtfDocument', () => {
 
   it('matches the confirmed catalogue fixture byte-for-byte', () => {
     expect(toRtfDocument('Esto es un Resource')).toBe('{\\rtf1 Esto es un Resource}');
+  });
+
+  it('encodes a supplementary-plane character (outside the BMP) as two \\uN? escapes, one per UTF-16 surrogate half', () => {
+    // U+1F600 (grinning face emoji) is stored as the surrogate pair
+    // 0xD83D,0xDE00 in JS strings — the standard, widely-implemented RTF
+    // technique for astral characters is exactly two consecutive \u
+    // escapes, one per code unit (see rtf.ts's escapeRtfBody doc comment).
+    const rtf = toRtfDocument('a\u{1F600}b');
+    expect(rtf).toBe('{\\rtf1 a\\u-10179?\\u-8704?b}');
   });
 });

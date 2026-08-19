@@ -4,20 +4,49 @@ import type {
   ArchiDiagramObject,
   ArchiNote,
   ArchiStyle,
+  ArchiBounds,
 } from '@cda/archi-semantic-core';
 import type { XmlElement } from '../infrastructure/xml-writer.js';
 import { element, textElement } from '../infrastructure/xml-writer.js';
 import { XmaIdRegistry, type XmaIdAllocator } from '../infrastructure/id-allocator.js';
+import { assertDefined } from '../infrastructure/assert.js';
 import type { DiagnosticCollector } from '../diagnostics/diagnostics.js';
 import type { ElementMappingEntry } from '../mapping/element-mapping.js';
 import type { ResolvedRelationshipMapping } from './relationship-writer.js';
 import { CATEGORY_FILL_COLOR, DEFAULT_FONT_NAME, DEFAULT_FONT_SIZE, DEFAULT_LINE_COLOR, DEFAULT_OPACITY, GROUP_FILL_COLOR, NOTE_FILL_COLOR, CANVAS_EXTENT, parseArchiHexColor, type Rgb } from '../mapping/visual-mapping.js';
-import { scaleRect, scalePoint, hasCompleteBounds, type Rect } from '../geometry/geometry.js';
+import { scaleRect, scalePoint, hasCompleteBounds, toRect, type Rect } from '../geometry/geometry.js';
 import { resolveBendpoint } from '../geometry/bendpoints.js';
 import type { ViewBuildResult } from './view-writer.js';
 
 export interface GraphicalModuleResult {
   diagramXml: XmlElement;
+}
+
+/**
+ * Converts a diagram object's/note's `bounds` into a `Rect`, re-checking
+ * completeness explicitly rather than trusting it across the function
+ * boundary from view-writer's earlier validation pass via an unchecked
+ * cast. `bounds` is only ever incomplete here if that invariant is somehow
+ * violated — in which case this reports the same `missing-bounds`
+ * diagnostic view-writer would have, instead of emitting `NaN`/`null`
+ * arithmetic into the output.
+ */
+function resolveDrawableBounds(
+  bounds: ArchiBounds | null,
+  diagnostics: DiagnosticCollector,
+  entityId: string,
+  entityType: string,
+): Rect | null {
+  if (!hasCompleteBounds(bounds)) {
+    diagnostics.error({
+      code: 'missing-bounds',
+      message: `"${entityId}" has incomplete geometry (x/y/width/height) and cannot be positioned in XMA.`,
+      entityId,
+      entityType,
+    });
+    return null;
+  }
+  return toRect(bounds);
 }
 
 function colorElement(name: string | null, rgb: Rgb | null, id: number): XmlElement {
@@ -26,8 +55,15 @@ function colorElement(name: string | null, rgb: Rgb | null, id: number): XmlElem
     attrs.push(['name', name]);
   }
   // Only regular styled colors carry r/g/b; a bare default (e.g. relationship line color) omits them — confirmed shape.
+  // A zero-valued channel is itself omitted rather than written as "0" —
+  // confirmed against the sabsa fixture's one explicit connection lineColor
+  // override (#ff0000): its MM_Color is `mm_r="255"` alone, g/b entirely
+  // absent, not `mm_g="0" mm_b="0"`. Same omit-when-zero convention already
+  // confirmed for bounds x/y in geometry.ts.
   if (rgb) {
-    attrs.push(['mm_r', String(rgb.r)], ['mm_g', String(rgb.g)], ['mm_b', String(rgb.b)]);
+    if (rgb.r !== 0) attrs.push(['mm_r', String(rgb.r)]);
+    if (rgb.g !== 0) attrs.push(['mm_g', String(rgb.g)]);
+    if (rgb.b !== 0) attrs.push(['mm_b', String(rgb.b)]);
   }
   return element('MM_Diagram:MM_Color', attrs);
 }
@@ -47,16 +83,17 @@ interface ResolvedVisuals {
   fill: Rgb;
   line: Rgb;
   fontName: string;
+  fontSize: number;
   fillOpacity: number;
 }
 
 /**
  * Resolves a node's effective fill/line/font, applying explicit Archi
- * styling only where mechanically lossless (a direct hex RGB copy, or a
- * verbatim font-name substitution into the same structural slot) — per
- * v0.1 policy, everything else explicit (font size, bold/italic, line
- * width, font color) is diagnosed as an unsupported style override rather
- * than guessed.
+ * styling only where mechanically lossless (a direct hex RGB copy, a
+ * verbatim font-name substitution into the same structural slot, or the
+ * confirmed font-size formula) — per v0.1 policy, everything else explicit
+ * (bold/italic, line width, font color) is diagnosed as an unsupported
+ * style override rather than guessed.
  */
 function resolveNodeVisuals(
   style: ArchiStyle | null,
@@ -68,7 +105,10 @@ function resolveNodeVisuals(
   let fill = defaultFill;
   let line = DEFAULT_LINE_COLOR;
   let fontName = DEFAULT_FONT_NAME;
-  let fillOpacity = DEFAULT_OPACITY;
+  let fontSize = DEFAULT_FONT_SIZE;
+  // Never reassigned: alpha has zero fixture evidence, so it's diagnosed
+  // (see below) rather than applied — fillOpacity always stays the default.
+  const fillOpacity = DEFAULT_OPACITY;
 
   if (style) {
     if (style.fillColor !== null) {
@@ -101,7 +141,16 @@ function resolveNodeVisuals(
       fontName = style.fontName;
     }
     if (style.alpha !== null) {
-      fillOpacity = style.alpha;
+      // Not applied: zero occurrences of an explicit `alpha` in any of the
+      // four reference fixtures — no evidence for how (or whether) it maps
+      // to `mm_fillOpacity`, so per v0.1 policy this is diagnosed like every
+      // other unconfirmed style override, not guessed.
+      diagnostics.warning({
+        code: 'unsupported-style-alpha',
+        message: 'Explicit fill opacity (alpha) has no confirmed XMA representation and was not applied (default used).',
+        entityId,
+        entityType,
+      });
     }
     if (style.fontColor !== null) {
       diagnostics.warning({
@@ -112,12 +161,10 @@ function resolveNodeVisuals(
       });
     }
     if (style.fontSize !== null) {
-      diagnostics.warning({
-        code: 'unsupported-style-font-size',
-        message: 'Explicit font size has no confirmed XMA scaling formula and was not applied (default used).',
-        entityId,
-        entityType,
-      });
+      // `mm_fontSize = floor(pt) * 20` — confirmed by both data points in
+      // the agile-manifesto fixture: an 11.25pt override -> mm_fontSize=220,
+      // a 14.25pt override -> mm_fontSize=280.
+      fontSize = Math.floor(style.fontSize) * 20;
     }
     if (style.fontStyle !== null && (style.fontStyle.bold || style.fontStyle.italic)) {
       diagnostics.warning({
@@ -137,13 +184,13 @@ function resolveNodeVisuals(
     }
   }
 
-  return { fill, line, fontName, fillOpacity };
+  return { fill, line, fontName, fontSize, fillOpacity };
 }
 
-function buildLabelDecoration(id: number, fontName: string, extraAttrs: Array<[string, string]> = []): XmlElement {
+function buildLabelDecoration(id: number, fontName: string, fontSize: number, extraAttrs: Array<[string, string]> = []): XmlElement {
   return element(
     'MM_Diagram:MM_Decoration',
-    [['id', String(id)], ['mm_fontSize', String(DEFAULT_FONT_SIZE)], ['mm_graphicType', '2'], ['mm_concept', 'label'], ...extraAttrs],
+    [['id', String(id)], ['mm_fontSize', String(fontSize)], ['mm_graphicType', '2'], ['mm_concept', 'label'], ...extraAttrs],
     [textElement('mm_font', fontName)],
   );
 }
@@ -181,7 +228,7 @@ function buildStyledNode(
   if (hasIcon) {
     graphicsChildren.push(buildIconDecoration(ids.fresh()));
   }
-  graphicsChildren.push(buildLabelDecoration(ids.fresh(), visuals.fontName, labelExtraAttrs));
+  graphicsChildren.push(buildLabelDecoration(ids.fresh(), visuals.fontName, visuals.fontSize, labelExtraAttrs));
   graphicsChildren.push(...nestedChildrenXml);
 
   const attrs: Array<[string, string]> = [
@@ -213,6 +260,34 @@ function buildStyledNode(
 const JUNCTION_XMA_TYPES = new Set(['Junction', 'OrJunction']);
 
 /**
+ * A Junction carries no fill/line/font styling at all in either fixture
+ * (see `buildJunctionNode`) — so unlike `resolveNodeVisuals`'s per-field
+ * diagnostics for a regular node, any style override at all on a Junction
+ * diagram object is unsupported. Previously this was discarded with no
+ * indication anything was dropped.
+ */
+function reportUnsupportedJunctionStyle(obj: ArchiDiagramObject, diagnostics: DiagnosticCollector): void {
+  const style = obj.style;
+  if (!style) return;
+  const hasOverride =
+    style.fillColor !== null ||
+    style.lineColor !== null ||
+    style.fontColor !== null ||
+    style.fontName !== null ||
+    style.fontSize !== null ||
+    style.lineWidth !== null ||
+    style.alpha !== null ||
+    (style.fontStyle !== null && (style.fontStyle.bold || style.fontStyle.italic));
+  if (!hasOverride) return;
+  diagnostics.warning({
+    code: 'unsupported-style-junction',
+    message: `Diagram object "${obj.id}" is a Junction with an explicit style override — Junctions have no confirmed styling representation in XMA (drawn with a fixed, colorless form) and the override was not applied.`,
+    entityId: obj.id,
+    entityType: 'ArchiDiagramObject',
+  });
+}
+
+/**
  * Builds a `Junction`/`OrJunction` node — confirmed structurally different
  * from every other element node: `mm_graphicType="3"` (not `"5"`), and no
  * `MM_Color`/`MM_Colors` at all (a Junction carries no fill/line styling in
@@ -232,7 +307,7 @@ function buildJunctionNode(ids: XmaIdRegistry, nodeXmaId: number, concept: strin
     ],
     [
       element('MM_Diagram:MM_Graphics', [['name', 'mm_graphics'], ['id', String(ids.fresh())]], [
-        buildLabelDecoration(ids.fresh(), DEFAULT_FONT_NAME),
+        buildLabelDecoration(ids.fresh(), DEFAULT_FONT_NAME, DEFAULT_FONT_SIZE),
       ]),
       rectElement(ids.fresh(), bounds),
     ],
@@ -280,20 +355,34 @@ export function buildGraphicalModule(
    * children this way). Returns `null` for an object this pass can't draw
    * (already diagnosed elsewhere).
    */
-  function buildNodeTree(objId: string): XmlElement | null {
+  function buildNodeTree(objId: string, ancestorIds: ReadonlySet<string> = new Set()): XmlElement | null {
     const obj = diagramObjectById.get(objId);
     if (!obj) return null;
 
+    if (ancestorIds.has(objId)) {
+      diagnostics.error({
+        code: 'cyclic-diagram-object-nesting',
+        message: `Diagram object "${objId}" is its own descendant (a cyclic parent/child chain) and cannot be drawn.`,
+        entityId: objId,
+        entityType: 'ArchiDiagramObject',
+      });
+      return null;
+    }
+    const nextAncestorIds = new Set(ancestorIds).add(objId);
+
     const nestedChildrenXml = obj.childrenIds
-      .map((childId) => buildNodeTree(childId))
+      .map((childId) => buildNodeTree(childId, nextAncestorIds))
       .filter((xml): xml is XmlElement => xml !== null);
 
     if (viewResult.validElementNodeObjectIds.has(objId) && obj.archimateElementId) {
-      const mapping = mappedElements.get(obj.archimateElementId)!;
-      const refId = refIds.get(obj.archimateElementId)!;
+      const mapping = assertDefined(mappedElements.get(obj.archimateElementId), `no mapping for element "${obj.archimateElementId}" (view-writer should have skipped diagram object "${obj.id}")`);
+      const refId = assertDefined(refIds.get(obj.archimateElementId), `no ref id registered for element "${obj.archimateElementId}" (view-writer should have registered it before graphical-writer runs)`);
       const nodeXmaId = nodeIds.idFor(obj.id);
+      const bounds = resolveDrawableBounds(obj.bounds, diagnostics, obj.id, 'ArchiDiagramObject');
+      if (!bounds) return null;
       if (JUNCTION_XMA_TYPES.has(mapping.xmaType)) {
-        return buildJunctionNode(ids, nodeXmaId, mapping.xmaType, refId, obj.bounds as Rect);
+        reportUnsupportedJunctionStyle(obj, diagnostics);
+        return buildJunctionNode(ids, nodeXmaId, mapping.xmaType, refId, bounds);
       }
       const visuals = resolveNodeVisuals(obj.style, CATEGORY_FILL_COLOR[mapping.category], diagnostics, obj.id, 'ArchiDiagramObject');
       return buildStyledNode(
@@ -303,7 +392,7 @@ export function buildGraphicalModule(
         refId,
         mapping.hasIcon,
         visuals,
-        obj.bounds as Rect,
+        bounds,
         null,
         [],
         nestedChildrenXml,
@@ -311,9 +400,11 @@ export function buildGraphicalModule(
     }
 
     if (viewResult.validGroupObjectIds.has(objId)) {
-      const groupSemanticId = ids.get(obj.id)!;
+      const groupSemanticId = assertDefined(ids.get(obj.id), `no semantic id registered for group "${obj.id}" (view-writer should have registered it before graphical-writer runs)`);
       const visuals = resolveNodeVisuals(obj.style, GROUP_FILL_COLOR, diagnostics, obj.id, 'ArchiDiagramObject');
       const nodeXmaId = nodeIds.idFor(obj.id);
+      const bounds = resolveDrawableBounds(obj.bounds, diagnostics, obj.id, 'ArchiDiagramObject');
+      if (!bounds) return null;
       return buildStyledNode(
         ids,
         nodeXmaId,
@@ -321,7 +412,7 @@ export function buildGraphicalModule(
         groupSemanticId,
         false,
         visuals,
-        obj.bounds as Rect,
+        bounds,
         'group',
         [['mm_frameStrategy', '12']],
         nestedChildrenXml,
@@ -340,11 +431,13 @@ export function buildGraphicalModule(
     if (!viewResult.validNoteIds.has(noteId)) continue;
     const note = noteById.get(noteId);
     if (!note) continue;
-    const noteSemanticId = ids.get(note.id)!;
+    const bounds = resolveDrawableBounds(note.bounds, diagnostics, note.id, 'ArchiNote');
+    if (!bounds) continue;
+    const noteSemanticId = assertDefined(ids.get(note.id), `no semantic id registered for note "${note.id}" (view-writer should have registered it before graphical-writer runs)`);
     const visuals = resolveNodeVisuals(note.style, NOTE_FILL_COLOR, diagnostics, note.id, 'ArchiNote');
     const nodeXmaId = nodeIds.idFor(note.id);
     canvasChildren.push(
-      buildStyledNode(ids, nodeXmaId, 'ViewGraphic', noteSemanticId, false, visuals, note.bounds as Rect, null),
+      buildStyledNode(ids, nodeXmaId, 'ViewGraphic', noteSemanticId, false, visuals, bounds, null),
     );
   }
 
@@ -389,8 +482,10 @@ export function buildGraphicalModule(
 
     const points: XmlElement[] = [];
     if (connection.bendpoints.length > 0 && sourceObj && targetObj && hasCompleteBounds(sourceObj.bounds) && hasCompleteBounds(targetObj.bounds)) {
+      const sourceRect = toRect(sourceObj.bounds);
+      const targetRect = toRect(targetObj.bounds);
       for (const bp of connection.bendpoints) {
-        const resolution = resolveBendpoint(bp, sourceObj.bounds, targetObj.bounds);
+        const resolution = resolveBendpoint(bp, sourceRect, targetRect);
         if (!resolution) {
           diagnostics.error({
             code: 'unresolvable-bendpoint',
@@ -418,25 +513,34 @@ export function buildGraphicalModule(
       }
     }
 
-    const relRefId = refIds.get(relId)!;
+    const relRefId = assertDefined(refIds.get(relId), `no ref id registered for relationship "${relId}" (view-writer should have registered it before graphical-writer runs)`);
     const directedRelChildren: XmlElement[] = [];
     if (points.length > 0) {
       directedRelChildren.push(element('MM_Diagram:MM_MultiLine', [['name', 'mm_line'], ['id', String(ids.fresh())]], points));
     }
+    // Confirmed against the sabsa fixture's one explicit connection
+    // lineColor override (#ff0000): the DirectedRel's MM_Color carries the
+    // parsed RGB, in the exact same structural slot as a node's line color.
+    let connectionLineColor: Rgb | null = null;
     if (connection.style?.lineColor) {
-      diagnostics.warning({
-        code: 'unsupported-style-connection-line-color',
-        message: 'Explicit connection line color has no confirmed XMA representation and was not applied.',
-        entityId: connection.id,
-        entityType: 'ArchiDiagramConnection',
-      });
+      const parsed = parseArchiHexColor(connection.style.lineColor);
+      if (parsed) {
+        connectionLineColor = parsed;
+      } else {
+        diagnostics.warning({
+          code: 'unsupported-style-connection-line-color',
+          message: `Connection line color "${connection.style.lineColor}" is not a recognized hex color and was not applied.`,
+          entityId: connection.id,
+          entityType: 'ArchiDiagramConnection',
+        });
+      }
     }
     directedRelChildren.push(
       element('MM_Diagram:MM_Graphics', [['name', 'mm_graphics'], ['id', String(ids.fresh())]], [
-        buildLabelDecoration(ids.fresh(), DEFAULT_FONT_NAME),
+        buildLabelDecoration(ids.fresh(), DEFAULT_FONT_NAME, DEFAULT_FONT_SIZE),
       ]),
     );
-    directedRelChildren.push(colorElement('mm_lineColor', null, ids.fresh()));
+    directedRelChildren.push(colorElement('mm_lineColor', connectionLineColor, ids.fresh()));
 
     canvasChildren.push(
       element(

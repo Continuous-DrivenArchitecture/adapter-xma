@@ -35,8 +35,12 @@ export function resolveBendpoint(
   sourceBounds: Rect,
   targetBounds: Rect,
 ): BendpointResolution | null {
-  const hasSourceOffset = bendpoint.startX !== null && bendpoint.startY !== null;
-  const hasTargetOffset = bendpoint.endX !== null && bendpoint.endY !== null;
+  // A NaN/Infinity offset (e.g. from an upstream parser's failed arithmetic)
+  // is treated as absent rather than propagated into a nonsensical resolved
+  // point — this falls through to the existing "neither offset usable"
+  // diagnostic below instead of silently producing invalid geometry.
+  const hasSourceOffset = Number.isFinite(bendpoint.startX) && Number.isFinite(bendpoint.startY);
+  const hasTargetOffset = Number.isFinite(bendpoint.endX) && Number.isFinite(bendpoint.endY);
 
   if (!hasSourceOffset && !hasTargetOffset) {
     return null;

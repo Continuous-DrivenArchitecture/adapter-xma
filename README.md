@@ -154,7 +154,17 @@ extrapolated beyond that evidence.
   from element names.
 - Direct, lossless mapping of explicit Archi `fillColor`/`lineColor`
   (hex → RGB) and `fontName` overrides, where the source field maps onto
-  the exact same structural XMA slot.
+  the exact same structural XMA slot — including a connection's own
+  `lineColor` override, applied to its `MM_DirectedRel` the same way.
+- An explicit font-size override, via the confirmed `floor(pt) * 20`
+  formula (two independent data points in the agile-manifesto fixture:
+  11.25pt → `mm_fontSize="220"`, 14.25pt → `"280"`).
+- **Multiple views sharing an element or relationship** each get their own
+  independent `RefObjects` entry — confirmed against the 38-view sabsa
+  fixture (840 `Ref` elements for 735 distinct semantic targets: a ref id
+  is never reused across two views). An earlier version deduplicated these
+  globally, which silently dropped `RefObjects` entries for every view
+  after the first that referenced an already-seen element.
 
 ### Not yet guaranteed
 
@@ -177,11 +187,19 @@ extrapolated beyond that evidence.
   `DiagramModelReference` — no fixture evidence either way (the one
   purely-visual connection found, between two `DiagramModelReference`
   nodes, isn't even parsed as a diagram connection by
-  `@cda/archi-semantic-core`, since it lacks an `xsi:type`).
+  `@cda/archi-semantic-core`, since it lacks an `xsi:type`). This is
+  confirmed to fully account for agile-manifesto's real XMA having 93
+  graphical connectors against this library's 92: the 93rd is exactly that
+  connection, rendered as `mm_concept="ViewEdge"` between two
+  `mm_concept="AllView"` nodes — out of this library's reach since the
+  connection never reaches its input. See
+  `tests/integration/agile-manifesto.test.ts`.
 - Profiles/specializations and arbitrary model properties.
-- Explicit font size, bold/italic, line width, font color, or connector
-  line color overrides (reported as diagnostics; the confirmed defaults are
-  used instead).
+- Explicit bold/italic, line width, font color, or fill opacity (`alpha`)
+  overrides (reported as diagnostics; the confirmed defaults are used
+  instead). `alpha` in particular has zero occurrences across all four
+  reference fixtures — no evidence to confirm a mapping, so it's diagnosed
+  like every other unconfirmed override rather than applied on a guess.
 - Manual connector anchor metadata (`mm_fromx`/`mm_fromy`/`mm_tox`/`mm_toy`)
   — only one fixture exhibited these attributes, not enough evidence to
   derive a general formula or confirm they're required for import. They are

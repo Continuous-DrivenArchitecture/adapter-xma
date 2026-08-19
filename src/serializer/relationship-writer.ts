@@ -2,6 +2,7 @@ import type { ArchiModel, ArchiElement, ArchiRelationship } from '@cda/archi-sem
 import { element } from '../infrastructure/xml-writer.js';
 import type { XmlElement } from '../infrastructure/xml-writer.js';
 import type { XmaIdRegistry } from '../infrastructure/id-allocator.js';
+import { assertDefined } from '../infrastructure/assert.js';
 import type { DiagnosticCollector } from '../diagnostics/diagnostics.js';
 import { lookupRelationshipMapping } from '../mapping/relationship-mapping.js';
 import { lookupGenericRelationshipMapping } from '../mapping/generic-relationship-mapping.js';
@@ -133,7 +134,9 @@ export function buildSemanticRelationships(
       ['to', String(ids.idFor(targetEl.id))],
     ]);
 
-    const schemeTag = exactMapping ? exactMapping.scheme : mappedElements.get(sourceEl.id)!.scheme;
+    const schemeTag = exactMapping
+      ? exactMapping.scheme
+      : assertDefined(mappedElements.get(sourceEl.id), `no mapping for source element "${sourceEl.id}" (checked present earlier in this same function)`).scheme;
     if (schemeTag === 'root') {
       rootRelationsXml.push(relationXml);
     } else {

@@ -173,6 +173,58 @@ describe('strict-by-default diagnostics', () => {
     expect(() => serializeXma(model)).not.toThrow();
   });
 
+  it('diagnoses a cyclic diagram-object parent/child chain instead of recursing forever', () => {
+    const actorA = makeElement({ id: 'a', type: 'BusinessActor' });
+    const actorB = makeElement({ id: 'b', type: 'BusinessActor' });
+    const objA = makeDiagramObject({
+      id: 'objA',
+      viewId: 'v1',
+      archimateElementId: 'a',
+      bounds: makeBounds(0, 0, 10, 10),
+      childrenIds: ['objB'],
+    });
+    const objB = makeDiagramObject({
+      id: 'objB',
+      viewId: 'v1',
+      archimateElementId: 'b',
+      parentId: 'objA',
+      bounds: makeBounds(0, 0, 10, 10),
+      childrenIds: ['objA'], // cycle: objA -> objB -> objA
+    });
+    const view = makeView({ id: 'v1', diagramObjectIds: ['objA'] });
+    const model = makeModel({ elements: [actorA, actorB], views: [view], diagramObjects: [objA, objB] });
+
+    const diagnostics = inspectXmaSupport(model);
+    expect(diagnostics.some((d) => d.code === 'cyclic-diagram-object-nesting')).toBe(true);
+    expect(() => serializeXma(model)).toThrow(XmaSerializationError);
+  });
+
+  it('warns when a Junction has an unrecognized native type value silently defaulted to AND (m5)', () => {
+    // archi-semantic-core already defaults an unrecognized junctionType to
+    // 'And' rather than guessing, but preserves the original string in
+    // rawJunctionType specifically so this can be told apart from a truly
+    // empty/absent value (also defaulted to 'And', but not unrecognized).
+    const junction = makeElement({ id: 'j1', type: 'Junction', junctionType: 'And', rawJunctionType: 'xor' });
+    const model = makeModel({ elements: [junction] });
+    const diagnostics = inspectXmaSupport(model);
+    const diag = diagnostics.find((d) => d.code === 'unrecognized-junction-type');
+    expect(diag?.severity).toBe('warning');
+    expect(diag?.entityId).toBe('j1');
+    expect(() => serializeXma(model)).not.toThrow();
+  });
+
+  it('does not warn for a Junction with a truly empty/absent native type value (the documented default, not a guess)', () => {
+    const junction = makeElement({ id: 'j1', type: 'Junction', junctionType: 'And', rawJunctionType: '' });
+    const model = makeModel({ elements: [junction] });
+    expect(inspectXmaSupport(model).some((d) => d.code === 'unrecognized-junction-type')).toBe(false);
+  });
+
+  it('does not warn for a Junction correctly resolved to Or', () => {
+    const junction = makeElement({ id: 'j1', type: 'Junction', junctionType: 'Or', rawJunctionType: 'or' });
+    const model = makeModel({ elements: [junction] });
+    expect(inspectXmaSupport(model).some((d) => d.code === 'unrecognized-junction-type')).toBe(false);
+  });
+
   it('a model with zero views still serializes successfully (semantic-only)', () => {
     const actor = makeElement({ id: 'a', type: 'BusinessActor', name: 'Solo' });
     const model = makeModel({ elements: [actor] });

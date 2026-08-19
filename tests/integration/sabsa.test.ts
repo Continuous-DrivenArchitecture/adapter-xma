@@ -112,4 +112,19 @@ describe('integration: sabsa fixture', () => {
     );
     expect(nestedNoteDiagnostics.length).toBe(1);
   });
+
+  it('no longer diagnoses the one explicit connection lineColor override in this fixture (now applied, confirmed against the real fixture)', () => {
+    // sabsa.archimate has exactly one connection with an explicit lineColor
+    // (#ff0000, on a MotivationRequirement-to-MotivationRequirement
+    // SpecializationRelationship connector). The real sabsa.xma represents
+    // it as `<MM_Diagram:MM_Color name="mm_lineColor" mm_r="255"/>` (g/b
+    // omitted because they're 0) — confirmed by direct byte inspection.
+    // Before this fix it was always reported unsupported and dropped;
+    // now it parses and applies, so the diagnostic must be gone.
+    expect(diagnostics.some((d) => d.code === 'unsupported-style-connection-line-color')).toBe(false);
+  });
+
+  it('never silently applies alpha/fillOpacity — zero fixtures have an explicit alpha override to confirm a mapping', () => {
+    expect(diagnostics.some((d) => d.code === 'unsupported-style-alpha')).toBe(false);
+  });
 });

@@ -42,6 +42,28 @@ function junctionXmaType(el: ArchiElement): 'Junction' | 'OrJunction' {
 }
 
 /**
+ * `archi-semantic-core` already defaults an unrecognized native junction
+ * `type` attribute to `'And'` rather than guessing (see its `junctionType`
+ * doc comment) — but it also preserves the original value verbatim in
+ * `rawJunctionType` specifically so a downstream consumer can tell "really
+ * absent/empty, the documented default" apart from "an unrecognized value
+ * that got silently defaulted". This reports the latter as a warning
+ * instead of drawing an `And` Junction with no indication anything was
+ * guessed.
+ */
+function reportUnrecognizedJunctionType(el: ArchiElement, diagnostics: DiagnosticCollector): void {
+  if (el.junctionType !== 'And') return;
+  const raw = el.rawJunctionType ?? '';
+  if (raw === '' || raw === 'or') return;
+  diagnostics.warning({
+    code: 'unrecognized-junction-type',
+    message: `Junction "${el.name ?? el.id}" has an unrecognized native type value ("${raw}") — treated as AND (Archi's documented default for an unrecognized value), not necessarily what was intended.`,
+    entityId: el.id,
+    entityType: 'ArchiElement',
+  });
+}
+
+/**
  * A `Junction`'s own `category`/`hasIcon` are never read: `graphical-writer`
  * draws Junctions via a dedicated, colorless node form (confirmed in both
  * fixtures — no `MM_Color`/`MM_Colors`, `mm_graphicType="3"` instead of the
@@ -121,6 +143,7 @@ export function buildSemanticElements(
       const mapping = junctionMappingEntry(el);
       mappedElements.set(el.id, mapping);
       reportAncillaryLossWarnings(el, diagnostics);
+      reportUnrecognizedJunctionType(el, diagnostics);
       const xmaId = ids.idFor(el.id);
       rootConnectorsXml.push(
         element(`ArchiMate:${mapping.xmaType}`, [['id', String(xmaId)]], [

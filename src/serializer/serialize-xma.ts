@@ -20,12 +20,46 @@ export interface XmaSerializeOptions {
 
 const DEFAULT_PACKAGE_NAME = 'CDA XMA Package';
 
+const REQUIRED_MODEL_ARRAY_FIELDS = [
+  'elements',
+  'relationships',
+  'views',
+  'diagramObjects',
+  'diagramConnections',
+  'notes',
+  'folders',
+] as const;
+
+/**
+ * `ArchiModel`'s shape is only enforced by TypeScript at compile time. A
+ * caller passing `null`/`undefined`, or an object missing a collection,
+ * would otherwise hit the first `.map()`/`.filter()` deep inside a writer
+ * and get a raw `Cannot read properties of undefined` — not an actionable
+ * error for a public library API. This is a caller-contract violation, not
+ * a "construct XMA can't represent" diagnostic, so it throws directly
+ * instead of going through `DiagnosticCollector`/`XmaSerializationError`.
+ */
+function assertValidModelShape(model: ArchiModel): void {
+  if (typeof model !== 'object' || model === null) {
+    throw new TypeError(`serializeXma: expected an ArchiModel object, got ${model === null ? 'null' : typeof model}.`);
+  }
+  if (typeof model.metadata !== 'object' || model.metadata === null) {
+    throw new TypeError('serializeXma: model.metadata is missing or invalid — expected an ArchiModel.');
+  }
+  for (const field of REQUIRED_MODEL_ARRAY_FIELDS) {
+    if (!Array.isArray(model[field])) {
+      throw new TypeError(`serializeXma: model.${field} is missing or not an array — expected an ArchiModel.`);
+    }
+  }
+}
+
 interface PlanResult {
   diagnostics: XmaDiagnostic[];
   documentXml: XmlElement | null;
 }
 
 function planXmaDocument(model: ArchiModel, options?: XmaSerializeOptions): PlanResult {
+  assertValidModelShape(model);
   const diagnostics = new DiagnosticCollector();
   const language = options?.language ?? 'en';
   const modelName = options?.modelName ?? model.metadata.name;
@@ -33,7 +67,6 @@ function planXmaDocument(model: ArchiModel, options?: XmaSerializeOptions): Plan
 
   const allocator = new XmaIdAllocator();
   const ids = new XmaIdRegistry(allocator);
-  const refIds = new XmaIdRegistry(allocator);
 
   const { schemeBuilds, mappedElements, rootConnectorsXml } = buildSemanticElements(model, ids, diagnostics, language);
 
@@ -50,6 +83,14 @@ function planXmaDocument(model: ArchiModel, options?: XmaSerializeOptions): Plan
   );
 
   const builtViews: BuiltView[] = model.views.map((view) => {
+    // A fresh RefObjects registry per view — confirmed against the sabsa
+    // fixture (38 views): each `AllView`'s `RefObjects` is self-contained,
+    // so an element referenced from multiple views gets its own ref id in
+    // each one (840 total Ref elements for 735 distinct semantic targets in
+    // sabsa.xma, never a ref id reused across two views). A shared registry
+    // would leave every view after the first missing Ref entries for
+    // elements first seen in an earlier view.
+    const refIds = new XmaIdRegistry(allocator);
     const viewResult = buildView(model, view, ids, refIds, mappedElements, mappedRelationships, diagnostics, language);
     const { diagramXml } = buildGraphicalModule(
       model,

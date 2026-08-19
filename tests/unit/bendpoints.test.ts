@@ -44,6 +44,25 @@ describe('bendpoints', () => {
     expect(resolution?.mismatch?.fromTarget).toEqual({ x: 264, y: 303 });
   });
 
+  it('treats a non-finite offset as absent rather than propagating NaN/Infinity into the resolved point', () => {
+    const resolution = resolveBendpoint(
+      { startX: Number.NaN, startY: 93, endX: -168, endY: -3 },
+      SOURCE_BOUNDS,
+      TARGET_BOUNDS,
+    );
+    expect(resolution).toEqual({ point: { x: 96, y: 300 }, agreement: 'target-only' });
+  });
+
+  it('returns null when both offsets are non-finite', () => {
+    expect(
+      resolveBendpoint(
+        { startX: Number.NaN, startY: Number.POSITIVE_INFINITY, endX: Number.NaN, endY: Number.NaN },
+        SOURCE_BOUNDS,
+        TARGET_BOUNDS,
+      ),
+    ).toBeNull();
+  });
+
   it('does not flag negligible floating-point differences as a mismatch', () => {
     const resolution = resolveBendpoint(
       { startX: -12, startY: 93, endX: -168.0000001, endY: -3 },

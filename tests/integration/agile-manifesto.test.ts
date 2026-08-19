@@ -151,6 +151,18 @@ describe('integration: agile-manifesto fixture', () => {
     expect(rootAssociationCount).toBeLessThan(totalAssociationCount);
   });
 
+  it('applies an explicit font-size override via the confirmed floor(pt)*20 formula, matching the real fixture byte-for-byte', () => {
+    // agile-manifesto.archimate has exactly two distinct explicit font
+    // overrides: 11.25pt (Arial Rounded MT Bold) and 14.25pt (Roboto/Roboto
+    // Slab), each used twice. The real agile-manifesto.xma has exactly 2
+    // occurrences of mm_fontSize="220" (floor(11.25)*20) and 2 of
+    // mm_fontSize="280" (floor(14.25)*20) — confirmed by direct byte count
+    // against the fixture.
+    const xma = serializeXma(model, { language: 'en' });
+    expect(xma.match(/mm_fontSize="220"/g) ?? []).toHaveLength(2);
+    expect(xma.match(/mm_fontSize="280"/g) ?? []).toHaveLength(2);
+  });
+
   it('omits the graphical connector for a nested-parent-child relationship, matching the real fixture', () => {
     // Reported against a real converted file (opened in Enterprise Studio,
     // "cosas que mejorar... un elemento dentro de otro ya tiene una relación
@@ -162,12 +174,18 @@ describe('integration: agile-manifesto fixture', () => {
     // by tag: GroupingElementComposition and BusinessProcessBusinessFunction-
     // Composition both appear in the semantic Relations collections at their
     // full count, but neither tag appears among the graphical connectors).
-    // The real fixture draws 93 of the model's 104 connections; this
-    // implementation currently produces 92 — one short of the real count,
-    // an unexplained residual not traced to a specific relationship. Given
-    // the alternative (0 of the 12 correctly omitted, as before this fix)
-    // was far more wrong, 92 is asserted here as the current, honest,
-    // slightly-conservative result rather than claiming an unverified 93.
+    // The real fixture draws 93 MM_DirectedRel; this implementation
+    // produces 92. Traced (by diffing MM_DirectedRel mm_concept counts
+    // between this output and the real fixture): the real XMA's 93rd
+    // connector is a single mm_concept="ViewEdge" DirectedRel between two
+    // mm_concept="AllView" nodes — the graphical form of a purely-visual
+    // connection between two DiagramModelReference ("insert view as
+    // reference") nodes. This isn't a gap in this library: per the "Purely
+    // visual (non-semantic) connections" note in the README, that specific
+    // connection isn't even parsed as a diagram connection by
+    // @cda/archi-semantic-core (it lacks an xsi:type), so it never reaches
+    // adapter-xma's input at all. 92 is the correct, fully-accounted-for
+    // count given what the model actually exposes.
     const xma = serializeXma(model, { language: 'en' });
     expect(xma.match(/MM_DirectedRel /g) ?? []).toHaveLength(92);
     // The semantic definition tag specifically (not its "...Ref" RefObjects

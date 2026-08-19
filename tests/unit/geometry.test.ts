@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { scaleValue, scaleRect, scalePoint, centerOf, hasCompleteBounds, XMA_SCALE } from '../../src/geometry/geometry.js';
+import { scaleValue, scaleRect, scalePoint, centerOf, hasCompleteBounds, toRect, XMA_SCALE } from '../../src/geometry/geometry.js';
 
 describe('geometry', () => {
   it('scales by exactly 3', () => {
@@ -30,6 +30,18 @@ describe('geometry', () => {
     expect(hasCompleteBounds({ x: null, y: null, width: 3, height: 4 })).toBe(true);
     expect(hasCompleteBounds({ x: 1, y: 2, width: null, height: 4 })).toBe(false);
     expect(hasCompleteBounds({ x: 1, y: 2, width: 3, height: null })).toBe(false);
+  });
+
+  it('toRect applies the null-omitted-coordinate-means-0 convention explicitly (M5: no more unchecked "as Rect" casts)', () => {
+    expect(toRect({ x: null, y: null, width: 3, height: 4 })).toEqual({ x: 0, y: 0, width: 3, height: 4 });
+    expect(toRect({ x: 1, y: 2, width: 3, height: 4 })).toEqual({ x: 1, y: 2, width: 3, height: 4 });
+  });
+
+  it('hasCompleteBounds rejects non-finite values (NaN/Infinity) instead of letting them flow into the output', () => {
+    expect(hasCompleteBounds({ x: 1, y: 2, width: Number.NaN, height: 4 })).toBe(false);
+    expect(hasCompleteBounds({ x: 1, y: 2, width: 3, height: Number.POSITIVE_INFINITY })).toBe(false);
+    expect(hasCompleteBounds({ x: Number.NaN, y: 2, width: 3, height: 4 })).toBe(false);
+    expect(hasCompleteBounds({ x: 1, y: Number.NEGATIVE_INFINITY, width: 3, height: 4 })).toBe(false);
   });
 
   it('treats an omitted x/y as 0 via JS null-coercion when scaling/centering (no explicit substitution needed)', () => {

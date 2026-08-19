@@ -9,6 +9,20 @@
  * source locale (Spanish, accented Latin text, etc.) without guessing a
  * target ANSI code page.
  */
+/**
+ * Iterates by UTF-16 code unit (not by Unicode code point) deliberately: a
+ * character outside the Basic Multilingual Plane (e.g. an emoji) is stored
+ * in JS strings as a surrogate pair, and this naturally emits it as two
+ * consecutive `\uN?` escapes, one per surrogate half — the standard,
+ * widely-implemented RTF technique for supplementary-plane characters
+ * (RTF's own `\u` model is itself UTF-16-code-unit-based). This is not
+ * splitting one character across two escapes by accident; recombining a
+ * code point first and emitting one escape would be the non-standard
+ * choice. No fixture contains an astral character in documentation text to
+ * confirm this against directly, but the signed-16-bit conversion below is
+ * applied uniformly and correctly regardless of whether a given code unit
+ * happens to be a surrogate half.
+ */
 function escapeRtfBody(text: string): string {
   const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   const out: string[] = [];
