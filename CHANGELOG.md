@@ -1,3 +1,9 @@
+## [0.8.2](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.8.1...v0.8.2) (2026-08-20)
+
+### Bug Fixes
+
+* confirm all 6 Grouping-endpoint verbs for the both-Grouping case ([b194aef](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/b194aef12d442fcdd0374e2ea3bb01f65e85dff1))
+
 ## [0.8.1](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.8.0...v0.8.1) (2026-08-20)
 
 ### Bug Fixes
