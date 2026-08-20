@@ -1,3 +1,13 @@
+## [0.7.0](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.6.1...v0.7.0) (2026-08-20)
+
+### Features
+
+* support a nested Note, closing the largest remaining blocker ([46afdf9](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/46afdf9cb4ddfbb33034f1bbae15ceeeb6cd0d60))
+
+### Bug Fixes
+
+* confirm 2 more ServingRelationship mappings, closing the last private-model gaps ([94f8ca7](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/94f8ca75f385b69027af41eb11189a193e0ecd9c))
+
 ## [0.6.1](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.6.0...v0.6.1) (2026-08-19)
 
 ### Bug Fixes
