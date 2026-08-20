@@ -42,16 +42,30 @@ const JUNCTION_CONFIRMED_VERBS = new Set(['Realisation', 'Influence', 'Use']);
 
 /**
  * Verbs confirmed to produce the `{Grouping|Element}{Grouping|Element}{Verb}`
- * generic form when a `Grouping` is an endpoint: `CompositionRelationship`,
- * `SpecializationRelationship`, `InfluenceRelationship`, `ServingRelationship`
- * (sabsa + agile-manifesto), `RealizationRelationship`
- * (`ElementGroupingRealisation` — two independent confirmed instances), and
- * `AccessRelationship` (`ElementGroupingAccess` — one confirmed instance).
- * The last two came from a private, non-public model; same cross-reference
- * method as every other entry here, just not backed by a fixture pair in
- * this repo. Same "no evidence, no guess" rule as Junction above.
+ * generic form when *exactly one* endpoint is a `Grouping` (the other a
+ * regular element): `CompositionRelationship`, `SpecializationRelationship`,
+ * `InfluenceRelationship`, `ServingRelationship` (sabsa + agile-manifesto),
+ * `RealizationRelationship` (`ElementGroupingRealisation` — two independent
+ * confirmed instances), and `AccessRelationship` (`ElementGroupingAccess` —
+ * one confirmed instance). The last two came from a private, non-public
+ * model; same cross-reference method as every other entry here, just not
+ * backed by a fixture pair in this repo. Same "no evidence, no guess" rule
+ * as Junction above.
  */
-const GROUPING_CONFIRMED_VERBS = new Set(['Composition', 'Specialization', 'Influence', 'Use', 'Realisation', 'Access']);
+const GROUPING_ELEMENT_CONFIRMED_VERBS = new Set(['Composition', 'Specialization', 'Influence', 'Use', 'Realisation', 'Access']);
+
+/**
+ * Verbs confirmed for the *both-endpoints-Grouping* case specifically —
+ * deliberately a stricter, separate set from the mixed-endpoint one above.
+ * Only `Use` and `Influence` are directly confirmed (`GroupingGroupingUse`,
+ * `GroupingGroupingInfluence` — both in `sabsa.xma`). A real round-trip
+ * against a private model proved `GroupingGroupingComposition` does NOT
+ * exist — Enterprise Studio rejected the whole document outright for it
+ * ("could not generate the object: unknown type") despite `Composition`
+ * being confirmed for the mixed-endpoint case — so the two endpoint shapes
+ * are never assumed to share evidence, even for the same verb.
+ */
+const GROUPING_GROUPING_CONFIRMED_VERBS = new Set(['Use', 'Influence']);
 
 export interface GenericRelationshipMapping {
   xmaType: string;
@@ -82,7 +96,13 @@ export function lookupGenericRelationshipMapping(
 
   const sourceIsGrouping = sourceArchiType === 'Grouping';
   const targetIsGrouping = targetArchiType === 'Grouping';
-  if ((sourceIsGrouping || targetIsGrouping) && GROUPING_CONFIRMED_VERBS.has(verb)) {
+  if (sourceIsGrouping && targetIsGrouping) {
+    if (GROUPING_GROUPING_CONFIRMED_VERBS.has(verb)) {
+      return { xmaType: `GroupingGrouping${verb}` };
+    }
+    return undefined;
+  }
+  if ((sourceIsGrouping || targetIsGrouping) && GROUPING_ELEMENT_CONFIRMED_VERBS.has(verb)) {
     const sourcePart = sourceIsGrouping ? 'Grouping' : 'Element';
     const targetPart = targetIsGrouping ? 'Grouping' : 'Element';
     return { xmaType: `${sourcePart}${targetPart}${verb}` };
