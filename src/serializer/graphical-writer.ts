@@ -85,15 +85,20 @@ interface ResolvedVisuals {
   fontName: string;
   fontSize: number;
   fillOpacity: number;
+  /** `mm_fontMode`: bold=1, italic=2, both=3 (a 2-bit mask), absent when neither is set. */
+  fontMode: number | null;
+  fontColor: Rgb | null;
 }
 
 /**
  * Resolves a node's effective fill/line/font, applying explicit Archi
  * styling only where mechanically lossless (a direct hex RGB copy, a
- * verbatim font-name substitution into the same structural slot, or the
- * confirmed font-size formula) — per v0.1 policy, everything else explicit
- * (bold/italic, line width, font color) is diagnosed as an unsupported
- * style override rather than guessed.
+ * verbatim font-name substitution into the same structural slot, the
+ * confirmed font-size formula, the confirmed `mm_fontMode` bold/italic
+ * bitmask, or a font-color hex copy into the label decoration's own
+ * `mm_lineColor`) — per v0.1 policy, everything else explicit (line width,
+ * fill opacity/alpha) is diagnosed as an unsupported style override rather
+ * than guessed.
  */
 function resolveNodeVisuals(
   style: ArchiStyle | null,
@@ -106,6 +111,8 @@ function resolveNodeVisuals(
   let line = DEFAULT_LINE_COLOR;
   let fontName = DEFAULT_FONT_NAME;
   let fontSize = DEFAULT_FONT_SIZE;
+  let fontMode: number | null = null;
+  let fontColor: Rgb | null = null;
   // Never reassigned: alpha has zero fixture evidence, so it's diagnosed
   // (see below) rather than applied — fillOpacity always stays the default.
   const fillOpacity = DEFAULT_OPACITY;
@@ -153,12 +160,17 @@ function resolveNodeVisuals(
       });
     }
     if (style.fontColor !== null) {
-      diagnostics.warning({
-        code: 'unsupported-style-font-color',
-        message: 'Explicit font color has no confirmed XMA representation and was not applied.',
-        entityId,
-        entityType,
-      });
+      const parsed = parseArchiHexColor(style.fontColor);
+      if (parsed) {
+        fontColor = parsed;
+      } else {
+        diagnostics.warning({
+          code: 'unsupported-style-font-color',
+          message: `Font color "${style.fontColor}" is not a recognized hex color and was not applied.`,
+          entityId,
+          entityType,
+        });
+      }
     }
     if (style.fontSize !== null) {
       // `mm_fontSize = floor(pt) * 20` — confirmed by both data points in
@@ -167,12 +179,10 @@ function resolveNodeVisuals(
       fontSize = Math.floor(style.fontSize) * 20;
     }
     if (style.fontStyle !== null && (style.fontStyle.bold || style.fontStyle.italic)) {
-      diagnostics.warning({
-        code: 'unsupported-style-font-style',
-        message: 'Explicit bold/italic font style has no confirmed XMA representation and was not applied.',
-        entityId,
-        entityType,
-      });
+      // Confirmed via a dedicated Enterprise Studio round-trip (3 isolated
+      // elements: bold-only, italic-only, bold+italic together): mm_fontMode
+      // is a 2-bit mask — bold=1, italic=2, both=3.
+      fontMode = (style.fontStyle.bold ? 1 : 0) | (style.fontStyle.italic ? 2 : 0);
     }
     if (style.lineWidth !== null) {
       diagnostics.warning({
@@ -184,15 +194,33 @@ function resolveNodeVisuals(
     }
   }
 
-  return { fill, line, fontName, fontSize, fillOpacity };
+  return { fill, line, fontName, fontSize, fillOpacity, fontMode, fontColor };
 }
 
-function buildLabelDecoration(id: number, fontName: string, fontSize: number, extraAttrs: Array<[string, string]> = []): XmlElement {
-  return element(
-    'MM_Diagram:MM_Decoration',
-    [['id', String(id)], ['mm_fontSize', String(fontSize)], ['mm_graphicType', '2'], ['mm_concept', 'label'], ...extraAttrs],
-    [textElement('mm_font', fontName)],
-  );
+function buildLabelDecoration(
+  id: number,
+  fontName: string,
+  fontSize: number,
+  fontMode: number | null,
+  fontColor: Rgb | null,
+  fontColorId: number | null,
+  extraAttrs: Array<[string, string]> = [],
+): XmlElement {
+  const attrs: Array<[string, string]> = [
+    ['id', String(id)],
+    ['mm_fontSize', String(fontSize)],
+    ['mm_graphicType', '2'],
+    ['mm_concept', 'label'],
+    ...extraAttrs,
+  ];
+  if (fontMode !== null) {
+    attrs.push(['mm_fontMode', String(fontMode)]);
+  }
+  const children: XmlElement[] = [textElement('mm_font', fontName)];
+  if (fontColor !== null && fontColorId !== null) {
+    children.push(colorElement('mm_lineColor', fontColor, fontColorId));
+  }
+  return element('MM_Diagram:MM_Decoration', attrs, children);
 }
 
 function buildIconDecoration(id: number): XmlElement {
@@ -228,7 +256,11 @@ function buildStyledNode(
   if (hasIcon) {
     graphicsChildren.push(buildIconDecoration(ids.fresh()));
   }
-  graphicsChildren.push(buildLabelDecoration(ids.fresh(), visuals.fontName, visuals.fontSize, labelExtraAttrs));
+  const labelDecorationId = ids.fresh();
+  const fontColorId = visuals.fontColor !== null ? ids.fresh() : null;
+  graphicsChildren.push(
+    buildLabelDecoration(labelDecorationId, visuals.fontName, visuals.fontSize, visuals.fontMode, visuals.fontColor, fontColorId, labelExtraAttrs),
+  );
   graphicsChildren.push(...nestedChildrenXml);
 
   const attrs: Array<[string, string]> = [
@@ -307,7 +339,7 @@ function buildJunctionNode(ids: XmaIdRegistry, nodeXmaId: number, concept: strin
     ],
     [
       element('MM_Diagram:MM_Graphics', [['name', 'mm_graphics'], ['id', String(ids.fresh())]], [
-        buildLabelDecoration(ids.fresh(), DEFAULT_FONT_NAME, DEFAULT_FONT_SIZE),
+        buildLabelDecoration(ids.fresh(), DEFAULT_FONT_NAME, DEFAULT_FONT_SIZE, null, null, null),
       ]),
       rectElement(ids.fresh(), bounds),
     ],
@@ -344,7 +376,7 @@ function buildViewReferenceNode(
     [
       element('MM_Diagram:MM_Graphics', [['name', 'mm_graphics'], ['id', String(ids.fresh())]], [
         buildIconDecoration(ids.fresh()),
-        buildLabelDecoration(ids.fresh(), DEFAULT_FONT_NAME, DEFAULT_FONT_SIZE),
+        buildLabelDecoration(ids.fresh(), DEFAULT_FONT_NAME, DEFAULT_FONT_SIZE, null, null, null),
         ...nestedChildrenXml,
       ]),
       colorElement('mm_lineColor', DEFAULT_LINE_COLOR, ids.fresh()),
@@ -638,7 +670,7 @@ export function buildGraphicalModule(
     }
     directedRelChildren.push(
       element('MM_Diagram:MM_Graphics', [['name', 'mm_graphics'], ['id', String(ids.fresh())]], [
-        buildLabelDecoration(ids.fresh(), DEFAULT_FONT_NAME, DEFAULT_FONT_SIZE),
+        buildLabelDecoration(ids.fresh(), DEFAULT_FONT_NAME, DEFAULT_FONT_SIZE, null, null, null),
       ]),
     );
     directedRelChildren.push(colorElement('mm_lineColor', connectionLineColor, ids.fresh()));

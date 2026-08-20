@@ -143,3 +143,59 @@ describe('graphical-writer: style resolution (M2/M3/M4)', () => {
     expect(xma).toContain('mm_fillOpacity="255"'); // DEFAULT_OPACITY, unchanged
   });
 });
+
+/**
+ * Confirmed via a dedicated Enterprise Studio round-trip: 3 isolated
+ * elements (bold-only, italic-only, bold+italic together) plus a 4th with
+ * an explicit font color, none of which appear in any of the 4 public
+ * fixtures. `mm_fontMode` is a 2-bit mask (bold=1, italic=2, both=3) on the
+ * label `MM_Decoration`; an explicit font color is a nested
+ * `MM_Color name="mm_lineColor"` child of that same decoration, in the same
+ * omit-zero-channel shape already confirmed for fill/line color elsewhere.
+ */
+describe('graphical-writer: font style and font color (bold/italic/mm_fontMode, explicit font color)', () => {
+  function singleActorModel(style: ReturnType<typeof makeStyle>) {
+    const actor = makeElement({ id: 'a', type: 'BusinessActor' });
+    const obj = makeDiagramObject({ id: 'o1', viewId: 'v1', archimateElementId: 'a', bounds: makeBounds(0, 0, 10, 10), style });
+    const view = makeView({ id: 'v1', diagramObjectIds: [obj.id] });
+    return makeModel({ elements: [actor], views: [view], diagramObjects: [obj] });
+  }
+
+  it('applies mm_fontMode="1" for bold-only', () => {
+    const model = singleActorModel(makeStyle({ fontStyle: { bold: true, italic: false } }));
+    expect(inspectXmaSupport(model).some((d) => d.code === 'unsupported-style-font-style')).toBe(false);
+    expect(serializeXma(model)).toContain('mm_fontMode="1"');
+  });
+
+  it('applies mm_fontMode="2" for italic-only', () => {
+    const model = singleActorModel(makeStyle({ fontStyle: { bold: false, italic: true } }));
+    expect(serializeXma(model)).toContain('mm_fontMode="2"');
+  });
+
+  it('applies mm_fontMode="3" for bold and italic together', () => {
+    const model = singleActorModel(makeStyle({ fontStyle: { bold: true, italic: true } }));
+    expect(serializeXma(model)).toContain('mm_fontMode="3"');
+  });
+
+  it('omits mm_fontMode entirely when fontStyle has neither bold nor italic set', () => {
+    const model = singleActorModel(makeStyle({ fontStyle: { bold: false, italic: false } }));
+    expect(serializeXma(model)).not.toContain('mm_fontMode');
+  });
+
+  it('applies an explicit font color as a nested mm_lineColor on the label decoration, in the omit-zero-channel shape', () => {
+    const model = singleActorModel(makeStyle({ fontColor: '#ff0000' }));
+    expect(inspectXmaSupport(model).some((d) => d.code === 'unsupported-style-font-color')).toBe(false);
+    const xma = serializeXma(model);
+    const labelStart = xma.indexOf('mm_concept="label"');
+    const labelDecoration = xma.slice(labelStart, xma.indexOf('</MM_Diagram:MM_Decoration>', labelStart));
+    expect(labelDecoration).toMatch(/<MM_Diagram:MM_Color id="\d+" name="mm_lineColor" mm_r="255"\/>/);
+    expect(labelDecoration).not.toContain('mm_g=');
+    expect(labelDecoration).not.toContain('mm_b=');
+  });
+
+  it('still diagnoses (and drops) an unparseable font color', () => {
+    const model = singleActorModel(makeStyle({ fontColor: 'not-a-color' }));
+    const diagnostics = inspectXmaSupport(model);
+    expect(diagnostics.some((d) => d.code === 'unsupported-style-font-color' && d.severity === 'warning')).toBe(true);
+  });
+});

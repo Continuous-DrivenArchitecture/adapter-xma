@@ -184,6 +184,11 @@ extrapolated beyond that evidence.
 - An explicit font-size override, via the confirmed `floor(pt) * 20`
   formula (two independent data points in the agile-manifesto fixture:
   11.25pt → `mm_fontSize="220"`, 14.25pt → `"280"`).
+- Explicit bold/italic font style, via a confirmed `mm_fontMode` bitmask on
+  the label decoration (bold=1, italic=2, both=3), and an explicit font
+  color, applied as a nested `mm_lineColor` on that same decoration — both
+  confirmed via a dedicated, isolated Enterprise Studio round-trip (not
+  present in any of the four public fixtures).
 - **Multiple views sharing an element or relationship** each get their own
   independent `RefObjects` entry — confirmed against the 38-view sabsa
   fixture (840 `Ref` elements for 735 distinct semantic targets: a ref id
@@ -206,11 +211,11 @@ extrapolated beyond that evidence.
   direct confirmation) and is **not** implemented. See "Generic and
   collapsed forms" in [`tests/fixtures/README.md`](tests/fixtures/README.md).
 - Profiles/specializations and arbitrary model properties.
-- Explicit bold/italic, line width, font color, or fill opacity (`alpha`)
-  overrides (reported as diagnostics; the confirmed defaults are used
-  instead). `alpha` in particular has zero occurrences across all four
-  reference fixtures — no evidence to confirm a mapping, so it's diagnosed
-  like every other unconfirmed override rather than applied on a guess.
+- Explicit line width or fill opacity (`alpha`) overrides (reported as
+  diagnostics; the confirmed defaults are used instead). `alpha` in
+  particular has zero occurrences across all four reference fixtures — no
+  evidence to confirm a mapping, so it's diagnosed like every other
+  unconfirmed override rather than applied on a guess.
 - Manual connector anchor metadata (`mm_fromx`/`mm_fromy`/`mm_tox`/`mm_toy`)
   — present on a minority of connections in three of the four fixtures
   (5/93 in agile-manifesto, 1/3 in relaciones, 15/346 in sabsa; catalogo has

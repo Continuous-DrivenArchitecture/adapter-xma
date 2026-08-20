@@ -109,9 +109,10 @@ describe('integration: agile-manifesto fixture', () => {
     // (confirmed: Archi omits a bounds coordinate that equals 0, across all
     // fixtures), and a bendpoint whose source-/target-relative offsets
     // disagree (a resolvable fallback, not data loss) are warnings, not
-    // blocking errors — see geometry.ts. Only explicit font color/bold-
-    // italic/line-width/alpha overrides remain as (separately unconfirmed,
-    // also non-blocking) warnings.
+    // blocking errors — see geometry.ts. Explicit font color and bold/italic
+    // are now applied (confirmed `mm_fontMode`/label `mm_lineColor`), not
+    // diagnosed; only line-width/alpha overrides remain as (separately
+    // unconfirmed, also non-blocking) warnings.
     expect(diagnostics.filter((d) => d.severity === 'error')).toEqual([]);
     expect(() => serializeXma(model, { language: 'en' })).not.toThrow();
   });
