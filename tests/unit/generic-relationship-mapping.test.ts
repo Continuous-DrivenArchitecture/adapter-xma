@@ -2,35 +2,57 @@ import { describe, expect, it } from 'vitest';
 import { lookupGenericRelationshipMapping } from '../../src/mapping/generic-relationship-mapping.js';
 
 /**
- * Regression coverage for a real correctness bug: `lookupGenericRelationshipMapping`
- * used to apply the mixed-endpoint (Grouping + regular element) confirmed-verb
- * set to the both-endpoints-Grouping case too, producing `GroupingGroupingComposition`
- * — a tag with zero fixture evidence. Enterprise Studio rejected a real private
- * model outright on import for it ("could not generate the object: unknown
- * type"), reported against a real generated file. The two endpoint shapes are
- * now tracked with separate confirmed-verb sets; see generic-relationship-mapping.ts.
+ * Regression coverage for a real correctness bug, since fully resolved:
+ * `lookupGenericRelationshipMapping` used to apply the mixed-endpoint
+ * (Grouping + regular element) confirmed-verb set to the
+ * both-endpoints-Grouping case too, producing `GroupingGroupingComposition`
+ * — a tag with zero fixture evidence. Enterprise Studio rejected a real
+ * private model outright on import for it ("could not generate the object:
+ * unknown type"), reported against a real generated file.
+ *
+ * All six verbs are now independently confirmed for the
+ * both-endpoints-Grouping case (Use/Influence via sabsa.xma;
+ * Specialization/Realisation/Access via a dedicated, isolated Enterprise
+ * Studio round-trip). `Composition` is the one asymmetric case — it never
+ * produces `GroupingGroupingComposition`, always `GroupingElementComposition`
+ * (target labeled `Element` regardless of its actual type) — confirmed the
+ * same way. See generic-relationship-mapping.ts.
  */
 describe('generic-relationship-mapping: Grouping endpoints', () => {
-  it('confirmed: both endpoints Grouping, Use -> GroupingGroupingUse (sabsa.xma)', () => {
+  it('both endpoints Grouping, Use -> GroupingGroupingUse (sabsa.xma)', () => {
     expect(lookupGenericRelationshipMapping('ServingRelationship', 'Grouping', 'Grouping')).toEqual({
       xmaType: 'GroupingGroupingUse',
     });
   });
 
-  it('confirmed: both endpoints Grouping, Influence -> GroupingGroupingInfluence (sabsa.xma)', () => {
+  it('both endpoints Grouping, Influence -> GroupingGroupingInfluence (sabsa.xma)', () => {
     expect(lookupGenericRelationshipMapping('InfluenceRelationship', 'Grouping', 'Grouping')).toEqual({
       xmaType: 'GroupingGroupingInfluence',
     });
   });
 
-  it('NOT confirmed: both endpoints Grouping, Composition -> unsupported, not guessed as GroupingGroupingComposition', () => {
-    expect(lookupGenericRelationshipMapping('CompositionRelationship', 'Grouping', 'Grouping')).toBeUndefined();
+  it('both endpoints Grouping, Specialization -> GroupingGroupingSpecialization', () => {
+    expect(lookupGenericRelationshipMapping('SpecializationRelationship', 'Grouping', 'Grouping')).toEqual({
+      xmaType: 'GroupingGroupingSpecialization',
+    });
   });
 
-  it('NOT confirmed: both endpoints Grouping, Specialization/Realisation/Access -> unsupported', () => {
-    expect(lookupGenericRelationshipMapping('SpecializationRelationship', 'Grouping', 'Grouping')).toBeUndefined();
-    expect(lookupGenericRelationshipMapping('RealizationRelationship', 'Grouping', 'Grouping')).toBeUndefined();
-    expect(lookupGenericRelationshipMapping('AccessRelationship', 'Grouping', 'Grouping')).toBeUndefined();
+  it('both endpoints Grouping, Realization -> GroupingGroupingRealisation', () => {
+    expect(lookupGenericRelationshipMapping('RealizationRelationship', 'Grouping', 'Grouping')).toEqual({
+      xmaType: 'GroupingGroupingRealisation',
+    });
+  });
+
+  it('both endpoints Grouping, Access -> GroupingGroupingAccess', () => {
+    expect(lookupGenericRelationshipMapping('AccessRelationship', 'Grouping', 'Grouping')).toEqual({
+      xmaType: 'GroupingGroupingAccess',
+    });
+  });
+
+  it('both endpoints Grouping, Composition -> the asymmetric GroupingElementComposition, never GroupingGroupingComposition', () => {
+    expect(lookupGenericRelationshipMapping('CompositionRelationship', 'Grouping', 'Grouping')).toEqual({
+      xmaType: 'GroupingElementComposition',
+    });
   });
 
   it('unaffected: exactly one endpoint Grouping, Composition -> still GroupingElementComposition / ElementGroupingComposition', () => {

@@ -56,16 +56,30 @@ const GROUPING_ELEMENT_CONFIRMED_VERBS = new Set(['Composition', 'Specialization
 
 /**
  * Verbs confirmed for the *both-endpoints-Grouping* case specifically —
- * deliberately a stricter, separate set from the mixed-endpoint one above.
- * Only `Use` and `Influence` are directly confirmed (`GroupingGroupingUse`,
- * `GroupingGroupingInfluence` — both in `sabsa.xma`). A real round-trip
- * against a private model proved `GroupingGroupingComposition` does NOT
- * exist — Enterprise Studio rejected the whole document outright for it
- * ("could not generate the object: unknown type") despite `Composition`
- * being confirmed for the mixed-endpoint case — so the two endpoint shapes
- * are never assumed to share evidence, even for the same verb.
+ * deliberately a separate, independently-confirmed set from the
+ * mixed-endpoint one above (the two endpoint shapes are never assumed to
+ * share evidence, even for the same verb — see `Composition` below).
+ * `Use` and `Influence` confirmed in `sabsa.xma`
+ * (`GroupingGroupingUse`/`GroupingGroupingInfluence`); `Specialization`,
+ * `Realisation`, and `Access` confirmed via a dedicated, isolated
+ * Enterprise Studio round-trip (3 separate Grouping/Grouping pairs, one
+ * verb each) — all five follow the plain `GroupingGrouping{Verb}` form.
  */
-const GROUPING_GROUPING_CONFIRMED_VERBS = new Set(['Use', 'Influence']);
+const GROUPING_GROUPING_CONFIRMED_VERBS = new Set(['Use', 'Influence', 'Specialization', 'Realisation', 'Access']);
+
+/**
+ * `CompositionRelationship` is the one exception: even with both endpoints
+ * `Grouping`, it does NOT produce `GroupingGroupingComposition` — a real
+ * round-trip against a private model proved that tag doesn't exist
+ * (Enterprise Studio rejected the whole document, "could not generate the
+ * object: unknown type"). A second, dedicated, isolated round-trip (two
+ * `CompositeGrouping` elements connected by `Composition`, cross-checked in
+ * both the semantic `<ArchiMate:Relations>` entry and the graphical
+ * `MM_DirectedRel`'s `mm_concept`) confirmed the real, asymmetric form:
+ * `GroupingElementComposition` — the target side is always labeled
+ * `Element` for this verb specifically, regardless of its actual type.
+ */
+const GROUPING_GROUPING_COMPOSITION_XMA_TYPE = 'GroupingElementComposition';
 
 export interface GenericRelationshipMapping {
   xmaType: string;
@@ -97,6 +111,9 @@ export function lookupGenericRelationshipMapping(
   const sourceIsGrouping = sourceArchiType === 'Grouping';
   const targetIsGrouping = targetArchiType === 'Grouping';
   if (sourceIsGrouping && targetIsGrouping) {
+    if (verb === 'Composition') {
+      return { xmaType: GROUPING_GROUPING_COMPOSITION_XMA_TYPE };
+    }
     if (GROUPING_GROUPING_CONFIRMED_VERBS.has(verb)) {
       return { xmaType: `GroupingGrouping${verb}` };
     }
