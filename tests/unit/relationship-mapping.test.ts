@@ -17,6 +17,22 @@ describe('relationship-mapping', () => {
     expect(mapping?.scheme).toBe('ApplicationScheme');
   });
 
+  it('maps ServingRelationship ApplicationComponent -> ApplicationInterface (confirmed via a dedicated Enterprise Studio round-trip)', () => {
+    const mapping = lookupRelationshipMapping('ServingRelationship', 'ApplicationComponent', 'ApplicationInterface');
+    expect(mapping).toMatchObject({
+      xmaType: 'ApplicationComponentApplicationInterfaceUse',
+      scheme: 'ApplicationScheme',
+    });
+  });
+
+  it('maps ServingRelationship ApplicationFunction -> ApplicationComponent (confirmed via a dedicated Enterprise Studio round-trip)', () => {
+    const mapping = lookupRelationshipMapping('ServingRelationship', 'ApplicationFunction', 'ApplicationComponent');
+    expect(mapping).toMatchObject({
+      xmaType: 'ApplicationFunctionApplicationComponentUse',
+      scheme: 'ApplicationScheme',
+    });
+  });
+
   it('maps FlowRelationship BusinessProcess -> BusinessProcess', () => {
     const mapping = lookupRelationshipMapping('FlowRelationship', 'BusinessProcess', 'BusinessProcess');
     expect(mapping).toMatchObject({

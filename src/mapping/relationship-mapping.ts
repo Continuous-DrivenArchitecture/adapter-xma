@@ -2,17 +2,20 @@
  * Archi relationship mapping, resolved by (relationship type, source
  * semantic type, target semantic type) — never by relationship type alone.
  *
- * 113 exact-triple mappings are proven: the original 3 confirmed against
+ * 115 exact-triple mappings are proven: the original 3 confirmed against
  * `tests/fixtures/relationships/relaciones.{archimate,xma}`, 64 more
  * confirmed against `tests/fixtures/sabsa/sabsa.{archimate,xma}`, 20 more
  * confirmed against `tests/fixtures/agile-manifesto/agile-manifesto.{archimate,xma}`,
  * 3 confirmed "...Collaboration collapses to its singular active-structure
- * counterpart" instances (see below), and 23 more confirmed from a private,
- * non-public model (see the comments on those two blocks, near the end of
- * this file, for the evidence method) — see each fixture pair's entry in
- * `tests/fixtures/README.md` for the full derivation method. Every other
- * relationship type/source/target combination is unsupported for v0.1 and
- * must be diagnosed, never guessed (see `serializer/relationship-writer.ts`).
+ * counterpart" instances (see below), 23 more confirmed from a private,
+ * non-public model, and 2 more confirmed from single dedicated Serving
+ * round-trips (ApplicationComponent/ApplicationInterface and
+ * ApplicationFunction/ApplicationComponent — see the comments on those
+ * blocks, near the end of this file, for the evidence method) — see each
+ * fixture pair's entry in `tests/fixtures/README.md` for the full derivation
+ * method. Every other relationship type/source/target combination is
+ * unsupported for v0.1 and must be diagnosed, never guessed (see
+ * `serializer/relationship-writer.ts`).
  *
  * `scheme` is always the scheme of the *source* type (confirmed even across
  * schemes, e.g. `WorkPackage -> BusinessFunction` lives in `IMScheme`, the
@@ -881,6 +884,32 @@ export const RELATIONSHIP_MAPPINGS: readonly RelationshipMappingEntry[] = [
     sourceArchiType: 'ApplicationInterface',
     targetArchiType: 'DataObject',
     xmaType: 'ApplicationInterfaceApplicationDataObjectAccess',
+    scheme: 'ApplicationScheme',
+  },
+
+  // Confirmed via a dedicated, isolated round-trip: a single ApplicationComponent
+  // and ApplicationInterface connected by one Serving relationship, drawn
+  // directly in BizzDesign Enterprise Studio and exported to XMA (not derived
+  // from a larger model), so there's no ambiguity about which relationship
+  // produced this tag. Follows the same "...Use" naming already established
+  // for every other confirmed ServingRelationship entry above.
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationComponent',
+    targetArchiType: 'ApplicationInterface',
+    xmaType: 'ApplicationComponentApplicationInterfaceUse',
+    scheme: 'ApplicationScheme',
+  },
+
+  // Same dedicated-round-trip evidence method as the entry above, added to
+  // the same test file: found while re-checking the private SBB fixtures
+  // against the newly-added entry above — this was the one remaining
+  // unconfirmed relationship triple across both.
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationFunction',
+    targetArchiType: 'ApplicationComponent',
+    xmaType: 'ApplicationFunctionApplicationComponentUse',
     scheme: 'ApplicationScheme',
   },
 ];
