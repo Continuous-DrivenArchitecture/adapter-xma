@@ -1,3 +1,9 @@
+## [0.8.0](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.7.0...v0.8.0) (2026-08-20)
+
+### Features
+
+* apply explicit bold/italic font style and font color ([95ff6b4](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/95ff6b4402edfadfc12a6e8981c48350f4d12897))
+
 ## [0.7.0](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.6.1...v0.7.0) (2026-08-20)
 
 ### Features
