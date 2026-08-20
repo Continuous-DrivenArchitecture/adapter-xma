@@ -1,3 +1,9 @@
+## [0.8.1](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.8.0...v0.8.1) (2026-08-20)
+
+### Bug Fixes
+
+* stop guessing GroupingGroupingComposition, split Grouping-endpoint evidence by shape ([f5e5893](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/f5e5893d3f2dc3fc189e0e7cdbd129d436e5acf9))
+
 ## [0.8.0](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.7.0...v0.8.0) (2026-08-20)
 
 ### Features
