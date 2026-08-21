@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { resolveBendpoint } from '../../src/geometry/bendpoints.js';
 import { scalePoint } from '../../src/geometry/geometry.js';
+import { inspectXmaSupport, serializeXma } from '../../src/index.js';
+import { makeBendpoint, makeBounds, makeDiagramConnection, makeDiagramObject, makeElement, makeModel, makeRelationship, makeView } from '../helpers/model-builder.js';
 
 const SOURCE_BOUNDS = { x: 48, y: 180, width: 120, height: 55 };
 const TARGET_BOUNDS = { x: 204, y: 276, width: 120, height: 55 };
@@ -70,5 +72,114 @@ describe('bendpoints', () => {
       TARGET_BOUNDS,
     );
     expect(resolution?.mismatch).toBeUndefined();
+  });
+
+  it('resolves bendpoints against absolute bounds for nested endpoints', () => {
+    const parent = makeDiagramObject({
+      id: 'parent',
+      viewId: 'view',
+      archimateElementId: 'parent-element',
+      bounds: makeBounds(100, 200, 400, 300),
+      childrenIds: ['nested-target'],
+    });
+    const source = makeDiagramObject({
+      id: 'source-object',
+      viewId: 'view',
+      archimateElementId: 'source-element',
+      bounds: makeBounds(400, 100, 120, 55),
+    });
+    const nestedTarget = makeDiagramObject({
+      id: 'nested-target',
+      viewId: 'view',
+      parentId: parent.id,
+      archimateElementId: 'target-element',
+      bounds: makeBounds(50, 60, 120, 55),
+    });
+    const relationship = makeRelationship({
+      id: 'relationship',
+      type: 'AssignmentRelationship',
+      sourceId: 'source-element',
+      targetId: 'target-element',
+    });
+    const connection = makeDiagramConnection({
+      id: 'connection',
+      viewId: 'view',
+      sourceId: source.id,
+      targetId: nestedTarget.id,
+      archimateRelationshipId: relationship.id,
+      bendpoints: [makeBendpoint({ startX: -160, startY: 73, endX: 90, endY: -87 })],
+    });
+    const model = makeModel({
+      elements: [
+        makeElement({ id: 'parent-element', type: 'BusinessActor' }),
+        makeElement({ id: 'source-element', type: 'BusinessActor' }),
+        makeElement({ id: 'target-element', type: 'BusinessProcess' }),
+      ],
+      relationships: [relationship],
+      views: [makeView({ id: 'view', diagramObjectIds: [parent.id, source.id], diagramConnectionIds: [connection.id] })],
+      diagramObjects: [parent, source, nestedTarget],
+      diagramConnections: [connection],
+    });
+
+    expect(inspectXmaSupport(model).some((d) => d.code === 'bendpoint-endpoint-mismatch')).toBe(false);
+    expect(serializeXma(model)).toContain('mm_x="900" mm_y="600"');
+  });
+
+  it('preserves locally agreed offsets for nested endpoints with different parents', () => {
+    const sourceParent = makeDiagramObject({
+      id: 'source-parent',
+      viewId: 'view',
+      xsiType: 'archimate:Group',
+      bounds: makeBounds(100, 100, 300, 200),
+      childrenIds: ['nested-source'],
+    });
+    const targetParent = makeDiagramObject({
+      id: 'target-parent',
+      viewId: 'view',
+      xsiType: 'archimate:Group',
+      bounds: makeBounds(500, 100, 300, 200),
+      childrenIds: ['nested-target'],
+    });
+    const source = makeDiagramObject({
+      id: 'nested-source',
+      viewId: 'view',
+      parentId: sourceParent.id,
+      archimateElementId: 'source-element',
+      bounds: makeBounds(50, 50, 120, 55),
+    });
+    const target = makeDiagramObject({
+      id: 'nested-target',
+      viewId: 'view',
+      parentId: targetParent.id,
+      archimateElementId: 'target-element',
+      bounds: makeBounds(50, 50, 120, 55),
+    });
+    const relationship = makeRelationship({
+      id: 'relationship',
+      type: 'AssignmentRelationship',
+      sourceId: 'source-element',
+      targetId: 'target-element',
+    });
+    const connection = makeDiagramConnection({
+      id: 'connection',
+      viewId: 'view',
+      sourceId: source.id,
+      targetId: target.id,
+      archimateRelationshipId: relationship.id,
+      bendpoints: [makeBendpoint({ startX: 90, startY: 23, endX: 90, endY: 23 })],
+    });
+    const model = makeModel({
+      elements: [
+        makeElement({ id: 'source-element', type: 'BusinessActor' }),
+        makeElement({ id: 'target-element', type: 'BusinessProcess' }),
+      ],
+      relationships: [relationship],
+      views: [makeView({ id: 'view', diagramObjectIds: [sourceParent.id, targetParent.id], diagramConnectionIds: [connection.id] })],
+      diagramObjects: [sourceParent, targetParent, source, target],
+      diagramConnections: [connection],
+    });
+
+    expect(inspectXmaSupport(model).some((d) => d.code === 'bendpoint-endpoint-mismatch')).toBe(false);
+    expect(serializeXma(model)).toContain('mm_x="900" mm_y="600"');
   });
 });

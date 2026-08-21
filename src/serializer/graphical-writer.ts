@@ -49,6 +49,35 @@ function resolveDrawableBounds(
   return toRect(bounds);
 }
 
+/**
+ * Bendpoint offsets use the view's coordinate space. Nested Archi objects
+ * store bounds relative to their visual parent, so accumulate parent offsets
+ * for connection-point resolution while leaving emitted node bounds local.
+ */
+function resolveAbsoluteDrawableBounds(
+  object: ArchiDiagramObject,
+  objectsById: ReadonlyMap<string, ArchiDiagramObject>,
+  diagnostics: DiagnosticCollector,
+): Rect | null {
+  const rect = resolveDrawableBounds(object.bounds, diagnostics, object.id, 'ArchiDiagramObject');
+  if (!rect) return null;
+
+  let absolute = rect;
+  let parentId = object.parentId;
+  const visited = new Set<string>([object.id]);
+  while (parentId !== null) {
+    if (visited.has(parentId)) return absolute;
+    visited.add(parentId);
+    const parent = objectsById.get(parentId);
+    if (!parent) return absolute;
+    const parentRect = resolveDrawableBounds(parent.bounds, diagnostics, parent.id, 'ArchiDiagramObject');
+    if (!parentRect) return null;
+    absolute = { ...absolute, x: absolute.x + parentRect.x, y: absolute.y + parentRect.y };
+    parentId = parent.parentId;
+  }
+  return absolute;
+}
+
 function colorElement(name: string | null, rgb: Rgb | null, id: number): XmlElement {
   const attrs: Array<[string, string]> = [['id', String(id)]];
   if (name !== null) {
@@ -616,11 +645,15 @@ export function buildGraphicalModule(
 
     const points: XmlElement[] = [];
     if (connection.bendpoints.length > 0 && sourceObj && targetObj && hasCompleteBounds(sourceObj.bounds) && hasCompleteBounds(targetObj.bounds)) {
-      const sourceRect = toRect(sourceObj.bounds);
-      const targetRect = toRect(targetObj.bounds);
+      const sourceRect = resolveAbsoluteDrawableBounds(sourceObj, diagramObjectById, diagnostics);
+      const targetRect = resolveAbsoluteDrawableBounds(targetObj, diagramObjectById, diagnostics);
+      if (!sourceRect || !targetRect) continue;
+      const sourceLocalRect = toRect(sourceObj.bounds);
+      const targetLocalRect = toRect(targetObj.bounds);
       for (const bp of connection.bendpoints) {
-        const resolution = resolveBendpoint(bp, sourceRect, targetRect);
-        if (!resolution) {
+        const localResolution = resolveBendpoint(bp, sourceLocalRect, targetLocalRect);
+        const absoluteResolution = resolveBendpoint(bp, sourceRect, targetRect);
+        if (!localResolution || !absoluteResolution) {
           diagnostics.error({
             code: 'unresolvable-bendpoint',
             message: `Connection "${connection.id}" has a bendpoint with neither source- nor target-relative offsets set.`,
@@ -629,7 +662,10 @@ export function buildGraphicalModule(
           });
           continue;
         }
-        if (resolution.mismatch) {
+        // Locally agreed offsets are valid in the normalized Archi export;
+        // absolute coordinates are still used for the emitted XMA point.
+        const resolution = absoluteResolution;
+        if (localResolution.mismatch && absoluteResolution.mismatch) {
           // Not a data-loss case: resolution.point (the source-relative form,
           // used below regardless) is a perfectly usable point — this is a
           // small precision disagreement in Archi's own stored offsets, not a
@@ -637,7 +673,7 @@ export function buildGraphicalModule(
           // that discards the whole document.
           diagnostics.warning({
             code: 'bendpoint-endpoint-mismatch',
-            message: `Connection "${connection.id}" has a bendpoint whose source-relative and target-relative offsets disagree materially (source: ${resolution.mismatch.fromSource.x},${resolution.mismatch.fromSource.y}; target: ${resolution.mismatch.fromTarget.x},${resolution.mismatch.fromTarget.y}); used the source-relative point.`,
+            message: `Connection "${connection.id}" has a bendpoint whose source-relative and target-relative offsets disagree materially after absolute endpoint resolution (source: ${absoluteResolution.mismatch!.fromSource.x},${absoluteResolution.mismatch!.fromSource.y}; target: ${absoluteResolution.mismatch!.fromTarget.x},${absoluteResolution.mismatch!.fromTarget.y}); used the source-relative point.`,
             entityId: connection.id,
             entityType: 'ArchiDiagramConnection',
           });
