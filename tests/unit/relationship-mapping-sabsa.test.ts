@@ -103,6 +103,6 @@ describe('relationship-mapping (sabsa-derived entries)', () => {
       const resolved = lookupRelationshipMapping(entry.archiRelationshipType, entry.sourceArchiType, entry.targetArchiType);
       expect(resolved).toBe(entry);
     }
-    expect(RELATIONSHIP_MAPPINGS.length).toBe(143);
+    expect(RELATIONSHIP_MAPPINGS.length).toBe(147);
   });
 });
