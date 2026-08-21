@@ -53,7 +53,7 @@ describe('relationship-mapping', () => {
     // Same relationship type, unconfirmed source/target combination -> unsupported.
     expect(lookupRelationshipMapping('AssignmentRelationship', 'BusinessRole', 'BusinessRole')).toBeUndefined();
     expect(lookupRelationshipMapping('ServingRelationship', 'ApplicationComponent', 'BusinessProcess')).toBeUndefined();
-    expect(lookupRelationshipMapping('FlowRelationship', 'ApplicationProcess', 'ApplicationProcess')).toBeUndefined();
+    expect(lookupRelationshipMapping('FlowRelationship', 'ApplicationProcess', 'ApplicationComponent')).toBeUndefined();
   });
 
   it('returns undefined for entirely unconfirmed relationship types', () => {

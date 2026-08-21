@@ -89,6 +89,27 @@ describe('integration: sabsa fixture', () => {
     expect(unsupportedRelationshipIds.has(junctionRel!.id)).toBe(false);
   });
 
+  it('supports the six additional SABSA relationship triples confirmed by XMA tags', () => {
+    const elementById = new Map(model.elements.map((e) => [e.id, e]));
+    const confirmed = new Set([
+      'CompositionRelationship|SystemSoftware|SystemSoftware',
+      'RealizationRelationship|SystemSoftware|TechnologyService',
+      'RealizationRelationship|ApplicationService|Requirement',
+      'RealizationRelationship|ApplicationService|Constraint',
+      'SpecializationRelationship|Requirement|Requirement',
+      'SpecializationRelationship|Constraint|Requirement',
+    ]);
+    let checked = 0;
+    for (const rel of model.relationships) {
+      const source = elementById.get(rel.sourceId);
+      const target = elementById.get(rel.targetId);
+      if (!source || !target || !confirmed.has(`${rel.type}|${source.type}|${target.type}`)) continue;
+      checked += 1;
+      expect(unsupportedRelationshipIds.has(rel.id)).toBe(false);
+    }
+    expect(checked).toBe(10);
+  });
+
   it('no longer reports the model as having an unsupported element type for Junction', () => {
     expect(diagnostics.some((d) => d.code === 'unsupported-element-type')).toBe(false);
   });
@@ -108,7 +129,7 @@ describe('integration: sabsa fixture', () => {
 
   it('now reports a nested Note as supported, drawn inside its parent like a nested diagram object', () => {
     // Corrected: previously diagnosed as unsupported ("only one instance,
-    // not enough to confirm"). Confirmed against a private, non-public
+    // not enough to confirm"). Confirmed against an independent reference
     // model instead: 90 nested-Note instances across two views, an exact
     // 1:1 count match against the real XMA's nested ViewGraphic nodes
     // (unambiguous — neither view has any Group, which shares the same

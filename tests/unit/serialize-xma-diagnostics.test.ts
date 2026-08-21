@@ -182,14 +182,20 @@ describe('strict-by-default diagnostics', () => {
     expect(diagnostics.some((d) => d.code === 'unsupported-connection-no-relationship')).toBe(true);
   });
 
-  it('warns (does not error) on unrepresented element properties/profiles', () => {
-    const actor = makeElement({ id: 'a', type: 'BusinessActor', properties: [{ key: 'k', value: 'v' }] });
+  it('serializes element properties as string profile values', () => {
+    const actor = makeElement({
+      id: 'a',
+      type: 'BusinessActor',
+      properties: [
+        { key: 'k', value: 'v' },
+        { key: 'a&b', value: '<v>&' },
+      ],
+    });
     const model = makeModel({ elements: [actor] });
     const diagnostics = inspectXmaSupport(model);
-    const propDiag = diagnostics.find((d) => d.code === 'unsupported-properties');
-    expect(propDiag?.severity).toBe('warning');
-    // A warning alone must not block serialization.
-    expect(() => serializeXma(model)).not.toThrow();
+    expect(diagnostics.some((d) => d.code === 'unsupported-properties')).toBe(false);
+    expect(serializeXma(model)).toContain('<MM_Value name="k" type="string">v</MM_Value>');
+    expect(serializeXma(model)).toContain('<MM_Value name="a&amp;b" type="string">&lt;v&gt;&amp;</MM_Value>');
   });
 
   it('diagnoses a cyclic diagram-object parent/child chain instead of recursing forever', () => {

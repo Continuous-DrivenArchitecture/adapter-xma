@@ -1,5 +1,5 @@
 import type { ArchiModel, ArchiElement, ArchiRelationship, ArchiAccessType } from '@cda/archi-semantic-core';
-import { element, textElement } from '../infrastructure/xml-writer.js';
+import { element } from '../infrastructure/xml-writer.js';
 import type { XmlElement } from '../infrastructure/xml-writer.js';
 import type { XmaIdRegistry } from '../infrastructure/id-allocator.js';
 import { assertDefined } from '../infrastructure/assert.js';
@@ -8,6 +8,7 @@ import { lookupRelationshipMapping } from '../mapping/relationship-mapping.js';
 import { lookupGenericRelationshipMapping } from '../mapping/generic-relationship-mapping.js';
 import type { ElementMappingEntry } from '../mapping/element-mapping.js';
 import type { SchemeBuild } from './semantic-writer.js';
+import { buildRelationshipProfileValues } from './profile-values.js';
 
 /** What downstream (view-writer, graphical-writer) actually needs from a resolved relationship mapping. */
 export interface ResolvedRelationshipMapping {
@@ -19,8 +20,8 @@ export interface ResolvedRelationshipMapping {
  * child on the relation element — confirmed against the sabsa fixture
  * (`accessType="1"` -> `'Read'` -> `r`, `accessType="3"` -> `'ReadWrite'` ->
  * `rw`) and cross-checked exhaustively (all 4 codes, ~180 instances, zero
- * unexplained values on either side) against a private, non-public source
- * model for the remaining two: the default (`'Write'`) -> `w`, and
+ * unexplained values on either side) against an independent reference source
+ * for the remaining two: the default (`'Write'`) -> `w`, and
  * `accessType="2"` -> `'Unspecified'` -> `n`. Every `AccessRelationship`
  * instance in every available fixture carries this child — it was
  * previously omitted entirely, including for the already-confirmed
@@ -127,14 +128,6 @@ export function buildSemanticRelationships(
       continue;
     }
 
-    if (rel.properties.length > 0) {
-      diagnostics.warning({
-        code: 'unsupported-properties',
-        message: `Relationship "${rel.name ?? rel.id}" has ${rel.properties.length} propert${rel.properties.length === 1 ? 'y' : 'ies'} not represented in XMA v0.1.`,
-        entityId: rel.id,
-        entityType: 'ArchiRelationship',
-      });
-    }
     if (rel.profiles.length > 0) {
       diagnostics.warning({
         code: 'unsupported-profile',
@@ -147,6 +140,10 @@ export function buildSemanticRelationships(
     mappedRelationships.set(rel.id, mapping);
 
     const xmaId = ids.idFor(rel.id);
+    const relationProfileValues = buildRelationshipProfileValues(
+      rel.properties,
+      rel.accessType ? ACCESS_TYPE_XMA_CODE[rel.accessType] : undefined,
+    );
     const relationXml = element(
       `ArchiMate:${mapping.xmaType}`,
       [
@@ -154,16 +151,7 @@ export function buildSemanticRelationships(
         ['from', String(ids.idFor(sourceEl.id))],
         ['to', String(ids.idFor(targetEl.id))],
       ],
-      rel.accessType
-        ? [
-            element('MM_ProfileValues', undefined, [
-              textElement('MM_Value', ACCESS_TYPE_XMA_CODE[rel.accessType], [
-                ['name', 'accessType'],
-                ['type', 'AccessRelationType'],
-              ]),
-            ]),
-          ]
-        : undefined,
+      relationProfileValues ? [relationProfileValues] : undefined,
     );
 
     const schemeTag = exactMapping

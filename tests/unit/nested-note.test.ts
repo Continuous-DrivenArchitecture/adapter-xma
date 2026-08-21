@@ -5,7 +5,7 @@ import { makeModel, makeElement, makeView, makeDiagramObject, makeNote, makeBoun
 /**
  * A nested Note (note.parentId !== null). Corrected: previously diagnosed
  * as unsupported ("only one instance across all four fixtures, not enough
- * to confirm"). Confirmed against a private, non-public model instead: 90
+ * to confirm"). Confirmed against an independent reference model instead: 90
  * nested-Note instances across two views, an exact 1:1 count match against
  * the real XMA's nested ViewGraphic nodes (unambiguous — neither source
  * view has any Group, which shares the same ViewGraphic concept, so every

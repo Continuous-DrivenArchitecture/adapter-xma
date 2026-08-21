@@ -117,7 +117,7 @@ extrapolated beyond that evidence.
   relative to the parent in Archi, no offset math). Groups and Notes nest
   children/nest themselves the same way — a nested Note's `MM_Node` is
   structurally identical to a top-level one, just relocated in the tree
-  (confirmed against a private, non-public model: 90 nested-Note instances,
+  (confirmed against an independent reference model: 90 nested-Note instances,
   an exact 1:1 count match against the real XMA's nested nodes). Confirmed
   against 283-nested-object and 15-nested-object real-world fixtures for
   diagram objects/Groups. A relationship between a nested object and its

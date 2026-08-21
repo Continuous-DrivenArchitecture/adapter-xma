@@ -7,7 +7,7 @@ import { lookupGenericRelationshipMapping } from '../../src/mapping/generic-rela
  * (Grouping + regular element) confirmed-verb set to the
  * both-endpoints-Grouping case too, producing `GroupingGroupingComposition`
  * — a tag with zero fixture evidence. Enterprise Studio rejected a real
- * private model outright on import for it ("could not generate the object:
+ * reference model outright on import for it ("could not generate the object:
  * unknown type"), reported against a real generated file.
  *
  * All six verbs are now independently confirmed for the

@@ -31,7 +31,7 @@ const VERB_BY_ARCHI_TYPE: Readonly<Record<string, string>> = {
  * `RealizationRelationship` (`RealisationRelation`, sabsa + agile-manifesto),
  * `InfluenceRelationship` (`InfluenceRelation`, agile-manifesto), and
  * `ServingRelationship` (`UseRelation` — a single confirmed instance from a
- * private, non-public model; cross-referenced by element name between the
+ * independent reference export; cross-referenced by element name between the
  * source `.archimate` and its BizzDesign-generated `.xma` re-export, same
  * method as every other entry here, just not backed by a fixture pair in
  * this repo). Not extended to other verbs without evidence for that
@@ -47,12 +47,13 @@ const JUNCTION_CONFIRMED_VERBS = new Set(['Realisation', 'Influence', 'Use']);
  * `InfluenceRelationship`, `ServingRelationship` (sabsa + agile-manifesto),
  * `RealizationRelationship` (`ElementGroupingRealisation` — two independent
  * confirmed instances), and `AccessRelationship` (`ElementGroupingAccess` —
- * one confirmed instance). The last two came from a private, non-public
+ * one confirmed instance), and `TriggeringRelationship` (`ElementGroupingTriggering` —
+ * repeated in an independent reference export). The last three came from an independent
  * model; same cross-reference method as every other entry here, just not
  * backed by a fixture pair in this repo. Same "no evidence, no guess" rule
  * as Junction above.
  */
-const GROUPING_ELEMENT_CONFIRMED_VERBS = new Set(['Composition', 'Specialization', 'Influence', 'Use', 'Realisation', 'Access']);
+const GROUPING_ELEMENT_CONFIRMED_VERBS = new Set(['Composition', 'Specialization', 'Influence', 'Use', 'Realisation', 'Access', 'Triggering']);
 
 /**
  * Verbs confirmed for the *both-endpoints-Grouping* case specifically —
@@ -70,7 +71,7 @@ const GROUPING_GROUPING_CONFIRMED_VERBS = new Set(['Use', 'Influence', 'Speciali
 /**
  * `CompositionRelationship` is the one exception: even with both endpoints
  * `Grouping`, it does NOT produce `GroupingGroupingComposition` — a real
- * round-trip against a private model proved that tag doesn't exist
+ * round-trip against an independent reference model proved that tag doesn't exist
  * (Enterprise Studio rejected the whole document, "could not generate the
  * object: unknown type"). A second, dedicated, isolated round-trip (two
  * `CompositeGrouping` elements connected by `Composition`, cross-checked in

@@ -104,14 +104,6 @@ function reportUnsupportedElement(element: ArchiElement, diagnostics: Diagnostic
 }
 
 function reportAncillaryLossWarnings(el: ArchiElement, diagnostics: DiagnosticCollector): void {
-  if (el.properties.length > 0) {
-    diagnostics.warning({
-      code: 'unsupported-properties',
-      message: `Element "${el.name ?? el.id}" has ${el.properties.length} propert${el.properties.length === 1 ? 'y' : 'ies'} not represented in XMA v0.1.`,
-      entityId: el.id,
-      entityType: 'ArchiElement',
-    });
-  }
   if (el.profiles.length > 0) {
     diagnostics.warning({
       code: 'unsupported-profile',
@@ -172,7 +164,7 @@ export function buildSemanticElements(
     const concept = element(
       `ArchiMate:${mapping.xmaType}`,
       [['id', String(xmaId)]],
-      [buildProfileValues(language, el.name ?? '', el.documentation)],
+      [buildProfileValues(language, el.name ?? '', el.documentation, el.properties)],
     );
     collection.children.push(concept);
   }

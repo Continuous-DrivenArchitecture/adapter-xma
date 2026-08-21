@@ -204,7 +204,7 @@ values against the source `.archimate`'s parent/child bounds × 3):
   `sabsa.xma`) — the same recursive structure, not a special case.
 - **A nested `ArchiNote` nests the same way too** — corrected finding: this
   was originally left unsupported ("only one instance across all four
-  fixtures, not enough to confirm"). Re-derived from a private, non-public
+  fixtures, not enough to confirm"). Re-derived from an independent reference
   model: 90 nested-Note instances across two views, an exact 1:1 count
   match against the real XMA's nested `ViewGraphic` nodes — unambiguous,
   since neither source view has any Group (which shares the `ViewGraphic`

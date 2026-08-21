@@ -56,6 +56,36 @@ describe('relationship-mapping (sabsa-derived entries)', () => {
     });
   });
 
+  it('maps SABSA-confirmed SystemSoftware endpoint collapses', () => {
+    expect(lookupRelationshipMapping('CompositionRelationship', 'SystemSoftware', 'SystemSoftware')).toMatchObject({
+      xmaType: 'TechnologyNodeTechnologyNodeComposition',
+      scheme: 'TechnologyScheme',
+    });
+    expect(lookupRelationshipMapping('RealizationRelationship', 'SystemSoftware', 'TechnologyService')).toMatchObject({
+      xmaType: 'TechnologyNodeTechnologyServiceRealisation',
+      scheme: 'TechnologyScheme',
+    });
+  });
+
+  it('maps SABSA-confirmed Motivation endpoint collapses', () => {
+    expect(lookupRelationshipMapping('RealizationRelationship', 'ApplicationService', 'Requirement')).toMatchObject({
+      xmaType: 'ApplicationServiceMotivationRequirementRealisation',
+      scheme: 'ApplicationScheme',
+    });
+    expect(lookupRelationshipMapping('RealizationRelationship', 'ApplicationService', 'Constraint')).toMatchObject({
+      xmaType: 'ApplicationServiceMotivationRequirementRealisation',
+      scheme: 'ApplicationScheme',
+    });
+    expect(lookupRelationshipMapping('SpecializationRelationship', 'Requirement', 'Requirement')).toMatchObject({
+      xmaType: 'MotivationRequirementMotivationRequirementSpecialization',
+      scheme: 'MotivationScheme',
+    });
+    expect(lookupRelationshipMapping('SpecializationRelationship', 'Constraint', 'Requirement')).toMatchObject({
+      xmaType: 'MotivationRequirementMotivationRequirementSpecialization',
+      scheme: 'MotivationScheme',
+    });
+  });
+
   it('uses the British "Realisation" spelling, not "Realization", for every RealizationRelationship mapping', () => {
     const realizations = RELATIONSHIP_MAPPINGS.filter((m) => m.archiRelationshipType === 'RealizationRelationship');
     expect(realizations.length).toBeGreaterThan(0);
@@ -73,6 +103,6 @@ describe('relationship-mapping (sabsa-derived entries)', () => {
       const resolved = lookupRelationshipMapping(entry.archiRelationshipType, entry.sourceArchiType, entry.targetArchiType);
       expect(resolved).toBe(entry);
     }
-    expect(RELATIONSHIP_MAPPINGS.length).toBe(115);
+    expect(RELATIONSHIP_MAPPINGS.length).toBe(141);
   });
 });

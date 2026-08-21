@@ -10,7 +10,7 @@ import { makeModel, makeElement, makeRelationship } from '../helpers/model-build
  * AccessRelationship instances (BusinessProcess -> BusinessObject,
  * accessType="1"/"3" -> "r"/"rw"); the default ("w", no native attribute)
  * and accessType="2" -> "n" were cross-checked exhaustively (all 4 codes,
- * zero unexplained values on either side) against a private, non-public
+ * zero unexplained values on either side) against an independent reference
  * model — see relationship-writer.ts's ACCESS_TYPE_XMA_CODE.
  */
 describe('AccessRelationship accessType child', () => {
@@ -52,5 +52,25 @@ describe('AccessRelationship accessType child', () => {
     const rel = makeRelationship({ id: 'rel', type: 'AssignmentRelationship', sourceId: 'a', targetId: 'p' });
     const xma = serializeXma(makeModel({ elements: [actor, process], relationships: [rel] }));
     expect(xma).not.toContain('accessType');
+  });
+
+  it('serializes relationship properties alongside accessType values', () => {
+    const xma = serializeXma(
+      makeModel({
+        elements: [makeElement({ id: 'p', type: 'BusinessProcess' }), makeElement({ id: 'o', type: 'BusinessObject' })],
+        relationships: [
+          makeRelationship({
+            id: 'rel',
+            type: 'AccessRelationship',
+            sourceId: 'p',
+            targetId: 'o',
+            accessType: 'Read',
+            properties: [{ key: 'classification', value: 'confidential' }],
+          }),
+        ],
+      }),
+    );
+    expect(xma).toContain('<MM_Value name="accessType" type="AccessRelationType">r</MM_Value>');
+    expect(xma).toContain('<MM_Value name="classification" type="string">confidential</MM_Value>');
   });
 });

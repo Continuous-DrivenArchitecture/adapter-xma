@@ -194,7 +194,7 @@ export function buildView(
       continue;
     }
     // A nested Note (note.parentId !== null) is valid here — confirmed
-    // against a private, non-public model: 90 nested-Note instances across
+    // against an independent reference model: 90 nested-Note instances across
     // two views, an exact 1:1 count match against the real XMA's nested
     // ViewGraphic nodes (unambiguous: neither view has any Group, which
     // shares the same ViewGraphic concept, so every nested ViewGraphic node

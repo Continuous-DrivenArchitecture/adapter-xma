@@ -2,13 +2,13 @@
  * Archi relationship mapping, resolved by (relationship type, source
  * semantic type, target semantic type) — never by relationship type alone.
  *
- * 115 exact-triple mappings are proven: the original 3 confirmed against
+ * 121 exact-triple mappings are proven: the original 3 confirmed against
  * `tests/fixtures/relationships/relaciones.{archimate,xma}`, 64 more
  * confirmed against `tests/fixtures/sabsa/sabsa.{archimate,xma}`, 20 more
  * confirmed against `tests/fixtures/agile-manifesto/agile-manifesto.{archimate,xma}`,
  * 3 confirmed "...Collaboration collapses to its singular active-structure
- * counterpart" instances (see below), 23 more confirmed from a private,
- * non-public model, and 2 more confirmed from single dedicated Serving
+ * counterpart" instances (see below), 23 more confirmed from an independent
+ * reference export, and 2 more confirmed from single dedicated Serving
  * round-trips (ApplicationComponent/ApplicationInterface and
  * ApplicationFunction/ApplicationComponent — see the comments on those
  * blocks, near the end of this file, for the evidence method) — see each
@@ -705,8 +705,8 @@ export const RELATIONSHIP_MAPPINGS: readonly RelationshipMappingEntry[] = [
     scheme: 'TechnologyScheme',
   },
 
-  // 21 more confirmed from a private, non-public source model. Not backed by
-  // a fixture pair in this repo — the source model isn't shareable — but
+  // 21 more confirmed from an independent reference export. Not backed by
+  // a fixture pair in this repo, but
   // derived by the same method as every other entry: cross-referencing the
   // original `.archimate` against a real `.xma` export, by element name,
   // skipping anything ambiguous or unmatched rather than guessing. The one
@@ -865,7 +865,7 @@ export const RELATIONSHIP_MAPPINGS: readonly RelationshipMappingEntry[] = [
     scheme: 'ApplicationScheme',
   },
 
-  // 2 more from the same private, non-public source model as above —
+  // 2 more from the same independent reference export as above —
   // found while investigating why AccessRelationship instances weren't
   // resolving even after the batch above: turned out to be a second,
   // independent gap (the missing accessType child — see
@@ -902,7 +902,7 @@ export const RELATIONSHIP_MAPPINGS: readonly RelationshipMappingEntry[] = [
   },
 
   // Same dedicated-round-trip evidence method as the entry above, added to
-  // the same test file: found while re-checking the private SBB fixtures
+  // the same test file: found while re-checking the independent SBB fixtures
   // against the newly-added entry above — this was the one remaining
   // unconfirmed relationship triple across both.
   {
@@ -910,6 +910,196 @@ export const RELATIONSHIP_MAPPINGS: readonly RelationshipMappingEntry[] = [
     sourceArchiType: 'ApplicationFunction',
     targetArchiType: 'ApplicationComponent',
     xmaType: 'ApplicationFunctionApplicationComponentUse',
+    scheme: 'ApplicationScheme',
+  },
+
+  // Additional exact triples confirmed by sabsa.archimate -> sabsa.xma
+  // semantic id tracing. These entries capture XMA's established metamodel
+  // collapses rather than inferring new generic relationship rules.
+  {
+    archiRelationshipType: 'CompositionRelationship',
+    sourceArchiType: 'SystemSoftware',
+    targetArchiType: 'SystemSoftware',
+    xmaType: 'TechnologyNodeTechnologyNodeComposition',
+    scheme: 'TechnologyScheme',
+  },
+  {
+    archiRelationshipType: 'RealizationRelationship',
+    sourceArchiType: 'SystemSoftware',
+    targetArchiType: 'TechnologyService',
+    xmaType: 'TechnologyNodeTechnologyServiceRealisation',
+    scheme: 'TechnologyScheme',
+  },
+  {
+    archiRelationshipType: 'RealizationRelationship',
+    sourceArchiType: 'ApplicationService',
+    targetArchiType: 'Requirement',
+    xmaType: 'ApplicationServiceMotivationRequirementRealisation',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'RealizationRelationship',
+    sourceArchiType: 'ApplicationService',
+    targetArchiType: 'Constraint',
+    xmaType: 'ApplicationServiceMotivationRequirementRealisation',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'SpecializationRelationship',
+    sourceArchiType: 'Requirement',
+    targetArchiType: 'Requirement',
+    xmaType: 'MotivationRequirementMotivationRequirementSpecialization',
+    scheme: 'MotivationScheme',
+  },
+  {
+    archiRelationshipType: 'SpecializationRelationship',
+    sourceArchiType: 'Constraint',
+    targetArchiType: 'Requirement',
+    xmaType: 'MotivationRequirementMotivationRequirementSpecialization',
+    scheme: 'MotivationScheme',
+  },
+
+  // Additional exact triples confirmed by an independent Bizzdesign XMA reference export.
+  // The source model is not copied; only its repeated XMA metamodel forms are
+  // represented here as public, type-specific mappings.
+  {
+    archiRelationshipType: 'AggregationRelationship',
+    sourceArchiType: 'ApplicationComponent',
+    targetArchiType: 'ApplicationComponent',
+    xmaType: 'ApplicationComponentApplicationComponentAggregation',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'AggregationRelationship',
+    sourceArchiType: 'DataObject',
+    targetArchiType: 'DataObject',
+    xmaType: 'ApplicationDataObjectApplicationDataObjectAggregation',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'AggregationRelationship',
+    sourceArchiType: 'Node',
+    targetArchiType: 'Node',
+    xmaType: 'TechnologyNodeTechnologyNodeAggregation',
+    scheme: 'TechnologyScheme',
+  },
+  {
+    archiRelationshipType: 'AssignmentRelationship',
+    sourceArchiType: 'ApplicationComponent',
+    targetArchiType: 'ApplicationProcess',
+    xmaType: 'ApplicationComponentApplicationProcessAssignment',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'AssignmentRelationship',
+    sourceArchiType: 'Node',
+    targetArchiType: 'Node',
+    xmaType: 'TechnologyNodeTechnologyNodeAssignment',
+    scheme: 'TechnologyScheme',
+  },
+  {
+    archiRelationshipType: 'AccessRelationship',
+    sourceArchiType: 'ApplicationProcess',
+    targetArchiType: 'DataObject',
+    xmaType: 'ApplicationProcessApplicationDataObjectAccess',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'AccessRelationship',
+    sourceArchiType: 'Node',
+    targetArchiType: 'Artifact',
+    xmaType: 'TechnologyNodeTechnologyArtifactAccess',
+    scheme: 'TechnologyScheme',
+  },
+  {
+    archiRelationshipType: 'CompositionRelationship',
+    sourceArchiType: 'BusinessInteraction',
+    targetArchiType: 'BusinessProcess',
+    xmaType: 'BusinessInteractionBusinessProcessComposition',
+    scheme: 'BusinessScheme',
+  },
+  {
+    archiRelationshipType: 'CompositionRelationship',
+    sourceArchiType: 'Location',
+    targetArchiType: 'ApplicationComponent',
+    xmaType: 'CompositeLocationApplicationComponentComposition',
+    scheme: 'CompositeScheme',
+  },
+  {
+    archiRelationshipType: 'CompositionRelationship',
+    sourceArchiType: 'Location',
+    targetArchiType: 'ApplicationInterface',
+    xmaType: 'CompositeLocationApplicationInterfaceComposition',
+    scheme: 'CompositeScheme',
+  },
+  {
+    archiRelationshipType: 'CompositionRelationship',
+    sourceArchiType: 'Location',
+    targetArchiType: 'DataObject',
+    xmaType: 'CompositeLocationApplicationDataObjectComposition',
+    scheme: 'CompositeScheme',
+  },
+  {
+    archiRelationshipType: 'CompositionRelationship',
+    sourceArchiType: 'Location',
+    targetArchiType: 'Grouping',
+    xmaType: 'CompositeLocationGroupingComposition',
+    scheme: 'CompositeScheme',
+  },
+  {
+    archiRelationshipType: 'FlowRelationship',
+    sourceArchiType: 'ApplicationProcess',
+    targetArchiType: 'ApplicationProcess',
+    xmaType: 'ApplicationProcessApplicationProcessFlow',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'RealizationRelationship',
+    sourceArchiType: 'BusinessProcess',
+    targetArchiType: 'ValueStream',
+    xmaType: 'BusinessProcessStrategyValueStreamRealisation',
+    scheme: 'BusinessScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationInterface',
+    targetArchiType: 'ApplicationProcess',
+    xmaType: 'ApplicationInterfaceApplicationProcessUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationInterface',
+    targetArchiType: 'BusinessProcess',
+    xmaType: 'ApplicationInterfaceBusinessProcessUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'TechnologyService',
+    targetArchiType: 'Location',
+    xmaType: 'TechnologyServiceCompositeLocationUse',
+    scheme: 'TechnologyScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationService',
+    targetArchiType: 'ApplicationFunction',
+    xmaType: 'ApplicationServiceApplicationFunctionUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'TriggeringRelationship',
+    sourceArchiType: 'ApplicationComponent',
+    targetArchiType: 'ApplicationProcess',
+    xmaType: 'ApplicationComponentApplicationProcessTriggering',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'TriggeringRelationship',
+    sourceArchiType: 'ApplicationProcess',
+    targetArchiType: 'ApplicationComponent',
+    xmaType: 'ApplicationProcessApplicationComponentTriggering',
     scheme: 'ApplicationScheme',
   },
 ];
