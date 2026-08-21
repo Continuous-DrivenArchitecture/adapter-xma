@@ -1,3 +1,9 @@
+## [0.10.0](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.9.0...v0.10.0) (2026-08-21)
+
+### Features
+
+* add verified XMA flow mappings ([7ac0a0f](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/7ac0a0f11ce22390e00774252694d4095e613337))
+
 ## [0.9.0](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.8.2...v0.9.0) (2026-08-21)
 
 ### Features
