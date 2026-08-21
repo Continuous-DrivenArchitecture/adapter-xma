@@ -124,7 +124,7 @@ extrapolated beyond that evidence.
   own visual parent gets no graphical connector line (nesting alone conveys
   it) but is still fully present semantically. See
   `tests/fixtures/README.md`.
-- **115 confirmed exact-triple semantic relationship mappings** (up from 3),
+- **143 confirmed exact-triple semantic relationship mappings** (up from 3),
   spanning all eight schemes, plus **3 confirmed generic (type-independent)
   forms** — `AssociationRelationship`, a `Grouping` endpoint (Composition,
   Specialization, Influence, Use), and a `Junction`/`OrJunction` endpoint

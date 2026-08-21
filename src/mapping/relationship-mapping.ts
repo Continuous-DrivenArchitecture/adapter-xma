@@ -932,6 +932,13 @@ export const RELATIONSHIP_MAPPINGS: readonly RelationshipMappingEntry[] = [
   },
   {
     archiRelationshipType: 'RealizationRelationship',
+    sourceArchiType: 'Node',
+    targetArchiType: 'TechnologyService',
+    xmaType: 'TechnologyNodeTechnologyServiceRealisation',
+    scheme: 'TechnologyScheme',
+  },
+  {
+    archiRelationshipType: 'RealizationRelationship',
     sourceArchiType: 'ApplicationService',
     targetArchiType: 'Requirement',
     xmaType: 'ApplicationServiceMotivationRequirementRealisation',
@@ -995,6 +1002,13 @@ export const RELATIONSHIP_MAPPINGS: readonly RelationshipMappingEntry[] = [
     sourceArchiType: 'Node',
     targetArchiType: 'Node',
     xmaType: 'TechnologyNodeTechnologyNodeAssignment',
+    scheme: 'TechnologyScheme',
+  },
+  {
+    archiRelationshipType: 'AssignmentRelationship',
+    sourceArchiType: 'Node',
+    targetArchiType: 'TechnologyService',
+    xmaType: 'TechnologyNodeTechnologyServiceAssignment',
     scheme: 'TechnologyScheme',
   },
   {
