@@ -1,3 +1,14 @@
+## [0.9.0](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.8.2...v0.9.0) (2026-08-21)
+
+### Features
+
+* expand verified relationship mappings ([69f55d6](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/69f55d67440d995c661df4795680eb52d66e1532))
+* expand verified XMA relationship mappings ([3e06ad7](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/3e06ad79921346c94d68cd700c5aa22631204288))
+
+### Bug Fixes
+
+* improve nested connection geometry ([5eb3350](https://github.com/Continuous-DrivenArchitecture/adapter-xma/commit/5eb33500240379f5db85088f860aad8b0d8e12f2))
+
 ## [0.8.2](https://github.com/Continuous-DrivenArchitecture/adapter-xma/compare/v0.8.1...v0.8.2) (2026-08-20)
 
 ### Bug Fixes
