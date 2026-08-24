@@ -1,4 +1,5 @@
 name: CI
+# CDA finalization: re-verified 2026-08-23 under allowed_actions=selected (github_owned_allowed=true).
 
 on:
   pull_request:
