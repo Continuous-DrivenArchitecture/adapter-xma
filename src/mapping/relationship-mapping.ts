@@ -2,19 +2,26 @@
  * Archi relationship mapping, resolved by (relationship type, source
  * semantic type, target semantic type) — never by relationship type alone.
  *
- * 121 exact-triple mappings are proven: the original 3 confirmed against
+ * 170 exact-triple mappings are proven: the original 3 confirmed against
  * `tests/fixtures/relationships/relaciones.{archimate,xma}`, 64 more
  * confirmed against `tests/fixtures/sabsa/sabsa.{archimate,xma}`, 20 more
  * confirmed against `tests/fixtures/agile-manifesto/agile-manifesto.{archimate,xma}`,
  * 3 confirmed "...Collaboration collapses to its singular active-structure
  * counterpart" instances (see below), 23 more confirmed from an independent
- * reference export, and 2 more confirmed from single dedicated Serving
+ * reference export, 2 more confirmed from single dedicated Serving
  * round-trips (ApplicationComponent/ApplicationInterface and
  * ApplicationFunction/ApplicationComponent — see the comments on those
- * blocks, near the end of this file, for the evidence method) — see each
- * fixture pair's entry in `tests/fixtures/README.md` for the full derivation
- * method. Every other relationship type/source/target combination is
- * unsupported for v0.1 and must be diagnosed, never guessed (see
+ * blocks, near the end of this file, for the evidence method), 7 more
+ * confirmed by sabsa.archimate -> sabsa.xma semantic id tracing, 21 more
+ * from a second independent reference export, and 23 more confirmed via a
+ * dedicated backlog round-trip model (one Archi-authored .archimate holding
+ * all 31 then-pending triples in a single view, imported into BizzDesign
+ * Enterprise Studio and exported to XMA; every relation was matched by its
+ * unique T-tag element names — see `docs/relationship-mapping-backlog.md`
+ * for the full record) — see each source's entry in
+ * `tests/fixtures/README.md` for the derivation methods. Every other
+ * relationship type/source/target combination is unsupported for v0.1 and
+ * must be diagnosed, never guessed (see
  * `serializer/relationship-writer.ts`).
  *
  * `scheme` is always the scheme of the *source* type (confirmed even across
@@ -1142,6 +1149,175 @@ export const RELATIONSHIP_MAPPINGS: readonly RelationshipMappingEntry[] = [
     sourceArchiType: 'ApplicationProcess',
     targetArchiType: 'ApplicationComponent',
     xmaType: 'ApplicationProcessApplicationComponentTriggering',
+    scheme: 'ApplicationScheme',
+  },
+
+  // 23 more confirmed via the dedicated backlog round-trip described in this
+  // file's header (T01-T23 of `docs/relationship-mapping-backlog.md`): a
+  // purpose-built Archi-authored .archimate holding exactly these triples in
+  // one view, imported into BizzDesign Enterprise Studio and exported to
+  // XMA. Every tag below is byte-verified against that export; every
+  // relation sat in its source element's own scheme's Relations collection,
+  // matching the established scheme rule.
+  {
+    archiRelationshipType: 'RealizationRelationship',
+    sourceArchiType: 'ApplicationFunction',
+    targetArchiType: 'ApplicationService',
+    xmaType: 'ApplicationFunctionApplicationServiceRealisation',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'CompositionRelationship',
+    sourceArchiType: 'Location',
+    targetArchiType: 'SystemSoftware',
+    xmaType: 'CompositeLocationTechnologyNodeComposition',
+    scheme: 'CompositeScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationService',
+    targetArchiType: 'ApplicationService',
+    xmaType: 'ApplicationServiceApplicationServiceUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'TriggeringRelationship',
+    sourceArchiType: 'ApplicationComponent',
+    targetArchiType: 'ApplicationComponent',
+    xmaType: 'ApplicationComponentApplicationComponentTriggering',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'TechnologyService',
+    targetArchiType: 'ApplicationInterface',
+    xmaType: 'TechnologyServiceApplicationInterfaceUse',
+    scheme: 'TechnologyScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationComponent',
+    targetArchiType: 'ApplicationService',
+    xmaType: 'ApplicationComponentApplicationServiceUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'RealizationRelationship',
+    sourceArchiType: 'ApplicationComponent',
+    targetArchiType: 'BusinessService',
+    xmaType: 'ApplicationComponentBusinessServiceRealisation',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'CompositionRelationship',
+    sourceArchiType: 'ApplicationService',
+    targetArchiType: 'ApplicationService',
+    xmaType: 'ApplicationServiceApplicationServiceComposition',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'BusinessService',
+    targetArchiType: 'ApplicationService',
+    xmaType: 'BusinessServiceApplicationServiceUse',
+    scheme: 'BusinessScheme',
+  },
+  {
+    archiRelationshipType: 'TriggeringRelationship',
+    sourceArchiType: 'ApplicationService',
+    targetArchiType: 'ApplicationComponent',
+    xmaType: 'ApplicationServiceApplicationComponentTriggering',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'SpecializationRelationship',
+    sourceArchiType: 'ApplicationInterface',
+    targetArchiType: 'ApplicationInterface',
+    xmaType: 'ApplicationInterfaceApplicationInterfaceSpecialization',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationService',
+    targetArchiType: 'ApplicationProcess',
+    xmaType: 'ApplicationServiceApplicationProcessUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'RealizationRelationship',
+    sourceArchiType: 'ApplicationInterface',
+    targetArchiType: 'BusinessInterface',
+    xmaType: 'ApplicationInterfaceBusinessInterfaceRealisation',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'TriggeringRelationship',
+    sourceArchiType: 'TechnologyService',
+    targetArchiType: 'ApplicationComponent',
+    xmaType: 'TechnologyServiceApplicationComponentTriggering',
+    scheme: 'TechnologyScheme',
+  },
+  {
+    archiRelationshipType: 'CompositionRelationship',
+    sourceArchiType: 'Node',
+    targetArchiType: 'Node',
+    xmaType: 'TechnologyNodeTechnologyNodeComposition',
+    scheme: 'TechnologyScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationService',
+    targetArchiType: 'ApplicationComponent',
+    xmaType: 'ApplicationServiceApplicationComponentUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'TriggeringRelationship',
+    sourceArchiType: 'ApplicationInterface',
+    targetArchiType: 'ApplicationComponent',
+    xmaType: 'ApplicationInterfaceApplicationComponentTriggering',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'TriggeringRelationship',
+    sourceArchiType: 'ApplicationService',
+    targetArchiType: 'ApplicationProcess',
+    xmaType: 'ApplicationServiceApplicationProcessTriggering',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'RealizationRelationship',
+    sourceArchiType: 'ApplicationService',
+    targetArchiType: 'BusinessService',
+    xmaType: 'ApplicationServiceBusinessServiceRealisation',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'AccessRelationship',
+    sourceArchiType: 'Node',
+    targetArchiType: 'DataObject',
+    xmaType: 'TechnologyNodeApplicationDataObjectAccess',
+    scheme: 'TechnologyScheme',
+  },
+  {
+    archiRelationshipType: 'FlowRelationship',
+    sourceArchiType: 'ApplicationInterface',
+    targetArchiType: 'ApplicationInterface',
+    xmaType: 'ApplicationInterfaceApplicationInterfaceFlow',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'ServingRelationship',
+    sourceArchiType: 'ApplicationService',
+    targetArchiType: 'BusinessInterface',
+    xmaType: 'ApplicationServiceBusinessInterfaceUse',
+    scheme: 'ApplicationScheme',
+  },
+  {
+    archiRelationshipType: 'TriggeringRelationship',
+    sourceArchiType: 'ApplicationService',
+    targetArchiType: 'ApplicationInterface',
+    xmaType: 'ApplicationServiceApplicationInterfaceTriggering',
     scheme: 'ApplicationScheme',
   },
 ];
