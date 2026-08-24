@@ -654,9 +654,20 @@ export function buildGraphicalModule(
         const localResolution = resolveBendpoint(bp, sourceLocalRect, targetLocalRect);
         const absoluteResolution = resolveBendpoint(bp, sourceRect, targetRect);
         if (!localResolution || !absoluteResolution) {
-          diagnostics.error({
+          // Partially-specified bendpoint: Archi's OEX format makes all four
+          // offset attributes optional, and real orthogonally-routed models
+          // store waypoints with only one coordinate per reference frame
+          // (e.g. startY+endY only). No interpolation rule exists in the
+          // fixture evidence, so the single waypoint is skipped rather than
+          // guessed — presentation-only loss on this connector, made
+          // explicit here. The reference sabsa export carries NO connector
+          // line at all for its one such connection (semantic relation
+          // ElementElementAssociation id=2324), so drawing the remaining
+          // route straight is not less faithful than BizzDesign's own
+          // output. See docs/relationship-mapping-backlog.md.
+          diagnostics.warning({
             code: 'unresolvable-bendpoint',
-            message: `Connection "${connection.id}" has a bendpoint with neither source- nor target-relative offsets set.`,
+            message: `Connection "${connection.id}" has a bendpoint with neither source- nor target-relative offsets set; skipped the waypoint and drew the connector without it.`,
             entityId: connection.id,
             entityType: 'ArchiDiagramConnection',
           });

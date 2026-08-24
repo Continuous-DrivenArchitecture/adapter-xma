@@ -1,10 +1,12 @@
-# Relationship-mapping backlog (cleared 2026-08-24)
+# Compatibility backlog
 
-**Status: all entries promoted.** Every triple listed here was pending
-confirmation when this document was created, and all of them were
-byte-confirmed via a single dedicated round-trip on 2026-08-24. This document
-is now the evidence record for that batch; re-run the scanner to check for
-newly observed pending triples.
+**Relationship mappings: cleared 2026-08-24.** Every triple listed here was
+pending confirmation when this document was created, and all of them were
+byte-confirmed via a single dedicated round-trip on 2026-08-24 (see the
+record below). This document also tracks other observed-but-unresolved
+compatibility constructs that block conversion (see
+[Pending non-mapping constructs](#pending-non-mapping-constructs)); re-run
+the scanner to check for newly observed pending triples.
 
 **Round-trip method:** a purpose-built `.archimate` model ("XMA Mapping
 Backlog Round-Trip") holding exactly these 31 triples as uniquely named
@@ -79,6 +81,54 @@ by the import/export path. Scheme placements match the established rules:
 exact triples live in the source element's own scheme; generic forms likewise
 follow the source element's scheme, except junction-sourced relations, which
 sit in the root-level `<ArchiMate:Relations>` container.
+
+## Pending non-mapping constructs
+
+Constructs observed in real models that block conversion for reasons other
+than relationship mappings.
+
+### Partially-specified bendpoints (`unresolvable-bendpoint`, downgraded to warning 2026-08-24)
+
+Archi's OEX format makes all four bendpoint offset attributes optional
+(`startX`/`startY` relative to the source object's center, `endX`/`endY`
+relative to the target's). Orthogonally-routed connections in the wild
+sometimes store a waypoint with only one coordinate per reference frame — no
+complete source pair and no complete target pair — so
+`resolveBendpoint` (`src/geometry/bendpoints.ts`) cannot produce a point from
+either side and `graphical-writer` reports an `unresolvable-bendpoint`
+**warning**, skipping only that waypoint (the connector is drawn with its
+remaining points, or straight when none remain).
+
+Observed instances (2026-08-24 corpus scan, 21 XML models):
+
+| Model | Connection | Bendpoint |
+| --- | --- | --- |
+| SBB-AM-000069 CIAM Biometrics | `id-fc27ba2d1a324826bb3542093db442e1` | `<bendpoint startY="242" endY="-335"/>` |
+| SBB-AM-000069 CIAM Biometrics | `id-4555ab5805ec457ea31e7571762d69fa` | `<bendpoint startY="242" endY="-335"/>` |
+| SBB-SD-000439 Brokered Product Mutual Fund (1) | `id-40edb273c7674d928feba3adf73874ec` | `<bendpoint startX="210" endY="-159"/>` |
+
+Shapes seen so far: `startY+endY`, `startX+endY` (and one `startX+endX`
+instance inside the committed sabsa fixture — see below). All have exactly
+two of the four attributes; no instance with fewer has been observed.
+
+**Fixture evidence:** the committed sabsa fixture contains exactly this
+construct — connection `id-1997f31069a649e4ad625e77f06543db` (the
+"paired with" Association between the "Resuce Exposure to Tornado Damage"
+Goal and the "Inacceptable Cost to Repair Damange" Assessment) carries
+`<bendpoint startX="197" endX="-197"/>`. Tracing that relation into the
+reference export `sabsa.xma` (semantic `ElementElementAssociation id=2324`)
+shows **no graphical `MM_DirectedRel` at all**: BizzDesign itself exported
+no connector line for it. Emitting the connection as a straight line (or
+with its remaining resolvable points) is therefore not less faithful than
+BizzDesign's own output.
+
+**Resolution (implemented 2026-08-24):** the diagnostic is a `warning`, the
+unresolvable waypoint is skipped, and the connection is emitted with its
+remaining points (or straight when none remain) — mirroring the existing
+`bendpoint-endpoint-mismatch` precedent ("precision discrepancy in Archi's
+own stored data, not a construct XMA can't represent"). Deriving the missing
+coordinate by interpolation was considered and rejected: there is no fixture
+evidence for any interpolation rule, and this repository does not guess.
 
 ## Regenerating the backlog scan
 

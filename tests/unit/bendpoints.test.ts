@@ -182,4 +182,106 @@ describe('bendpoints', () => {
     expect(inspectXmaSupport(model).some((d) => d.code === 'bendpoint-endpoint-mismatch')).toBe(false);
     expect(serializeXma(model)).toContain('mm_x="900" mm_y="600"');
   });
+
+  it('downgrades a partially-specified bendpoint to a warning and still serializes the connection', () => {
+    const source = makeDiagramObject({
+      id: 'source-object',
+      viewId: 'view',
+      archimateElementId: 'source-element',
+      bounds: makeBounds(48, 180, 120, 55),
+    });
+    const target = makeDiagramObject({
+      id: 'target-object',
+      viewId: 'view',
+      archimateElementId: 'target-element',
+      bounds: makeBounds(204, 276, 120, 55),
+    });
+    const relationship = makeRelationship({
+      id: 'relationship',
+      type: 'AssignmentRelationship',
+      sourceId: 'source-element',
+      targetId: 'target-element',
+    });
+    // The real-world shape (sabsa fixture, CIAM Biometrics): one coordinate
+    // per reference frame, no complete pair on either side.
+    const connection = makeDiagramConnection({
+      id: 'connection',
+      viewId: 'view',
+      sourceId: source.id,
+      targetId: target.id,
+      archimateRelationshipId: relationship.id,
+      bendpoints: [makeBendpoint({ startY: 242, endY: -335 })],
+    });
+    const model = makeModel({
+      elements: [
+        makeElement({ id: 'source-element', type: 'BusinessActor' }),
+        makeElement({ id: 'target-element', type: 'BusinessProcess' }),
+      ],
+      relationships: [relationship],
+      views: [makeView({ id: 'view', diagramObjectIds: [source.id, target.id], diagramConnectionIds: [connection.id] })],
+      diagramObjects: [source, target],
+      diagramConnections: [connection],
+    });
+
+    const diagnostics = inspectXmaSupport(model);
+    expect(diagnostics.some((d) => d.severity === 'error')).toBe(false);
+    const warning = diagnostics.find((d) => d.code === 'unresolvable-bendpoint');
+    expect(warning?.severity).toBe('warning');
+
+    const xma = serializeXma(model);
+    expect(xma).toContain('ArchiMate:BusinessActorBusinessProcessAssignment');
+    // The unresolvable waypoint is skipped; the connector is drawn straight.
+    expect(xma).not.toContain('MM_Diagram:MM_Point');
+  });
+
+  it('keeps the resolvable waypoints of a connection and skips only the partial one', () => {
+    const source = makeDiagramObject({
+      id: 'source-object',
+      viewId: 'view',
+      archimateElementId: 'source-element',
+      bounds: makeBounds(48, 180, 120, 55),
+    });
+    const target = makeDiagramObject({
+      id: 'target-object',
+      viewId: 'view',
+      archimateElementId: 'target-element',
+      bounds: makeBounds(204, 276, 120, 55),
+    });
+    const relationship = makeRelationship({
+      id: 'relationship',
+      type: 'AssignmentRelationship',
+      sourceId: 'source-element',
+      targetId: 'target-element',
+    });
+    const connection = makeDiagramConnection({
+      id: 'connection',
+      viewId: 'view',
+      sourceId: source.id,
+      targetId: target.id,
+      archimateRelationshipId: relationship.id,
+      bendpoints: [
+        makeBendpoint({ startX: -12, startY: 93, endX: -168, endY: -3 }),
+        makeBendpoint({ startX: 210, endY: -159 }),
+      ],
+    });
+    const model = makeModel({
+      elements: [
+        makeElement({ id: 'source-element', type: 'BusinessActor' }),
+        makeElement({ id: 'target-element', type: 'BusinessProcess' }),
+      ],
+      relationships: [relationship],
+      views: [makeView({ id: 'view', diagramObjectIds: [source.id, target.id], diagramConnectionIds: [connection.id] })],
+      diagramObjects: [source, target],
+      diagramConnections: [connection],
+    });
+
+    const diagnostics = inspectXmaSupport(model);
+    expect(diagnostics.some((d) => d.severity === 'error')).toBe(false);
+    expect(diagnostics.filter((d) => d.code === 'unresolvable-bendpoint')).toHaveLength(1);
+
+    const xma = serializeXma(model);
+    // Exactly one MM_Point survives: the resolvable first waypoint.
+    expect(xma.match(/MM_Diagram:MM_Point/g)?.length ?? 0).toBe(1);
+    expect(xma).toContain('mm_x="288" mm_y="900"');
+  });
 });
