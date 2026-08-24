@@ -1,0 +1,60 @@
+// Bendpoint audit query — run this in Enterprise Studio's Query tool
+// against an already-open/loaded model, with presentation type "Text file".
+//
+// For every relation reference on every view, outputs BizzDesign's own
+// resolved geometry: fromPoint(), toPoint(), and each bending point from
+// points() -- one row per point, in 1/10mm units. This is BizzDesign's
+// live, in-memory resolved geometry, queried directly -- no export/import
+// round-trip needed.
+//
+// This is the exact script used to gather the real production evidence in
+// docs/relationship-mapping-backlog.md, "Q4 -- multi-waypoint granularity:
+// CONFIRMED" -- run against SBB-AM-000066 FIES FILE ESPECIAL (662 diagram
+// connections), it produced 325 real resolved points in one pass, whose
+// values were cross-checked exactly against this adapter's own resolution
+// of the same model's raw .archimate bendpoint offsets.
+//
+// Syntax confirmed against two real, working scripts from this
+// organization (not just the printed Scripting Reference, which uses
+// "forall" and unqualified type names in its examples -- neither worked
+// as printed in this application version): the working keyword is
+// "foreach", and type-check strings need the metamodel namespace prefix,
+// e.g. "ArchiMate:AllView", "ArchiMate:AbstractRelationRef", matching the
+// same qualified names seen in this repository's own XMA output
+// (<ArchiMate:AllView>, <ArchiMate:ElementElementAssociation>, etc.). A
+// plain list value (like the `pts` returned by points()) is iterated with
+// the older "forall" keyword instead, unqualified -- confirmed working
+// both ways.
+//
+// This is not a Node.js script -- it is BizzDesign's own query language
+// (.bdquery.txt is a convention for this repo, not a BizzDesign file
+// extension). It has no automated way to run outside Enterprise Studio and
+// is not part of this package's build/test pipeline.
+//
+// IMPORTANT: edit the output path below before running (double backslashes
+// are required by the query language) -- the folder in the path must
+// already exist.
+
+parameter "file" "c:\\data\\bendpoint-audit-log.txt";
+parameter "separator" "\t";
+
+header "view", "relation_name", "relation_type", "relation_id",
+       "from_x", "from_y", "to_x", "to_y", "point_x", "point_y";
+
+foreach "ArchiMate:AllView" av in model {
+  foreach "ArchiMate:AbstractRelationRef" ref in av {
+    if (ref.hasGraphic()) {
+      fp = ref.fromPoint();
+      tp = ref.toPoint();
+      pts = ref.points();
+      if (pts.size() == 0) {
+        output av.name(), ref.name(), ref.type(), ref.id(),
+               fp[1], fp[2], tp[1], tp[2], "", "";
+      }
+      forall p in pts {
+        output av.name(), ref.name(), ref.type(), ref.id(),
+               fp[1], fp[2], tp[1], tp[2], p[1], p[2];
+      }
+    }
+  }
+}
