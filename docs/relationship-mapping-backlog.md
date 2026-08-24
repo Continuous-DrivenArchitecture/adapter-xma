@@ -6,9 +6,9 @@ Status snapshot **2026-08-24**:
   this document was created were byte-confirmed via a single dedicated
   round-trip the same day (record below).
 - **Non-mapping constructs:** two resolved and shipped (partially-specified
-  bendpoints, v0.12.0; bendpoint disagreement arbitration, this release),
-  two narrower open questions remain (tolerance, multi-waypoint
-  granularity — see below).
+  bendpoints, v0.12.0; bendpoint disagreement arbitration, including
+  multi-waypoint granularity, this release), one narrower open question
+  remains (tolerance for near-agreeing deltas — see below).
 
 ## Resolved: relationship mappings (cleared 2026-08-24)
 
@@ -193,18 +193,60 @@ whether the `bendpoint-endpoint-mismatch` diagnostic fires, not which point
 is used, so a wrong tolerance value would at most mis-classify a diagnostic,
 never mis-place a point.
 
-### Q4 — multi-waypoint granularity: still open
+### Q4 — multi-waypoint granularity: CONFIRMED
 
-Every disagreement/partial case in this probe was a single-waypoint
-connection. Whether arbitration is genuinely independent per waypoint when a
-single connection has several bendpoints and only some of them disagree is
-untested — the snake connector's 4 waypoints were all mutually agreeing, so
-it exercises Q1 but not this question. Would need a follow-up probe with a
-multi-bendpoint connection mixing agreeing and disagreeing waypoints.
+Resolved using a second, independent evidence source: BizzDesign Enterprise
+Studio's own query scripting language (see
+`scripts/bendpoint-audit.bdquery.txt`) exposes `fromPoint()`/`toPoint()`/
+`points()` on a relation reference, returning BizzDesign's live, in-memory
+resolved geometry directly — no export/import round-trip needed. Run
+against a real production model (SBB-AM-000066 FIES FILE ESPECIAL, 662
+diagram connections), this produced hundreds of real resolved points in one
+pass, including genuine multi-bendpoint connections with mixed
+complete/partial data.
 
-Interim note: conversion was never blocked by either open question; both are
-refinements to routing fidelity and diagnostic precision, not correctness
-gates.
+**Case C — a real 4-bendpoint connection, one point missing an axis, the
+rest fully specified** (connection `id-64dd2c5c5cf747b3846cd29bdd1ba808`,
+Access relation, "FIES - Copiar Motivos Comerciales CCerradas SBS Blob
+Database" → "Mensual", view "3. DCOM - Diagrama de Componentes e
+Integración - STEP"):
+
+```
+<bendpoint startX="-162"          endX="1014" endY="-270"/>   (startY missing)
+<bendpoint startX="-174" startY="48" endX="1038" endY="-210"/>
+<bendpoint startX="-618" startY="48" endX="558"  endY="-222"/>
+<bendpoint startX="-618" startY="300" endX="558" endY="30"/>
+```
+
+Applying the confirmed per-axis-default-then-average rule independently to
+each of the 4 points (using each diagram object's true absolute center,
+resolved through this model's real nesting) reproduces BizzDesign's actual
+`points()` output **exactly, for all 4 points** (Archi-space, scaled x3 to
+XMA mm): `(5688,3024)`, `(5706,3186)`, `(4320,3168)`, `(4320,3924)` — an
+exact match to BizzDesign's real query result for this exact connection
+(same four values, reported in a different order).
+
+**Confirmed:** arbitration is genuinely independent per waypoint. A
+multi-bendpoint connection with some points fully agreeing, one point
+missing an axis, and no two points sharing the same resolution shape, still
+resolves every single point via the same simple rule applied waypoint by
+waypoint — no path-aware, path-smoothing, or cross-waypoint interpolation
+behavior was found. This closes Q4.
+
+### Q3 — tolerance: still open
+
+This remains the one open question. Whether BizzDesign treats sub-pixel/
+1–2px deltas differently (e.g. snapping to one side instead of averaging)
+is untested — every case examined so far (synthetic and real) involved
+either exact agreement or a clearly material divergence. Low priority: the
+existing `AGREEMENT_EPSILON` (0.01) only gates whether the
+`bendpoint-endpoint-mismatch` diagnostic fires, not which point is used, so
+a wrong tolerance value would at most mis-classify a diagnostic, never
+mis-place a point.
+
+Interim note: conversion was never blocked by any of these open questions;
+all are refinements to routing fidelity and diagnostic precision, not
+correctness gates.
 
 ## Regenerating the backlog scan
 
