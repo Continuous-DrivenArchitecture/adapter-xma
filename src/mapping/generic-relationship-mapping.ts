@@ -34,11 +34,15 @@ const VERB_BY_ARCHI_TYPE: Readonly<Record<string, string>> = {
  * independent reference export; cross-referenced by element name between the
  * source `.archimate` and its BizzDesign-generated `.xma` re-export, same
  * method as every other entry here, just not backed by a fixture pair in
- * this repo). Not extended to other verbs without evidence for that
- * specific verb — a relationship type absent from this set is still
- * reported unsupported.
+ * this repo), and `AccessRelationship` (`AccessRelation` — five instances
+ * across all four endpoint orderings/type pairings of the backlog round-trip
+ * model, four with the junction as target and one with it as source; the
+ * junction-sourced instance sat in the root-level Relations container, the
+ * others in the source element's own scheme, matching the placement rule).
+ * Not extended to other verbs without evidence for that specific verb — a
+ * relationship type absent from this set is still reported unsupported.
  */
-const JUNCTION_CONFIRMED_VERBS = new Set(['Realisation', 'Influence', 'Use']);
+const JUNCTION_CONFIRMED_VERBS = new Set(['Realisation', 'Influence', 'Use', 'Access']);
 
 /**
  * Verbs confirmed to produce the `{Grouping|Element}{Grouping|Element}{Verb}`
@@ -46,14 +50,16 @@ const JUNCTION_CONFIRMED_VERBS = new Set(['Realisation', 'Influence', 'Use']);
  * regular element): `CompositionRelationship`, `SpecializationRelationship`,
  * `InfluenceRelationship`, `ServingRelationship` (sabsa + agile-manifesto),
  * `RealizationRelationship` (`ElementGroupingRealisation` — two independent
- * confirmed instances), and `AccessRelationship` (`ElementGroupingAccess` —
- * one confirmed instance), and `TriggeringRelationship` (`ElementGroupingTriggering` —
- * repeated in an independent reference export). The last three came from an independent
- * model; same cross-reference method as every other entry here, just not
+ * confirmed instances), `AccessRelationship` (`ElementGroupingAccess` —
+ * one confirmed instance), `TriggeringRelationship` (`ElementGroupingTriggering` —
+ * repeated in an independent reference export), and `AssignmentRelationship`
+ * (`GroupingElementAssignment` — backlog round-trip, Grouping sourced).
+ * The last four came from independent
+ * models; same cross-reference method as every other entry here, just not
  * backed by a fixture pair in this repo. Same "no evidence, no guess" rule
  * as Junction above.
  */
-const GROUPING_ELEMENT_CONFIRMED_VERBS = new Set(['Composition', 'Specialization', 'Influence', 'Use', 'Realisation', 'Access', 'Triggering']);
+const GROUPING_ELEMENT_CONFIRMED_VERBS = new Set(['Composition', 'Specialization', 'Influence', 'Use', 'Realisation', 'Access', 'Triggering', 'Assignment']);
 
 /**
  * Verbs confirmed for the *both-endpoints-Grouping* case specifically —
@@ -64,9 +70,10 @@ const GROUPING_ELEMENT_CONFIRMED_VERBS = new Set(['Composition', 'Specialization
  * (`GroupingGroupingUse`/`GroupingGroupingInfluence`); `Specialization`,
  * `Realisation`, and `Access` confirmed via a dedicated, isolated
  * Enterprise Studio round-trip (3 separate Grouping/Grouping pairs, one
- * verb each) — all five follow the plain `GroupingGrouping{Verb}` form.
+ * verb each); `Triggering` confirmed via the backlog round-trip model —
+ * all six follow the plain `GroupingGrouping{Verb}` form.
  */
-const GROUPING_GROUPING_CONFIRMED_VERBS = new Set(['Use', 'Influence', 'Specialization', 'Realisation', 'Access']);
+const GROUPING_GROUPING_CONFIRMED_VERBS = new Set(['Use', 'Influence', 'Specialization', 'Realisation', 'Access', 'Triggering']);
 
 /**
  * `CompositionRelationship` is the one exception: even with both endpoints

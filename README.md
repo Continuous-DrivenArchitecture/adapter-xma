@@ -124,11 +124,15 @@ extrapolated beyond that evidence.
   own visual parent gets no graphical connector line (nesting alone conveys
   it) but is still fully present semantically. See
   `tests/fixtures/README.md`.
-- **143 confirmed exact-triple semantic relationship mappings** (up from 3),
-  spanning all eight schemes, plus **3 confirmed generic (type-independent)
-  forms** — `AssociationRelationship`, a `Grouping` endpoint (Composition,
-  Specialization, Influence, Use), and a `Junction`/`OrJunction` endpoint
-  (Realisation, Influence) — see `src/mapping/relationship-mapping.ts` and
+- **170 confirmed exact-triple semantic relationship mappings** (up from 3),
+  spanning all eight schemes, plus **confirmed generic (type-independent)
+  forms** — `AssociationRelationship`; a `Grouping` endpoint (Composition,
+  Specialization, Influence, Use, Realisation, Access, Triggering,
+  Assignment); `Grouping` on both endpoints (Use, Influence, Specialization,
+  Realisation, Access, Triggering — plus the proven-exception
+  `GroupingElementComposition`); and a `Junction`/`OrJunction` endpoint
+  (Realisation, Influence, Use, Access) — see
+  `src/mapping/relationship-mapping.ts` and
   `src/mapping/generic-relationship-mapping.ts` for the tables, and
   `tests/fixtures/README.md` for how each was derived and verified. The
   original 3 exact-triple mappings additionally have their graphical
@@ -198,10 +202,12 @@ extrapolated beyond that evidence.
 
 ### Not yet guaranteed
 
-- Relationship type/source/target combinations beyond the 90 confirmed exact
-  triples and the 3 confirmed generic forms (reported as a diagnostic, not
+- Relationship type/source/target combinations beyond the 170 confirmed exact
+  triples and the confirmed generic forms (reported as a diagnostic, not
   silently dropped or guessed) — e.g. a `Grouping`/`Junction` endpoint paired
-  with a verb outside the confirmed set for that endpoint kind.
+  with a verb outside the confirmed set for that endpoint kind. The pending
+  candidates observed in real models and their confirmation status are
+  tracked in `docs/relationship-mapping-backlog.md`.
 - A handful of concrete types that collapse to a coarser XMA category
   specifically for relationship naming, distinct from their own element
   mapping — confirmed and implemented for `TechnologyCollaboration` →

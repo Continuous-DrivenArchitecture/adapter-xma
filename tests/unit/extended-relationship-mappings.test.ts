@@ -37,6 +37,31 @@ const EXACT_CASES = [
   ['ServingRelationship', 'ApplicationService', 'ApplicationFunction', 'ApplicationServiceApplicationFunctionUse'],
   ['TriggeringRelationship', 'ApplicationComponent', 'ApplicationProcess', 'ApplicationComponentApplicationProcessTriggering'],
   ['TriggeringRelationship', 'ApplicationProcess', 'ApplicationComponent', 'ApplicationProcessApplicationComponentTriggering'],
+  // Backlog round-trip confirmations (see docs/relationship-mapping-backlog.md)
+  ['RealizationRelationship', 'ApplicationFunction', 'ApplicationService', 'ApplicationFunctionApplicationServiceRealisation'],
+  // SystemSoftware collapses to TechnologyNode for relationship naming
+  ['CompositionRelationship', 'Location', 'SystemSoftware', 'CompositeLocationTechnologyNodeComposition'],
+  ['ServingRelationship', 'ApplicationService', 'ApplicationService', 'ApplicationServiceApplicationServiceUse'],
+  ['TriggeringRelationship', 'ApplicationComponent', 'ApplicationComponent', 'ApplicationComponentApplicationComponentTriggering'],
+  ['ServingRelationship', 'TechnologyService', 'ApplicationInterface', 'TechnologyServiceApplicationInterfaceUse'],
+  ['ServingRelationship', 'ApplicationComponent', 'ApplicationService', 'ApplicationComponentApplicationServiceUse'],
+  ['RealizationRelationship', 'ApplicationComponent', 'BusinessService', 'ApplicationComponentBusinessServiceRealisation'],
+  ['CompositionRelationship', 'ApplicationService', 'ApplicationService', 'ApplicationServiceApplicationServiceComposition'],
+  ['ServingRelationship', 'BusinessService', 'ApplicationService', 'BusinessServiceApplicationServiceUse'],
+  ['TriggeringRelationship', 'ApplicationService', 'ApplicationComponent', 'ApplicationServiceApplicationComponentTriggering'],
+  ['SpecializationRelationship', 'ApplicationInterface', 'ApplicationInterface', 'ApplicationInterfaceApplicationInterfaceSpecialization'],
+  ['ServingRelationship', 'ApplicationService', 'ApplicationProcess', 'ApplicationServiceApplicationProcessUse'],
+  ['RealizationRelationship', 'ApplicationInterface', 'BusinessInterface', 'ApplicationInterfaceBusinessInterfaceRealisation'],
+  ['TriggeringRelationship', 'TechnologyService', 'ApplicationComponent', 'TechnologyServiceApplicationComponentTriggering'],
+  ['CompositionRelationship', 'Node', 'Node', 'TechnologyNodeTechnologyNodeComposition'],
+  ['ServingRelationship', 'ApplicationService', 'ApplicationComponent', 'ApplicationServiceApplicationComponentUse'],
+  ['TriggeringRelationship', 'ApplicationInterface', 'ApplicationComponent', 'ApplicationInterfaceApplicationComponentTriggering'],
+  ['TriggeringRelationship', 'ApplicationService', 'ApplicationProcess', 'ApplicationServiceApplicationProcessTriggering'],
+  ['RealizationRelationship', 'ApplicationService', 'BusinessService', 'ApplicationServiceBusinessServiceRealisation'],
+  ['AccessRelationship', 'Node', 'DataObject', 'TechnologyNodeApplicationDataObjectAccess'],
+  ['FlowRelationship', 'ApplicationInterface', 'ApplicationInterface', 'ApplicationInterfaceApplicationInterfaceFlow'],
+  ['ServingRelationship', 'ApplicationService', 'BusinessInterface', 'ApplicationServiceBusinessInterfaceUse'],
+  ['TriggeringRelationship', 'ApplicationService', 'ApplicationInterface', 'ApplicationServiceApplicationInterfaceTriggering'],
 ] as const;
 
 describe('extended relationship mappings', () => {
@@ -51,5 +76,22 @@ describe('extended relationship mappings', () => {
   it('supports the ElementGroupingTriggering generic form', () => {
     expect(lookupGenericRelationshipMapping('TriggeringRelationship', 'Grouping', 'BusinessProcess')?.xmaType).toBe('GroupingElementTriggering');
     expect(lookupGenericRelationshipMapping('TriggeringRelationship', 'BusinessProcess', 'Grouping')?.xmaType).toBe('ElementGroupingTriggering');
+  });
+
+  it('supports the AccessRelation generic form for Junction endpoints in both directions', () => {
+    expect(lookupGenericRelationshipMapping('AccessRelationship', 'ApplicationComponent', 'Junction')?.xmaType).toBe('AccessRelation');
+    expect(lookupGenericRelationshipMapping('AccessRelationship', 'Junction', 'DataObject')?.xmaType).toBe('AccessRelation');
+    expect(lookupGenericRelationshipMapping('AccessRelationship', 'ApplicationInterface', 'Junction')?.xmaType).toBe('AccessRelation');
+    expect(lookupGenericRelationshipMapping('AccessRelationship', 'ApplicationService', 'Junction')?.xmaType).toBe('AccessRelation');
+    expect(lookupGenericRelationshipMapping('AccessRelationship', 'ApplicationFunction', 'Junction')?.xmaType).toBe('AccessRelation');
+  });
+
+  it('supports the GroupingElementAssignment generic form', () => {
+    expect(lookupGenericRelationshipMapping('AssignmentRelationship', 'Grouping', 'ApplicationService')?.xmaType).toBe('GroupingElementAssignment');
+    expect(lookupGenericRelationshipMapping('AssignmentRelationship', 'ApplicationComponent', 'Grouping')?.xmaType).toBe('ElementGroupingAssignment');
+  });
+
+  it('supports the GroupingGroupingTriggering generic form', () => {
+    expect(lookupGenericRelationshipMapping('TriggeringRelationship', 'Grouping', 'Grouping')?.xmaType).toBe('GroupingGroupingTriggering');
   });
 });
