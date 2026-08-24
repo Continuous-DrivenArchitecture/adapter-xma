@@ -654,17 +654,25 @@ export function buildGraphicalModule(
         const localResolution = resolveBendpoint(bp, sourceLocalRect, targetLocalRect);
         const absoluteResolution = resolveBendpoint(bp, sourceRect, targetRect);
         if (!localResolution || !absoluteResolution) {
-          // Partially-specified bendpoint: Archi's OEX format makes all four
-          // offset attributes optional, and real orthogonally-routed models
-          // store waypoints with only one coordinate per reference frame
-          // (e.g. startY+endY only). No interpolation rule exists in the
-          // fixture evidence, so the single waypoint is skipped rather than
-          // guessed — presentation-only loss on this connector, made
-          // explicit here. The reference sabsa export carries NO connector
+          // Genuinely unresolvable: EITHER the bendpoint has no usable
+          // coordinate on either frame at all, or one entire frame is
+          // completely absent while the other frame is itself only
+          // partially specified (no confirmed resolution rule for that
+          // combination — see resolveBendpoint's own doc comment). This is
+          // narrower than it used to be: a bendpoint missing an entire axis
+          // on BOTH frames (e.g. startY+endY only, no X anywhere) is no
+          // longer unresolvable — see the `bendpoint-endpoint-mismatch`
+          // branch below, which now also covers that case via the same
+          // per-axis-default-then-average mechanism, confirmed against a
+          // real BizzDesign round-trip (docs/relationship-mapping-backlog.md,
+          // "Resolved: bendpoint disagreement arbitration"). For the
+          // narrower cases that remain here, the single waypoint is skipped
+          // rather than guessed — presentation-only loss on this connector,
+          // made explicit. The reference sabsa export carries NO connector
           // line at all for its one such connection (semantic relation
           // ElementElementAssociation id=2324), so drawing the remaining
           // route straight is not less faithful than BizzDesign's own
-          // output. See docs/relationship-mapping-backlog.md.
+          // output.
           diagnostics.warning({
             code: 'unresolvable-bendpoint',
             message: `Connection "${connection.id}" has a bendpoint with neither source- nor target-relative offsets set; skipped the waypoint and drew the connector without it.`,
@@ -674,17 +682,37 @@ export function buildGraphicalModule(
           continue;
         }
         // Locally agreed offsets are valid in the normalized Archi export;
-        // absolute coordinates are still used for the emitted XMA point.
-        const resolution = absoluteResolution;
+        // absolute coordinates are still used for the emitted XMA point --
+        // EXCEPT for which specific point is used when there's a mismatch.
+        // A mismatch present in absoluteResolution but ABSENT from
+        // localResolution is not a genuine stored-data disagreement: it is
+        // an artifact of resolving nested endpoints (with different
+        // ancestor chains) to absolute canvas coordinates from otherwise
+        // identical, locally-agreeing local bounds. Averaging two absolute
+        // positions that only differ because they live under different
+        // parents would produce a point unrelated to either shape's real
+        // location, so that case keeps the pre-existing behavior (the
+        // source-relative absolute point) rather than the new averaging
+        // rule. A mismatch present in BOTH is a genuine disagreement in
+        // Archi's own stored offsets (or a bendpoint missing an axis on
+        // both frames), for which averaging is BizzDesign's own confirmed
+        // behavior — see resolveBendpoint's doc comment.
+        const resolution =
+          absoluteResolution.mismatch && !localResolution.mismatch
+            ? { ...absoluteResolution, point: absoluteResolution.mismatch.fromSource }
+            : absoluteResolution;
         if (localResolution.mismatch && absoluteResolution.mismatch) {
-          // Not a data-loss case: resolution.point (the source-relative form,
-          // used below regardless) is a perfectly usable point — this is a
-          // small precision disagreement in Archi's own stored offsets, not a
-          // construct XMA has no representation for. Warning, not an error
-          // that discards the whole document.
+          // Not a data-loss case: resolution.point (the averaged point,
+          // used below regardless) is a perfectly usable point — this is
+          // either a small precision disagreement in Archi's own stored
+          // offsets, or a bendpoint missing an entire axis on both frames,
+          // neither of which is a construct XMA has no representation for.
+          // Warning, not an error that discards the whole document.
+          // Averaging, not preferring either side, is BizzDesign's own
+          // confirmed behavior — see resolveBendpoint's doc comment.
           diagnostics.warning({
             code: 'bendpoint-endpoint-mismatch',
-            message: `Connection "${connection.id}" has a bendpoint whose source-relative and target-relative offsets disagree materially after absolute endpoint resolution (source: ${absoluteResolution.mismatch!.fromSource.x},${absoluteResolution.mismatch!.fromSource.y}; target: ${absoluteResolution.mismatch!.fromTarget.x},${absoluteResolution.mismatch!.fromTarget.y}); used the source-relative point.`,
+            message: `Connection "${connection.id}" has a bendpoint whose source-relative and target-relative offsets disagree materially after absolute endpoint resolution (source: ${absoluteResolution.mismatch!.fromSource.x},${absoluteResolution.mismatch!.fromSource.y}; target: ${absoluteResolution.mismatch!.fromTarget.x},${absoluteResolution.mismatch!.fromTarget.y}); used the midpoint of the two.`,
             entityId: connection.id,
             entityType: 'ArchiDiagramConnection',
           });

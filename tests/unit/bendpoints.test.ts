@@ -46,13 +46,22 @@ describe('bendpoints', () => {
     expect(resolution?.mismatch?.fromTarget).toEqual({ x: 264, y: 303 });
   });
 
-  it('treats a non-finite offset as absent rather than propagating NaN/Infinity into the resolved point', () => {
+  it('treats a non-finite offset as absent per axis, not as poisoning the whole frame', () => {
+    // startX is NaN (absent) but startY=93 is genuinely usable -- per-axis
+    // defaulting means the source frame still contributes (x defaults to
+    // its own center, 108; y uses the real offset, 300), so this resolves
+    // via the same averaging path as any other both-sides-have-something
+    // case, not as a pure target-only reading that silently discards the
+    // still-valid startY.
     const resolution = resolveBendpoint(
       { startX: Number.NaN, startY: 93, endX: -168, endY: -3 },
       SOURCE_BOUNDS,
       TARGET_BOUNDS,
     );
-    expect(resolution).toEqual({ point: { x: 96, y: 300 }, agreement: 'target-only' });
+    expect(resolution?.agreement).toBe('both');
+    expect(resolution?.mismatch?.fromSource).toEqual({ x: 108, y: 300 });
+    expect(resolution?.mismatch?.fromTarget).toEqual({ x: 96, y: 300 });
+    expect(resolution?.point).toEqual({ x: 102, y: 300 });
   });
 
   it('returns null when both offsets are non-finite', () => {
@@ -63,6 +72,34 @@ describe('bendpoints', () => {
         TARGET_BOUNDS,
       ),
     ).toBeNull();
+  });
+
+  it('averages disagreeing offsets instead of preferring the source side (confirmed via a real BizzDesign round-trip, see docs/relationship-mapping-backlog.md)', () => {
+    // Exact reproduction of private-examples/bendpoint-fidelity-probe.archimate's
+    // B->C connection: source center (510,75), target center (510,357),
+    // deliberate 40px divergence on X. BizzDesign's real exported point for
+    // this exact bendpoint was (580,216) in Archi space -- the arithmetic
+    // mean of the two candidates, not the source-relative candidate this
+    // adapter used to prefer.
+    const sourceBounds = { x: 450, y: 48, width: 120, height: 54 };
+    const targetBounds = { x: 450, y: 330, width: 120, height: 54 };
+    const resolution = resolveBendpoint({ startX: 50, startY: 141, endX: 90, endY: -141 }, sourceBounds, targetBounds);
+    expect(resolution?.point).toEqual({ x: 580, y: 216 });
+    expect(resolution?.mismatch?.fromSource).toEqual({ x: 560, y: 216 });
+    expect(resolution?.mismatch?.fromTarget).toEqual({ x: 600, y: 216 });
+  });
+
+  it("defaults a missing axis to that frame's own element center before averaging, rather than treating it as unresolvable (confirmed via the same BizzDesign round-trip)", () => {
+    // Exact reproduction of the probe's D->A connection: no X data on
+    // either frame at all -- the same real-world shape as the original
+    // CIAM Biometrics model's `<bendpoint startY="242" endY="-335"/>`
+    // (different numbers, same construct). BizzDesign's real exported
+    // point was (108,216) in Archi space, not a skipped waypoint.
+    const sourceBounds = { x: 48, y: 330, width: 120, height: 54 };
+    const targetBounds = { x: 48, y: 48, width: 120, height: 54 };
+    const resolution = resolveBendpoint({ startX: null, startY: 120, endX: null, endY: -120 }, sourceBounds, targetBounds);
+    expect(resolution?.point).toEqual({ x: 108, y: 216 });
+    expect(resolution?.agreement).toBe('both');
   });
 
   it('does not flag negligible floating-point differences as a mismatch', () => {
@@ -183,7 +220,7 @@ describe('bendpoints', () => {
     expect(serializeXma(model)).toContain('mm_x="900" mm_y="600"');
   });
 
-  it('downgrades a partially-specified bendpoint to a warning and still serializes the connection', () => {
+  it('resolves a bendpoint missing an entire axis on both frames instead of skipping it (real-world shape, sabsa fixture / CIAM Biometrics)', () => {
     const source = makeDiagramObject({
       id: 'source-object',
       viewId: 'view',
@@ -203,7 +240,10 @@ describe('bendpoints', () => {
       targetId: 'target-element',
     });
     // The real-world shape (sabsa fixture, CIAM Biometrics): one coordinate
-    // per reference frame, no complete pair on either side.
+    // per reference frame, no complete pair on either side. Previously
+    // unresolvable; now resolves via per-axis center-defaulting + averaging
+    // (confirmed against a real BizzDesign round-trip, see
+    // docs/relationship-mapping-backlog.md).
     const connection = makeDiagramConnection({
       id: 'connection',
       viewId: 'view',
@@ -225,16 +265,20 @@ describe('bendpoints', () => {
 
     const diagnostics = inspectXmaSupport(model);
     expect(diagnostics.some((d) => d.severity === 'error')).toBe(false);
-    const warning = diagnostics.find((d) => d.code === 'unresolvable-bendpoint');
+    expect(diagnostics.some((d) => d.code === 'unresolvable-bendpoint')).toBe(false);
+    const warning = diagnostics.find((d) => d.code === 'bendpoint-endpoint-mismatch');
     expect(warning?.severity).toBe('warning');
 
     const xma = serializeXma(model);
     expect(xma).toContain('ArchiMate:BusinessActorBusinessProcessAssignment');
-    // The unresolvable waypoint is skipped; the connector is drawn straight.
-    expect(xma).not.toContain('MM_Diagram:MM_Point');
+    // Source frame defaults x to its own center (108) and uses the real
+    // startY (207+242=449); target frame defaults x to its own center
+    // (264) and uses the real endY (303-335=-32); averaged: (186, 209
+    // -- 208.5 rounded), scaled x3.
+    expect(xma).toContain('mm_x="558" mm_y="627"');
   });
 
-  it('keeps the resolvable waypoints of a connection and skips only the partial one', () => {
+  it('resolves every waypoint of a multi-bendpoint connection, including a partially-specified one, via the same averaging rule', () => {
     const source = makeDiagramObject({
       id: 'source-object',
       viewId: 'view',
@@ -277,11 +321,18 @@ describe('bendpoints', () => {
 
     const diagnostics = inspectXmaSupport(model);
     expect(diagnostics.some((d) => d.severity === 'error')).toBe(false);
-    expect(diagnostics.filter((d) => d.code === 'unresolvable-bendpoint')).toHaveLength(1);
+    expect(diagnostics.filter((d) => d.code === 'unresolvable-bendpoint')).toHaveLength(0);
+    expect(diagnostics.filter((d) => d.code === 'bendpoint-endpoint-mismatch')).toHaveLength(1);
 
     const xma = serializeXma(model);
-    // Exactly one MM_Point survives: the resolvable first waypoint.
-    expect(xma.match(/MM_Diagram:MM_Point/g)?.length ?? 0).toBe(1);
+    // Both waypoints survive: the fully-agreeing first one (unchanged,
+    // 288,900), and the partially-specified second one, now resolved
+    // instead of skipped -- source defaults x to its own center (108+210=318
+    // uses the real startX; y defaults to 207 since startY is absent),
+    // target defaults x to its own center (264, endX absent; y=303-159=144
+    // uses the real endY), averaged: (291, 176 -- 175.5 rounded), scaled x3.
+    expect(xma.match(/MM_Diagram:MM_Point/g)?.length ?? 0).toBe(2);
     expect(xma).toContain('mm_x="288" mm_y="900"');
+    expect(xma).toContain('mm_x="873" mm_y="528"');
   });
 });

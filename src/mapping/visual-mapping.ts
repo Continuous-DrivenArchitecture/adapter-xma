@@ -38,9 +38,11 @@ export const VIEW_REFERENCE_FILL_COLOR: Rgb = { r: 220, g: 235, b: 235 };
 /** Default node/connection line color — constant across every semantic node in both fixtures. */
 export const DEFAULT_LINE_COLOR: Rgb = { r: 92, g: 92, b: 92 };
 
+/** `mm_font` — the only font name observed in every label decoration across both reference fixtures; Archi's own diagram styling never overrides it, so this adapter has no per-element font mapping to fall back to. */
 export const DEFAULT_FONT_NAME = 'Segoe UI';
 /** `mm_fontSize` unit — confirmed 180 for Archi's default 9pt font (20 units/pt); never overridden without evidence. */
 export const DEFAULT_FONT_SIZE = 180;
+/** `mm_lineOpacity`/`mm_fillOpacity` — max value for BizzDesign's 8-bit opacity channel (fully opaque). Every node/connection in both reference fixtures uses this; no fixture evidence of any other value, so explicit Archi fill-opacity (alpha) is not applied — see the `unsupported-style-alpha` diagnostic in graphical-writer.ts. */
 export const DEFAULT_OPACITY = 255;
 
 /** `2147483647` (int32 max) — the sentinel width/height Bizzdesign uses for an auto-sized canvas rect. */

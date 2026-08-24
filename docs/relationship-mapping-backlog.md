@@ -1,21 +1,25 @@
 # Compatibility backlog
 
-**Relationship mappings: cleared 2026-08-24.** Every triple listed here was
-pending confirmation when this document was created, and all of them were
-byte-confirmed via a single dedicated round-trip on 2026-08-24 (see the
-record below). This document also tracks other observed-but-unresolved
-compatibility constructs that block conversion (see
-[Pending non-mapping constructs](#pending-non-mapping-constructs)); re-run
-the scanner to check for newly observed pending triples.
+Status snapshot **2026-08-24**:
 
-**Round-trip method:** a purpose-built `.archimate` model ("XMA Mapping
-Backlog Round-Trip") holding exactly these 31 triples as uniquely named
+- **Relationship mappings: cleared.** All 31 triples that were pending when
+  this document was created were byte-confirmed via a single dedicated
+  round-trip the same day (record below).
+- **Non-mapping constructs:** two resolved and shipped (partially-specified
+  bendpoints, v0.12.0; bendpoint disagreement arbitration, this release),
+  two narrower open questions remain (tolerance, multi-waypoint
+  granularity — see below).
+
+## Resolved: relationship mappings (cleared 2026-08-24)
+
+**Method:** a purpose-built `.archimate` model ("XMA Mapping Backlog
+Round-Trip") holding exactly the 31 pending triples as uniquely named
 elements (`T## src <Type>` / `T## tgt <Type>`, relationship named `T##`) in a
 single view was imported into BizzDesign Enterprise Studio and exported to
 XMA. Each exported relation was matched back to its `T##` by element name and
 its semantic tag read byte-exactly.
 
-## Outcome summary
+### Outcome summary
 
 | Result | Count |
 | --- | --- |
@@ -40,7 +44,7 @@ Details:
   to `TechnologyNode` for relationship naming, consistent with the collapse
   already documented elsewhere in this repository.
 
-## Confirmation record
+### Confirmation record
 
 | Tag | Archi triple | Observed XMA tag | Scheme placement |
 | --- | --- | --- | --- |
@@ -82,53 +86,125 @@ exact triples live in the source element's own scheme; generic forms likewise
 follow the source element's scheme, except junction-sourced relations, which
 sit in the root-level `<ArchiMate:Relations>` container.
 
-## Pending non-mapping constructs
+## Resolved: partially-specified bendpoints (shipped v0.12.0)
 
-Constructs observed in real models that block conversion for reasons other
-than relationship mappings.
+Archi's `.archimate` format makes all four bendpoint offset attributes
+optional. Orthogonally-routed connections in the wild sometimes store a
+waypoint with only one coordinate per reference frame — no complete source
+pair and no complete target pair — which `resolveBendpoint`
+(`src/geometry/bendpoints.ts`) cannot resolve.
 
-### Partially-specified bendpoints (`unresolvable-bendpoint`, downgraded to warning 2026-08-24)
+**Resolution (implemented 2026-08-24, released in v0.12.0):** the diagnostic
+is a `warning` (`unresolvable-bendpoint`), the unresolvable waypoint is
+skipped, and the connection is emitted with its remaining points (or straight
+when none remain) — mirroring the `bendpoint-endpoint-mismatch` precedent.
+Deriving the missing coordinate by interpolation was considered and rejected:
+there is no fixture evidence for any interpolation rule, and this repository
+does not guess.
 
-Archi's OEX format makes all four bendpoint offset attributes optional
-(`startX`/`startY` relative to the source object's center, `endX`/`endY`
-relative to the target's). Orthogonally-routed connections in the wild
-sometimes store a waypoint with only one coordinate per reference frame — no
-complete source pair and no complete target pair — so
-`resolveBendpoint` (`src/geometry/bendpoints.ts`) cannot produce a point from
-either side and `graphical-writer` reports an `unresolvable-bendpoint`
-**warning**, skipping only that waypoint (the connector is drawn with its
-remaining points, or straight when none remain).
-
-Observed instances (2026-08-24 corpus scan, 21 XML models):
-
-| Model | Connection | Bendpoint |
-| --- | --- | --- |
-| SBB-AM-000069 CIAM Biometrics | `id-fc27ba2d1a324826bb3542093db442e1` | `<bendpoint startY="242" endY="-335"/>` |
-| SBB-AM-000069 CIAM Biometrics | `id-4555ab5805ec457ea31e7571762d69fa` | `<bendpoint startY="242" endY="-335"/>` |
-| SBB-SD-000439 Brokered Product Mutual Fund (1) | `id-40edb273c7674d928feba3adf73874ec` | `<bendpoint startX="210" endY="-159"/>` |
-
-Shapes seen so far: `startY+endY`, `startX+endY` (and one `startX+endX`
-instance inside the committed sabsa fixture — see below). All have exactly
-two of the four attributes; no instance with fewer has been observed.
-
-**Fixture evidence:** the committed sabsa fixture contains exactly this
-construct — connection `id-1997f31069a649e4ad625e77f06543db` (the
-"paired with" Association between the "Resuce Exposure to Tornado Damage"
-Goal and the "Inacceptable Cost to Repair Damange" Assessment) carries
-`<bendpoint startX="197" endX="-197"/>`. Tracing that relation into the
+Evidence that justified the policy: the committed sabsa fixture contains
+exactly this construct — connection `id-1997f31069a649e4ad625e77f06543db`
+(the "paired with" Association between the "Resuce Exposure to Tornado
+Damage" Goal and the "Inacceptable Cost to Repair Damange" Assessment) carries
+`<bendpoint startX="197" endX="-197"/>`, and tracing that relation into the
 reference export `sabsa.xma` (semantic `ElementElementAssociation id=2324`)
-shows **no graphical `MM_DirectedRel` at all**: BizzDesign itself exported
-no connector line for it. Emitting the connection as a straight line (or
-with its remaining resolvable points) is therefore not less faithful than
-BizzDesign's own output.
+shows **no graphical `MM_DirectedRel` at all** — BizzDesign itself exported no
+connector line for it. Emitting the connection straight is therefore not less
+faithful than BizzDesign's own output.
 
-**Resolution (implemented 2026-08-24):** the diagnostic is a `warning`, the
-unresolvable waypoint is skipped, and the connection is emitted with its
-remaining points (or straight when none remain) — mirroring the existing
-`bendpoint-endpoint-mismatch` precedent ("precision discrepancy in Archi's
-own stored data, not a construct XMA can't represent"). Deriving the missing
-coordinate by interpolation was considered and rejected: there is no fixture
-evidence for any interpolation rule, and this repository does not guess.
+Observed instances (2026-08-24 corpus scan, 21 XML models): two
+`startY+endY` in SBB-AM-000069 CIAM Biometrics, one `startX+endY` in
+SBB-SD-000439 Brokered Product Mutual Fund (1), plus the `startX+endX`
+fixture instance above.
+
+## Resolved: bendpoint disagreement arbitration (this release)
+
+**Status: resolved via a real BizzDesign round-trip.** This is a different,
+independent probe from the one referenced in the superseded plan below (that
+earlier probe rendered tangled in Archi itself and was abandoned; this one
+skips the Archi-authoring step entirely and imports straight into BizzDesign
+Enterprise Studio, which is the only fidelity target this question actually
+cares about).
+
+### Method
+
+A purpose-built `.archimate` model (`private-examples/bendpoint-fidelity-probe.archimate`,
+5 elements, 4 `AssociationRelationship` connections, each isolating one
+scenario) was imported directly into BizzDesign Enterprise Studio and
+exported to XMA (`private-examples/Bendpoint Fidelity Probe.xma`) without
+touching the routing. Each connector's `MM_Point`s were compared against
+this adapter's own output for the same source file.
+
+### Q1 — offset semantics: CONFIRMED for the agreeing case, and more deeply than expected
+
+The snake connector (4 bendpoints, source- and target-relative offsets
+deliberately consistent at every point) resolved to byte-identical points in
+both exports: `(780,225) (780,780) (1800,780) (1800,360)` (mm-scale XMA
+points; `/3` for Archi-space). This confirms the existing center-relative
+hypothesis in `src/geometry/bendpoints.ts` for the clean case — the earlier
+probe's Archi-rendering trouble was specific to that probe's own generation,
+not evidence against the hypothesis itself.
+
+### Q2 — disagreement arbitration: CONFIRMED, and it is not source-preference
+
+**Case A — both frames fully specified, disagreeing on one axis** (deliberate
+40px X divergence; source-relative resolves to Archi-space `(560,216)`,
+target-relative to `(600,216)`): BizzDesign's actual export point is
+`(580,216)` — exactly the arithmetic mean of the two candidates, on the
+disagreeing axis (`(560+600)/2 = 580`; the agreeing Y axis is unaffected).
+
+**Case B — neither frame has any data on one axis** (`<bendpoint startY="120"
+endY="-120"/>`, mirroring the real `startY+endY`-only construct from the
+original CIAM Biometrics model — no X data in either frame at all): the
+adapter previously treated this as fully unresolvable and skipped the
+waypoint (see "Resolved: partially-specified bendpoints" above). BizzDesign's
+actual export instead places a point at Archi-space `(108,216)`. Modeling
+each missing axis as defaulting to that same frame's own element center,
+then averaging the two fully-resolved candidate points exactly as in Case A,
+reproduces this precisely: source candidate `(108, 357+120) = (108,477)`
+(center defaults the missing X), target candidate `(108, 75-120) = (108,-45)`
+(same), mean `(108, 216)` — an exact match.
+
+**Confirmed rule, replacing source-preference:** for each axis independently,
+a present offset resolves to `center + offset`; a missing offset defaults to
+that frame's own element center on that axis. The two fully-resolved
+candidate points (source-side, target-side) are then averaged
+component-wise — always, whether they agree or disagree, and regardless of
+whether either frame was fully or only partially specified. This subsumes
+the previous `unresolvable-bendpoint` case (Case B) into the same mechanism
+as the disagreement case (Case A): a genuinely resolvable point exists
+whenever *either* frame has *any* usable coordinate, not only when at least
+one frame has both. Implemented in `resolveBendpoint`
+(`src/geometry/bendpoints.ts`) and `graphical-writer.ts` in this release; see
+`tests/unit/bendpoints.test.ts` for the traced assertions.
+
+The pre-existing "one frame entirely absent, the other fully specified"
+resolution (`source-only`/`target-only`, unrelated to either Case A or B) is
+unchanged — no evidence from this experiment touches that path, and it keeps
+its own, separately-established test coverage.
+
+### Q3 — tolerance: still open
+
+This probe used one large (40px), unambiguous divergence. Whether BizzDesign
+treats sub-pixel/1–2px deltas differently (e.g. snapping to one side instead
+of averaging) is untested. Lower priority now that the primary arbitration
+mechanism is known — the existing `AGREEMENT_EPSILON` (0.01) only gates
+whether the `bendpoint-endpoint-mismatch` diagnostic fires, not which point
+is used, so a wrong tolerance value would at most mis-classify a diagnostic,
+never mis-place a point.
+
+### Q4 — multi-waypoint granularity: still open
+
+Every disagreement/partial case in this probe was a single-waypoint
+connection. Whether arbitration is genuinely independent per waypoint when a
+single connection has several bendpoints and only some of them disagree is
+untested — the snake connector's 4 waypoints were all mutually agreeing, so
+it exercises Q1 but not this question. Would need a follow-up probe with a
+multi-bendpoint connection mixing agreeing and disagreeing waypoints.
+
+Interim note: conversion was never blocked by either open question; both are
+refinements to routing fidelity and diagnostic precision, not correctness
+gates.
 
 ## Regenerating the backlog scan
 
@@ -140,6 +216,7 @@ Default scan paths are `../private-examples` and `./tests/fixtures`; pass
 explicit paths to scan other model folders. Compressed (zip-format)
 `.archimate` files are skipped with a notice — extract their `model.xml` if
 their content is needed. The script reads only; it never writes or modifies
-model files. When new pending triples appear, promote them using the methods
-in [`../CONTRIBUTING.md`](../CONTRIBUTING.md) and remove them from this
-document.
+model files. It currently covers relationship triples only — non-mapping
+constructs are tracked manually in this document. When new pending triples
+appear, promote them using the methods in
+[`../CONTRIBUTING.md`](../CONTRIBUTING.md) and update this document.
