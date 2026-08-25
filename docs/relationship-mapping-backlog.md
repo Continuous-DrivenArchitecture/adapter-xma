@@ -1,16 +1,17 @@
 # Compatibility backlog
 
-Status snapshot **2026-08-24**:
+Status snapshot **2026-08-25**:
 
 - **Relationship mappings: cleared.** All 31 triples that were pending when
   this document was created were byte-confirmed via a single dedicated
   round-trip the same day (record below).
-- **Non-mapping constructs:** two resolved and shipped (partially-specified
-  bendpoints, v0.12.0; bendpoint disagreement arbitration, including
-  multi-waypoint granularity, this release), now corroborated by a third
-  independent source (Archi's own rendering engine, not just BizzDesign —
-  see below), one narrower open question remains (tolerance for
-  near-agreeing deltas — see below).
+- **Non-mapping constructs: cleared.** Bendpoint fidelity (partially-specified
+  bendpoints, v0.12.0; disagreement arbitration including multi-waypoint
+  granularity and tolerance, this release) is now confirmed via four
+  independent evidence sources: a synthetic BizzDesign round-trip, a real
+  production model queried via BizzDesign's own scripting language, Archi's
+  own rendering engine, and a fully scripted Archi-side tolerance sweep —
+  see below. No open questions remain on this topic.
 
 ## Resolved: relationship mappings (cleared 2026-08-24)
 
@@ -269,19 +270,38 @@ comparison would suggest.
 rendering engine, independent of BizzDesign entirely, and it corroborates
 the same averaging rule already established in Q1/Q2/Case C.
 
-### Q3 — tolerance: still open
+### Q3 — tolerance: CONFIRMED (no snapping, any magnitude)
 
-This remains the one open question. Whether BizzDesign treats sub-pixel/
-1–2px deltas differently (e.g. snapping to one side instead of averaging)
-is untested — every case examined so far (synthetic and real) involved
-either exact agreement or a clearly material divergence. Low priority: the
+**Method:** a fully scripted probe (`scripts/jarchi-tolerance-probe.ajs`) —
+no manual export/import round-trip. It builds a throwaway, never-saved
+Archi model (via `$.model.create`) with 4 connections, each with one
+bendpoint whose source-derived and target-derived points are deliberately
+offset by a controlled delta: `0px`, `1px`, `2px`, and `40px` (the last
+reproducing the original confirmed control case). It then reads Archi's
+own actual rendered points for each connection, using the same Draw2D
+interop technique confirmed in the section above.
+
+**Result:** for all four deltas, the rendered midpoint matched the
+arithmetic average exactly — `(400,100)`, `(400,400)`, `(400,700)`,
+`(400,1000)` for deltas 0/1/2/40px respectively, with no deviation. There
+is no snapping, rounding-to-one-side, or special-casing of small deltas —
+the same averaging behavior holds uniformly from exact agreement up
+through a clearly material divergence.
+
+**Scope note:** this confirms Archi's own renderer, not BizzDesign's
+directly. Combined with the direct BizzDesign/Archi rendering cross-check
+above (both apply the identical averaging formula on the 40px control
+case), this is strong corroborating evidence that BizzDesign has no
+special-cased tolerance either — but a fully airtight BizzDesign-specific
+answer would still require importing this same probe into BizzDesign
+(optional; not pursued, since the practical impact was already low: the
 existing `AGREEMENT_EPSILON` (0.01) only gates whether the
-`bendpoint-endpoint-mismatch` diagnostic fires, not which point is used, so
-a wrong tolerance value would at most mis-classify a diagnostic, never
-mis-place a point.
+`bendpoint-endpoint-mismatch` diagnostic fires, never which point is used,
+so a wrong tolerance value could at most mis-classify a diagnostic, never
+mis-place a point).
 
-Interim note: conversion was never blocked by any of these open questions;
-all are refinements to routing fidelity and diagnostic precision, not
+Closing note: conversion was never blocked while these questions were open;
+they were refinements to routing fidelity and diagnostic precision, not
 correctness gates.
 
 ## Regenerating the backlog scan
