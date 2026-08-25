@@ -6,6 +6,7 @@ import type {
   ArchiStyle,
   ArchiBounds,
 } from '@cda/archi-semantic-core';
+import { resolveAbsoluteBounds } from '@cda/archi-semantic-core';
 import type { XmlElement } from '../infrastructure/xml-writer.js';
 import { element, textElement } from '../infrastructure/xml-writer.js';
 import { XmaIdRegistry, type XmaIdAllocator } from '../infrastructure/id-allocator.js';
@@ -51,31 +52,31 @@ function resolveDrawableBounds(
 
 /**
  * Bendpoint offsets use the view's coordinate space. Nested Archi objects
- * store bounds relative to their visual parent, so accumulate parent offsets
- * for connection-point resolution while leaving emitted node bounds local.
+ * store bounds relative to their visual parent, so this needs the object's
+ * ABSOLUTE position (summed across every ancestor) for connection-point
+ * resolution, while emitted node bounds elsewhere in this file stay local.
+ *
+ * The parent-chain walk itself is native Archi model semantics (how the
+ * format nests bounds), not an XMA-specific concern — it lives in
+ * `@cda/archi-semantic-core`'s `resolveAbsoluteBounds` so every consumer
+ * gets the same resolution instead of reimplementing it. This is a thin
+ * wrapper that only adds this package's own `missing-bounds` diagnostic,
+ * since the core function is diagnostic-free (a plain `null` doesn't say
+ * which entity in the chain was incomplete — good enough here, since the
+ * object's own bounds already get their own precisely-attributed
+ * `missing-bounds` diagnostic elsewhere in this file regardless of whether
+ * it participates in a connection).
  */
-function resolveAbsoluteDrawableBounds(
-  object: ArchiDiagramObject,
-  objectsById: ReadonlyMap<string, ArchiDiagramObject>,
-  diagnostics: DiagnosticCollector,
-): Rect | null {
-  const rect = resolveDrawableBounds(object.bounds, diagnostics, object.id, 'ArchiDiagramObject');
-  if (!rect) return null;
-
-  let absolute = rect;
-  let parentId = object.parentId;
-  const visited = new Set<string>([object.id]);
-  while (parentId !== null) {
-    if (visited.has(parentId)) return absolute;
-    visited.add(parentId);
-    const parent = objectsById.get(parentId);
-    if (!parent) return absolute;
-    const parentRect = resolveDrawableBounds(parent.bounds, diagnostics, parent.id, 'ArchiDiagramObject');
-    if (!parentRect) return null;
-    absolute = { ...absolute, x: absolute.x + parentRect.x, y: absolute.y + parentRect.y };
-    parentId = parent.parentId;
-  }
-  return absolute;
+function resolveAbsoluteDrawableBounds(model: ArchiModel, object: ArchiDiagramObject, diagnostics: DiagnosticCollector): Rect | null {
+  const resolved = resolveAbsoluteBounds(model, object);
+  if (resolved) return resolved;
+  diagnostics.error({
+    code: 'missing-bounds',
+    message: `"${object.id}" has incomplete geometry (its own, or an ancestor's) and cannot be positioned in XMA.`,
+    entityId: object.id,
+    entityType: 'ArchiDiagramObject',
+  });
+  return null;
 }
 
 function colorElement(name: string | null, rgb: Rgb | null, id: number): XmlElement {
@@ -645,8 +646,8 @@ export function buildGraphicalModule(
 
     const points: XmlElement[] = [];
     if (connection.bendpoints.length > 0 && sourceObj && targetObj && hasCompleteBounds(sourceObj.bounds) && hasCompleteBounds(targetObj.bounds)) {
-      const sourceRect = resolveAbsoluteDrawableBounds(sourceObj, diagramObjectById, diagnostics);
-      const targetRect = resolveAbsoluteDrawableBounds(targetObj, diagramObjectById, diagnostics);
+      const sourceRect = resolveAbsoluteDrawableBounds(model, sourceObj, diagnostics);
+      const targetRect = resolveAbsoluteDrawableBounds(model, targetObj, diagnostics);
       if (!sourceRect || !targetRect) continue;
       const sourceLocalRect = toRect(sourceObj.bounds);
       const targetLocalRect = toRect(targetObj.bounds);
