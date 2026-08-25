@@ -7,8 +7,10 @@ Status snapshot **2026-08-24**:
   round-trip the same day (record below).
 - **Non-mapping constructs:** two resolved and shipped (partially-specified
   bendpoints, v0.12.0; bendpoint disagreement arbitration, including
-  multi-waypoint granularity, this release), one narrower open question
-  remains (tolerance for near-agreeing deltas — see below).
+  multi-waypoint granularity, this release), now corroborated by a third
+  independent source (Archi's own rendering engine, not just BizzDesign —
+  see below), one narrower open question remains (tolerance for
+  near-agreeing deltas — see below).
 
 ## Resolved: relationship mappings (cleared 2026-08-24)
 
@@ -183,16 +185,6 @@ resolution (`source-only`/`target-only`, unrelated to either Case A or B) is
 unchanged — no evidence from this experiment touches that path, and it keeps
 its own, separately-established test coverage.
 
-### Q3 — tolerance: still open
-
-This probe used one large (40px), unambiguous divergence. Whether BizzDesign
-treats sub-pixel/1–2px deltas differently (e.g. snapping to one side instead
-of averaging) is untested. Lower priority now that the primary arbitration
-mechanism is known — the existing `AGREEMENT_EPSILON` (0.01) only gates
-whether the `bendpoint-endpoint-mismatch` diagnostic fires, not which point
-is used, so a wrong tolerance value would at most mis-classify a diagnostic,
-never mis-place a point.
-
 ### Q4 — multi-waypoint granularity: CONFIRMED
 
 Resolved using a second, independent evidence source: BizzDesign Enterprise
@@ -232,6 +224,50 @@ missing an axis, and no two points sharing the same resolution shape, still
 resolves every single point via the same simple rule applied waypoint by
 waypoint — no path-aware, path-smoothing, or cross-waypoint interpolation
 behavior was found. This closes Q4.
+
+### Third independent confirmation: Archi's own rendering engine (not just BizzDesign)
+
+Every confirmation above (Q1, Q2, Case C) cross-checks this adapter's formula
+against BizzDesign's resolved output — either via a round-trip export or via
+BizzDesign's own query language. None of that touches Archi's *own* rendered
+geometry, because jArchi's documented scripting API only exposes the raw
+stored offsets (`.relativeBendpoints`, same shape as the XML), not the
+final routed points Archi actually draws on screen — see
+`jArchimate/wiki/08-Notas-y-Comportamientos-No-Obvios.md` in this workspace
+for the general jArchi reference this was developed against.
+
+**Method:** Archi's real, on-screen connection geometry is computed by its
+underlying Eclipse GEF/Draw2D rendering engine, which is reachable from a
+script via raw Java interop even though it's outside jArchi's own documented
+API. Confirmed by reading Archi's own source
+(`archimatetool/archi`, `com.archimatetool.editor.diagram.editparts.ArchimateRelationshipEditPart`):
+its `.getFigure()` returns an `IDiagramConnectionFigure`, which `extends
+org.eclipse.draw2d.Connection` — and draw2d's `Connection` interface has a
+real `.getPoints()` method returning the final routed `PointList`. The
+EditPart is only reachable while the containing View is open in an editor
+tab (`view.openInUI()`), via
+`AbstractDiagramEditor#getGraphicalViewer().getEditPartRegistry()` — the
+exact mechanism Archi's own code uses internally. Script:
+`scripts/jarchi-rendered-geometry-explore.ajs`.
+
+**Result**, run against the same real Case C-family connection used above
+(4-bendpoint Access relation, view "3. DCOM - Diagrama de Componentes e
+Integración - STEP"): Archi's own renderer produced 4 points —
+`(1656,552)`, `(1656,752)`, `(936,760)`, `(936,1068)` (Archi-space pixels;
+first/last are the connection's attachment points on the source/target
+box edges, not this construct's bendpoints). The two inner points are the
+actual rendered bendpoints, compared against this adapter's own computed
+average for the same two waypoints: `(1662,756)` vs. rendered `(1656,752)`,
+and `(930,756)` vs. rendered `(936,760)` — a consistent `(6,4)` offset on
+both points, in the same direction. The offset is attributable to comparing
+a box-center-based calculation against a renderer that attaches the line to
+the box's *edge*, not its center — the two inner (bendpoint) points, which
+don't depend on box edges, agree far more tightly than the endpoint-to-edge
+comparison would suggest.
+
+**Confirmed:** this is the first cross-check against Archi's actual
+rendering engine, independent of BizzDesign entirely, and it corroborates
+the same averaging rule already established in Q1/Q2/Case C.
 
 ### Q3 — tolerance: still open
 
