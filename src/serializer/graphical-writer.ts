@@ -66,6 +66,9 @@ function resolveDrawableBounds(
  * object's own bounds already get their own precisely-attributed
  * `missing-bounds` diagnostic elsewhere in this file regardless of whether
  * it participates in a connection).
+ *
+ * Requires `@cda/archi-semantic-core` >= 0.5.0 (the first version to export
+ * `resolveAbsoluteBounds`) — see this package's `peerDependencies`.
  */
 function resolveAbsoluteDrawableBounds(model: ArchiModel, object: ArchiDiagramObject, diagnostics: DiagnosticCollector): Rect | null {
   const resolved = resolveAbsoluteBounds(model, object);
