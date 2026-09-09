@@ -1,0 +1,165 @@
+/*
+ * jArchi exploration script -- attempt to read Archi's own RENDERED/ROUTED
+ * connection geometry, not just the raw stored .relativeBendpoints.
+ *
+ * WHY THIS EXISTS: jArchi's documented API only exposes raw stored
+ * bendpoint offsets (see jarchi-bendpoint-explore.ajs and
+ * jArchimate/wiki/08-Notas-y-Comportamientos-No-Obvios.md). There is no
+ * jArchi method for "what does Archi actually draw". BUT Archi's own
+ * internal rendering engine (Eclipse GEF/Draw2D) DOES compute this, and
+ * that engine is reachable from a script via raw Java interop (the same
+ * technique already documented in jArchimate/wiki -- Accessing Archi's
+ * Preferences -- via Java.type()).
+ *
+ * CONFIRMED (by reading Archi's own source, archimatetool/archi on GitHub,
+ * 2026-08-25):
+ *   - com.archimatetool.editor.diagram.editparts.ArchimateRelationshipEditPart
+ *     is the EditPart for a relationship connection; its .getFigure()
+ *     returns an IDiagramConnectionFigure, which
+ *     (com.archimatetool.editor.diagram.figures.connections.IDiagramConnectionFigure)
+ *     `extends org.eclipse.draw2d.Connection` -- and draw2d's Connection
+ *     interface has .getPoints() returning the actual routed PointList
+ *     (the real, final, on-screen geometry, including whatever routing
+ *     algorithm -- bendpoint router, Manhattan, etc. -- Archi applied).
+ *   - AbstractDiagramEditor.java (line ~1034) shows Archi's own code doing
+ *     `getGraphicalViewer().getEditPartRegistry().get(object)` to go from
+ *     a model object to its EditPart -- this only works while the
+ *     GraphicalViewer exists, i.e. the View is OPEN in an editor tab, not
+ *     merely selected in the tree.
+ *   - jArchi's own EObjectProxy.getEObject() (the method that would let us
+ *     unwrap a jArchi-wrapped connection back to the real EMF object,
+ *     needed as the registry lookup key) is `protected`, not `public` --
+ *     not callable directly via GraalVM's default polyglot access. So
+ *     instead of looking up the EditPart by object identity, this script
+ *     iterates the whole EditPart registry and matches by the connection's
+ *     .id string (which IS public in jArchi) against each EditPart's
+ *     model's id (IIdentifier#getId(), also public, this time on the real
+ *     EMF interface, not the jArchi proxy).
+ *
+ * NOT YET CONFIRMED (this script's whole purpose is to find out):
+ *   - Whether the active editor / workbench APIs are reachable at all from
+ *     a jArchi script context.
+ *   - Whether draw2d Point coordinates need a zoom-scale conversion to be
+ *     comparable to model-space bounds (likely not needed for this
+ *     exercise -- we mainly care about relative agreement/disagreement
+ *     between rendered points and our own computed averaging, not exact
+ *     unit conversion).
+ *
+ * Every risky call is isolated in its own try/catch with a clear
+ * "before"/"after" marker, matching the pattern already confirmed useful
+ * in jarchi-bendpoint-explore.ajs when guessing at an undocumented API.
+ *
+ * This is not part of this package's build/test pipeline.
+ */
+
+console.show();
+console.clear();
+
+console.log("=== step 1: find a view with at least one relationship that has bendpoints ===");
+var allViews = $("view");
+var targetView = null;
+var targetConn = null;
+allViews.each(function (v) {
+  if (targetConn) return;
+  var conns = $(v).find("relationship");
+  var n = conns.size();
+  for (var i = 0; i < n; i++) {
+    var c = conns.get(i);
+    var bps = c.relativeBendpoints;
+    if (!!(bps && bps.length > 0)) {
+      targetView = v;
+      targetConn = c;
+      break;
+    }
+  }
+});
+
+if (!targetConn) {
+  console.log("No connection with bendpoints found in any view -- stopping.");
+} else {
+  console.log("OK -- view=\"" + targetView.name + "\", connection id=" + targetConn.id + " (" + targetConn.name + ")");
+
+  console.log("\n=== step 2: open the view in the UI (needed so the EditPart/Figure tree exists) ===");
+  try {
+    targetView.openInUI();
+    console.log("OK -- openInUI() called");
+  } catch (e) {
+    console.log("FAILED at openInUI(): " + e);
+  }
+
+  console.log("\n=== step 3: reach the active editor via raw Java (PlatformUI) ===");
+  var editor = null;
+  try {
+    var PlatformUI = Java.type('org.eclipse.ui.PlatformUI');
+    var window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+    var page = window.getActivePage();
+    editor = page.getActiveEditor();
+    console.log("OK -- active editor = " + editor);
+  } catch (e) {
+    console.log("FAILED reaching active editor: " + e);
+  }
+
+  console.log("\n=== step 4: get the GraphicalViewer and EditPart registry ===");
+  var registryValues = null;
+  if (editor) {
+    try {
+      // AbstractDiagramEditor#getGraphicalViewer() is public -- confirmed in Archi source.
+      var viewer = editor.getGraphicalViewer();
+      console.log("OK -- viewer = " + viewer);
+      var registry = viewer.getEditPartRegistry();
+      console.log("OK -- registry size = " + registry.size());
+      registryValues = registry.values();
+    } catch (e) {
+      console.log("FAILED getting GraphicalViewer/registry (editor may not be an AbstractDiagramEditor): " + e);
+    }
+  }
+
+  console.log("\n=== step 5: find the EditPart whose model.id matches our connection's id ===");
+  var connEditPart = null;
+  if (registryValues) {
+    try {
+      var IIdentifier = Java.type('com.archimatetool.model.IIdentifier');
+      var it = registryValues.iterator();
+      while (it.hasNext()) {
+        var ep = it.next();
+        try {
+          var m = ep.getModel();
+          if (m !== null && IIdentifier.class.isInstance(m) && m.getId() === targetConn.id) {
+            connEditPart = ep;
+            break;
+          }
+        } catch (e2) {
+          // skip this entry, keep scanning
+        }
+      }
+      console.log(connEditPart ? ("OK -- found EditPart: " + connEditPart) : "No matching EditPart found for this connection id.");
+    } catch (e) {
+      console.log("FAILED scanning registry: " + e);
+    }
+  }
+
+  console.log("\n=== step 6: get the Figure and its rendered/routed points ===");
+  if (connEditPart) {
+    try {
+      var figure = connEditPart.getFigure();
+      console.log("OK -- figure = " + figure);
+      var Connection = Java.type('org.eclipse.draw2d.Connection');
+      if (Connection.class.isInstance(figure)) {
+        var points = figure.getPoints();
+        console.log("OK -- rendered points.size() = " + points.size());
+        for (var p = 0; p < points.size(); p++) {
+          var pt = points.getPoint(p);
+          console.log("  point[" + p + "] = (" + pt.x + "," + pt.y + ")");
+        }
+      } else {
+        console.log("Figure is not a draw2d Connection -- unexpected type: " + figure.getClass().getName());
+      }
+    } catch (e) {
+      console.log("FAILED getting figure/points: " + e);
+    }
+  } else {
+    console.log("Skipped -- no EditPart found in step 5.");
+  }
+}
+
+console.log("\n=== done ===");

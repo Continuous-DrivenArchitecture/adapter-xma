@@ -1,0 +1,185 @@
+/*
+ * jArchi exploration script -- run from Archi's Scripts panel (jArchi
+ * plugin), with a model open (no view needs to be open in an editor tab).
+ *
+ * PURPOSE: DISCOVERY script, not the final audit tool -- see
+ * docs/relationship-mapping-backlog.md, "Resolved: bendpoint disagreement
+ * arbitration".
+ *
+ * ROOT CAUSE of the previous version's failures (confirmed via jArchi's
+ * own wiki, archimatetool/archi-scripting-plugin.wiki, jArchi-Collection.md):
+ * `.children()` and `.find()` are NOT methods on a raw view/object -- they
+ * only exist on jArchi's Collection wrapper, i.e. you must call
+ * `$(view).find(...)` / `$(view).children()`, never `view.find()` /
+ * `view.children()` directly. That's why every call in the previous
+ * version failed with "Unknown identifier".
+ *
+ * IMPORTANT CONFIRMED LIMITATION (from Visual-Connections.md): jArchi only
+ * exposes a connection's *stored* relative bendpoints via
+ * `.relativeBendpoints` -- the same raw startX/startY/endX/endY offsets
+ * already present in the .archimate XML. There is no jArchi equivalent of
+ * BizzDesign's fromPoint()/toPoint()/points(), which return BizzDesign's
+ * own already-*resolved* rendering geometry. So this script cannot answer
+ * "how does Archi itself resolve/render this connection" -- only "what raw
+ * data does Archi store for it" (which we can already read from the file
+ * directly). It's still useful as a live, in-application cross-check that
+ * our XML parsing matches what Archi's own model believes it stored, and
+ * as a way to get absolute resolved bounds for source/target objects
+ * (via .bounds, walked up parents) without re-implementing nested-object
+ * resolution by hand.
+ *
+ * This is not part of this package's build/test pipeline -- .ajs is
+ * jArchi's own script file convention, run manually from within Archi.
+ */
+
+console.show();
+console.clear();
+
+console.log("=== step 1: $(\"view\") ===");
+var views = $("view");
+console.log("OK -- views.size() = " + views.size());
+
+console.log("\n=== step 2: first view ===");
+var view = views.first();
+console.log("OK -- view.name = " + view.name + ", view.id = " + view.id);
+
+console.log("\n=== step 3: $(view).find(\"relationship\") -- all relationship connections in this view ===");
+var conns = $(view).find("relationship");
+console.log("OK -- conns.size() = " + conns.size());
+
+if (conns.size() === 0) {
+  console.log("\nNo relationship connections found in the first view -- trying $(view).find() (all descendants) to see what IS there:");
+  var all = $(view).find();
+  console.log("all.size() = " + all.size());
+  all.each(function (o) {
+    try {
+      console.log("  - " + o.type + " / " + (o.name || "(no name)"));
+    } catch (e) {
+      console.log("  - (failed to inspect: " + e + ")");
+    }
+  });
+} else {
+  console.log("\n=== step 4: inspect first few connections ===");
+  var n = Math.min(5, conns.size());
+  for (var i = 0; i < n; i++) {
+    var c = conns.get(i);
+    console.log("\n--- connection " + i + " ---");
+    console.log("  id = " + c.id);
+    console.log("  type = " + c.type);
+    console.log("  concept.type = " + (c.concept ? c.concept.type : "(no concept)"));
+    console.log("  source = " + (c.source ? (c.source.name || c.source.id) : "(none)"));
+    console.log("  target = " + (c.target ? (c.target.name || c.target.id) : "(none)"));
+    try {
+      var sb = c.source.bounds;
+      console.log("  source.bounds = x:" + sb.x + " y:" + sb.y + " w:" + sb.width + " h:" + sb.height);
+    } catch (e) {
+      console.log("  source.bounds FAILED: " + e);
+    }
+    try {
+      var tb = c.target.bounds;
+      console.log("  target.bounds = x:" + tb.x + " y:" + tb.y + " w:" + tb.width + " h:" + tb.height);
+    } catch (e) {
+      console.log("  target.bounds FAILED: " + e);
+    }
+    try {
+      var bendpoints = c.relativeBendpoints;
+      console.log("  relativeBendpoints = " + JSON.stringify(bendpoints));
+    } catch (e) {
+      console.log("  relativeBendpoints FAILED: " + e);
+    }
+  }
+
+  console.log("\n=== step 5: find a connection that actually HAS bendpoints, across the whole model ===");
+  // NOTE: $("relationship") at model scope returns the semantic relationships, which do NOT
+  // carry .relativeBendpoints (undefined, not []) -- that only exists on the per-view visual
+  // connection object. Confirmed live: a .filter() predicate returning
+  // `o.relativeBendpoints && o.relativeBendpoints.length > 0` throws
+  // "NullPointerException: Cannot convert null value 'undefined' ... to Java type 'boolean'"
+  // because the && chain evaluates to undefined, not a real boolean, when .relativeBendpoints
+  // is undefined -- GraalVM can't coerce that to a Java boolean for .filter(). So: search
+  // per-view visual connections (like step 3), never $("relationship") directly, and always
+  // return a real boolean (!!(...)) from a .filter() predicate.
+  var allViews = $("view");
+  var withBendpoints = null;
+  allViews.each(function (v) {
+    if (withBendpoints) return;
+    var viewConns = $(v).find("relationship");
+    var n2 = viewConns.size();
+    for (var j = 0; j < n2; j++) {
+      var c2 = viewConns.get(j);
+      var bps = c2.relativeBendpoints;
+      if (!!(bps && bps.length > 0)) {
+        withBendpoints = c2;
+        break;
+      }
+    }
+  });
+
+  if (withBendpoints) {
+    console.log("Example with bendpoints: id=" + withBendpoints.id + ", name=" + withBendpoints.name + ", view=" + withBendpoints.view.name);
+    var wb_bps = withBendpoints.relativeBendpoints;
+    console.log("relativeBendpoints.length = " + wb_bps.length);
+    for (var k = 0; k < wb_bps.length; k++) {
+      var bp = wb_bps[k];
+      console.log("  bendpoint[" + k + "] = startX:" + bp.startX + " startY:" + bp.startY + " endX:" + bp.endX + " endY:" + bp.endY);
+    }
+    var wb_sb = withBendpoints.source.bounds;
+    var wb_tb = withBendpoints.target.bounds;
+    console.log("source.bounds (local) = x:" + wb_sb.x + " y:" + wb_sb.y + " w:" + wb_sb.width + " h:" + wb_sb.height);
+    console.log("target.bounds (local) = x:" + wb_tb.x + " y:" + wb_tb.y + " w:" + wb_tb.width + " h:" + wb_tb.height);
+
+    console.log("\n=== step 6: resolve absolute bounds (walk parents) and apply our confirmed averaging rule ===");
+    // .bounds is relative to the immediate visual parent, not the View, if the object is
+    // nested (e.g. inside a Group). Walk up $(obj).parent() summing x/y until we hit the View
+    // itself (type "archimate-diagram-model") to get the absolute position.
+    function absoluteBounds(obj) {
+      var x = obj.bounds.x, y = obj.bounds.y;
+      var chain = [obj.name + "@(" + obj.bounds.x + "," + obj.bounds.y + ")"];
+      var cur = $(obj).parent().first();
+      while (cur && cur.type !== "archimate-diagram-model") {
+        x += cur.bounds.x;
+        y += cur.bounds.y;
+        chain.push(cur.name + "@(" + cur.bounds.x + "," + cur.bounds.y + ")");
+        cur = $(cur).parent().first();
+      }
+      return { x: x, y: y, width: obj.bounds.width, height: obj.bounds.height, chain: chain };
+    }
+
+    function centerOf(b) {
+      return { x: Math.floor(b.x + b.width / 2), y: Math.floor(b.y + b.height / 2) };
+    }
+
+    function hasVal(v) {
+      return v !== null && v !== undefined && !isNaN(v);
+    }
+
+    var srcAbs = absoluteBounds(withBendpoints.source);
+    var tgtAbs = absoluteBounds(withBendpoints.target);
+    console.log("source absolute bounds = x:" + srcAbs.x + " y:" + srcAbs.y + " w:" + srcAbs.width + " h:" + srcAbs.height + " (chain: " + srcAbs.chain.join(" < ") + ")");
+    console.log("target absolute bounds = x:" + tgtAbs.x + " y:" + tgtAbs.y + " w:" + tgtAbs.width + " h:" + tgtAbs.height + " (chain: " + tgtAbs.chain.join(" < ") + ")");
+
+    var srcCenter = centerOf(srcAbs);
+    var tgtCenter = centerOf(tgtAbs);
+    console.log("source center = (" + srcCenter.x + "," + srcCenter.y + "), target center = (" + tgtCenter.x + "," + tgtCenter.y + ")");
+
+    for (var m = 0; m < wb_bps.length; m++) {
+      var b = wb_bps[m];
+      var hasSx = hasVal(b.startX), hasSy = hasVal(b.startY);
+      var hasEx = hasVal(b.endX), hasEy = hasVal(b.endY);
+      var fromSource = {
+        x: hasSx ? srcCenter.x + b.startX : srcCenter.x,
+        y: hasSy ? srcCenter.y + b.startY : srcCenter.y
+      };
+      var fromTarget = {
+        x: hasEx ? tgtCenter.x + b.endX : tgtCenter.x,
+        y: hasEy ? tgtCenter.y + b.endY : tgtCenter.y
+      };
+      var avg = { x: Math.round((fromSource.x + fromTarget.x) / 2), y: Math.round((fromSource.y + fromTarget.y) / 2) };
+      console.log("bendpoint[" + m + "]: fromSource=(" + fromSource.x + "," + fromSource.y + ") fromTarget=(" + fromTarget.x + "," + fromTarget.y + ") -> avg=(" + avg.x + "," + avg.y + ")");
+    }
+  } else {
+    console.log("No connections with bendpoints found in any view of this model.");
+  }
+}
+
+console.log("\n=== done ===");

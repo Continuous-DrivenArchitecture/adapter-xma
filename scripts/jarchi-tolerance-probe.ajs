@@ -1,0 +1,190 @@
+/*
+ * jArchi exploration script -- probe Q3 ("tolerance": does a tiny
+ * source/target disagreement on a bendpoint get treated differently from a
+ * large one, e.g. snapped to one side instead of averaged?), entirely
+ * programmatically, with no manual export/import round-trip.
+ *
+ * See docs/relationship-mapping-backlog.md ("Q3 -- tolerance: still open")
+ * in this repo, and jArchimate/wiki/08-Notas-y-Comportamientos-No-Obvios.md
+ * for the general jArchi facts this relies on.
+ *
+ * WHAT THIS TESTS: builds a throwaway model with 4 connections, each with
+ * one bendpoint whose source-derived and target-derived points disagree by
+ * a controlled amount (0px, 1px, 2px, 40px -- the last matching the
+ * already-confirmed control case from the original BizzDesign probe). Then
+ * reads Archi's own REAL RENDERED points for each (same Draw2D interop
+ * technique confirmed working in jarchi-rendered-geometry-explore.ajs) and
+ * compares them against this adapter's own computed average.
+ *
+ * IMPORTANT SCOPE NOTE: this tests ARCHI's own renderer, not BizzDesign's.
+ * Q3 was originally phrased about BizzDesign specifically (the actual
+ * fidelity target for XMA export). This is still strong corroborating
+ * evidence though: Q1/Q2/Case C and the separate rendered-geometry
+ * cross-check already established that Archi's renderer and BizzDesign's
+ * renderer apply the *same* averaging math for a large (40px) disagreement
+ * -- so if Archi's renderer treats a tiny disagreement identically to a
+ * large one (no snapping), that's a real signal, even though a fully
+ * airtight answer for BizzDesign specifically would still need an actual
+ * BizzDesign import of this same probe (optional follow-up, not required
+ * to get useful signal here).
+ *
+ * This creates a NEW, throwaway in-memory model (via $.model.create) so it
+ * does not touch whatever model the user currently has open. It is never
+ * saved to disk.
+ *
+ * This is not part of this package's build/test pipeline.
+ */
+
+console.show();
+console.clear();
+
+console.log("=== step 1: create a throwaway probe model ===");
+var probeModel;
+try {
+  probeModel = $.model.create("Bendpoint Tolerance Probe");
+  probeModel.setAsCurrent();
+  console.log("OK -- probe model created and set as current: " + model.name);
+} catch (e) {
+  console.log("FAILED creating probe model: " + e);
+  throw e;
+}
+
+console.log("\n=== step 2: build 4 test connections with controlled disagreement ===");
+// Each case: sourceCenter=(100,Y), targetCenter=(700,Y) for boxes 200x100 at
+// (0,Y-50) and (600,Y-50). Bendpoint startY/endY always agree (=50, so both
+// resolve to center.y+50 = Y+50... wait, boxes are placed per-row below).
+// X offsets are chosen so fromSource.x and fromTarget.x differ by exactly
+// `delta`, centered on x=400 (the midpoint between the two boxes).
+var cases = [
+  { label: "delta=0 (exact agreement)", delta: 0 },
+  { label: "delta=1px", delta: 1 },
+  { label: "delta=2px", delta: 2 },
+  { label: "delta=40px (control, matches original BizzDesign probe)", delta: 40 }
+];
+
+var view;
+var built = [];
+try {
+  view = model.createArchimateView("Tolerance Probe View");
+  var rowHeight = 300;
+  for (var i = 0; i < cases.length; i++) {
+    var c = cases[i];
+    var y = i * rowHeight;
+    var srcEl = model.createElement("application-component", "Src" + i);
+    var tgtEl = model.createElement("application-component", "Tgt" + i);
+    var srcObj = view.add(srcEl, 0, y, 200, 100);
+    var tgtObj = view.add(tgtEl, 600, y, 200, 100);
+    var rel = model.createRelationship("association-relationship", c.label, srcEl, tgtEl);
+    var conn = view.add(rel, srcObj, tgtObj);
+
+    // sourceCenter=(100, y+50), targetCenter=(700, y+50)
+    // want fromSource.x = 400 - delta/2, fromTarget.x = 400 + delta/2
+    var startX = (400 - c.delta / 2) - 100;
+    var endX = (400 + c.delta / 2) - 700;
+    var bp = { startX: startX, startY: 50, endX: endX, endY: 50 };
+    conn.addRelativeBendpoint(bp, 0);
+
+    built.push({
+      label: c.label,
+      delta: c.delta,
+      connId: conn.id,
+      bp: bp,
+      expectedFromSource: { x: 100 + startX, y: y + 50 + 50 },
+      expectedFromTarget: { x: 700 + endX, y: y + 50 + 50 },
+      expectedAvg: { x: Math.round(((100 + startX) + (700 + endX)) / 2), y: y + 100 }
+    });
+    console.log("Built case " + i + " (" + c.label + "): connId=" + conn.id + ", bendpoint=" + JSON.stringify(bp));
+  }
+} catch (e) {
+  console.log("FAILED building probe connections: " + e);
+  throw e;
+}
+
+console.log("\n=== step 3: open the view and force a UI update so layout/routing actually runs ===");
+try {
+  view.openInUI();
+  console.log("OK -- openInUI() called");
+} catch (e) {
+  console.log("FAILED opening view: " + e);
+}
+try {
+  var Display = Java.type('org.eclipse.swt.widgets.Display');
+  var display = Display.getCurrent();
+  for (var d = 0; d < 30; d++) {
+    display.readAndDispatch();
+  }
+  console.log("OK -- pumped the SWT event loop 30 times");
+} catch (e) {
+  console.log("FAILED pumping event loop: " + e);
+}
+
+console.log("\n=== step 4: reach the active editor's EditPart registry (same technique as jarchi-rendered-geometry-explore.ajs) ===");
+var registryValues = null;
+try {
+  var PlatformUI = Java.type('org.eclipse.ui.PlatformUI');
+  var window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+  var page = window.getActivePage();
+  var editor = page.getActiveEditor();
+  var viewer = editor.getGraphicalViewer();
+  var registry = viewer.getEditPartRegistry();
+  registryValues = registry.values();
+  console.log("OK -- registry size = " + registry.size());
+} catch (e) {
+  console.log("FAILED reaching EditPart registry: " + e);
+}
+
+console.log("\n=== step 5: for each test case, find its EditPart and read the real rendered points ===");
+if (registryValues) {
+  var IIdentifier = Java.type('com.archimatetool.model.IIdentifier');
+  var Connection = Java.type('org.eclipse.draw2d.Connection');
+
+  for (var k = 0; k < built.length; k++) {
+    var tc = built[k];
+    console.log("\n--- " + tc.label + " ---");
+    console.log("expected fromSource=(" + tc.expectedFromSource.x + "," + tc.expectedFromSource.y + ") fromTarget=(" + tc.expectedFromTarget.x + "," + tc.expectedFromTarget.y + ") -> avg=(" + tc.expectedAvg.x + "," + tc.expectedAvg.y + ")");
+
+    var ep = null;
+    try {
+      var it = registryValues.iterator();
+      while (it.hasNext()) {
+        var candidate = it.next();
+        try {
+          var m = candidate.getModel();
+          if (m !== null && IIdentifier.class.isInstance(m) && m.getId() === tc.connId) {
+            ep = candidate;
+            break;
+          }
+        } catch (e2) { /* keep scanning */ }
+      }
+    } catch (e) {
+      console.log("FAILED scanning registry: " + e);
+    }
+
+    if (!ep) {
+      console.log("No EditPart found for this connection.");
+      continue;
+    }
+
+    try {
+      var figure = ep.getFigure();
+      if (Connection.class.isInstance(figure)) {
+        var points = figure.getPoints();
+        var coords = [];
+        for (var p = 0; p < points.size(); p++) {
+          var pt = points.getPoint(p);
+          coords.push("(" + pt.x + "," + pt.y + ")");
+        }
+        console.log("rendered points (" + points.size() + "): " + coords.join(" "));
+      } else {
+        console.log("Figure is not a draw2d Connection: " + figure.getClass().getName());
+      }
+    } catch (e) {
+      console.log("FAILED reading figure/points: " + e);
+    }
+  }
+} else {
+  console.log("Skipped -- no registry available.");
+}
+
+console.log("\n=== done ===");
+console.log("NOTE: this probe model was never saved to disk. Close its editor/model in Archi without saving if you don't want it cluttering your workspace.");
